@@ -50,20 +50,6 @@ void MainClass() :
 {
   <CLASS> <ID> <LBRACE>
     <PUBLIC> <STATIC> <VOID> "main" <LPAREN> <STRING> <LBRACK> <RBRACK> <ID> <RPAREN> <LBRACE>
-      VarDecl()
-      Stmt()
     <RBRACE>
   <RBRACE>
 }
-
-void ClassDecl() :
-{}
-{}
-
-void VarDecl() :
-{}
-{}
-
-void Stmt() :
-{}
-{}
