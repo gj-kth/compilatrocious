@@ -1,13 +1,11 @@
-all:
-	javacc mini_java.jj
-	javac *.java
+all: parser
 
-java:
-	javac *.java
+parser: javacc
+	javac grammar_parser/*.java
 
-javacc:
-	javacc mini_java.jj
+javacc: mini_java.jj
+	cd grammar_parser; javacc ../mini_java.jj
 
 clean:
-	rm *.java
-	rm *.class
+	rm -f grammar_parser/*.java
+	rm -f grammar_parser/*.class
