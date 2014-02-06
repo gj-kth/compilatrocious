@@ -1,0 +1,69 @@
+PARSER_BEGIN(MiniJava)
+
+public class MiniJava{
+
+    public static void main(String args[]) throws ParseException {
+        MiniJava parser = new MiniJava(System.in);
+        parser.Program();
+    }
+}
+
+PARSER_END(MiniJava)
+
+SKIP :
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+}
+
+TOKEN :
+{
+  <LBRACE: "{">
+| <RBRACE: "}">
+| <LPAREN: "(">
+| <RPAREN: ")">
+| <LBRACK: "[">
+| <RBRACK: "]">
+| <SEMI: ";">
+| <WHILE: "while">
+| <FOR: "for">
+| <IF: "if">
+| <ELSE: "else">
+| <CLASS: "class">
+| <PUBLIC: "public">
+| <STATIC: "static">
+| <VOID: "void">
+| <ID: ["a"-"z"](["a"-"z"] | ["0"-"9"] | "_" | "-")* >
+| <STRING: "String">
+}
+
+void Program() :
+{}
+{
+  MainClass()
+}
+
+void MainClass() :
+{}
+{
+  <CLASS> <ID> <LBRACE>
+    <PUBLIC> <STATIC> <VOID> "main" <LPAREN> <STRING> <LBRACK> <RBRACK> <ID> <RPAREN> <LBRACE>
+      VarDecl()
+      Stmt()
+    <RBRACE>
+  <RBRACE>
+}
+
+void ClassDecl() :
+{}
+{}
+
+void VarDecl() :
+{}
+{}
+
+void Stmt() :
+{}
+{}
