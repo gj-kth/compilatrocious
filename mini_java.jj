@@ -53,8 +53,9 @@ TOKEN :
 | <CLASS: "class">
 | <PUBLIC: "public">
 | <STATIC: "static">
+| <MAIN: "main">
 | <VOID: "void">
-| <ID: "a">
+| <ID: ["a"-"z"](["a"-"z"] | ["0"-"9"] | "-" | "_")*>
 | <STRING: "String">
 }
 
@@ -67,5 +68,9 @@ void Program() :
 void MainClass() :
 {}
 {
-  <CLASS>
+  <CLASS> <ID> <LBRACE>
+    <PUBLIC> <STATIC> <VOID> <MAIN> <LPAREN> <STRING> <LBRACK> <RBRACK> <ID> <RPAREN> <LBRACE>
+      
+    <RBRACE>
+  <RBRACE>
 }
