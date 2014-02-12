@@ -37,6 +37,7 @@ SKIP :
 | "\r"
 }
 
+/* SEPARATORS */
 TOKEN :
 {
   <LBRACE: "{">
@@ -46,17 +47,45 @@ TOKEN :
 | <LBRACK: "[">
 | <RBRACK: "]">
 | <SEMI: ";">
-| <WHILE: "while">
-| <FOR: "for">
-| <IF: "if">
-| <ELSE: "else">
+| <COMMA: ",">
+| <DOT: ".">
+}
+
+/* RESERVED WORDS */
+TOKEN :
+{
+  <BOOL: "boolean">
 | <CLASS: "class">
+| <ELSE: "else">
+| <FOR: "for">
+| <FALSE: "false">
+| <IF: "if">
+| <INT: "int">
+| <NEW: "new">
 | <PUBLIC: "public">
+| <RETURN: "return">
 | <STATIC: "static">
-| <MAIN: "main">
+| <THIS: "this">
+| <TRUE: "true">
 | <VOID: "void">
-| <ID: ["a"-"z"](["a"-"z"] | ["0"-"9"] | "-" | "_")*>
-| <STRING: "String">
+| <WHILE: "while">
+}
+
+/* OPERATORS */
+TOKEN :
+{
+  <ASSIGN: "=">
+| <LOG_AND: "&&">
+| <LT: "<">
+| <PLUS: "+">
+| <MINUS: "-">
+| <STAR: "*">
+}
+
+/* IDENTIFIERS */
+TOKEN :
+{
+  <ID: ["a"-"z"](["a"-"z"] | ["0"-"9"] | "-" | "_")*>
 }
 
 void Program() :
@@ -69,7 +98,7 @@ void MainClass() :
 {}
 {
   <CLASS> <ID> <LBRACE>
-    <PUBLIC> <STATIC> <VOID> <MAIN> <LPAREN> <STRING> <LBRACK> <RBRACK> <ID> <RPAREN> <LBRACE>
+    <PUBLIC> <STATIC> <VOID> <ID> <LPAREN> "String" <LBRACK> <RBRACK> <ID> <RPAREN> <LBRACE>
       
     <RBRACE>
   <RBRACE>

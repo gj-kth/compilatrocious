@@ -1,3 +1,4 @@
+.PHONY: all parser javacc clean
 all: parser
 
 parser: javacc
