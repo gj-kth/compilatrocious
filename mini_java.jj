@@ -69,6 +69,8 @@ TOKEN :
 | <TRUE: "true">
 | <VOID: "void">
 | <WHILE: "while">
+| <MAIN: "main">
+| <STRING: "String">
 }
 
 /* OPERATORS */
@@ -99,7 +101,7 @@ void MainClass() :
 {}
 {
   "class" <ID> <LBRACE>
-    <PUBLIC> <STATIC> <VOID> <ID> <LPAREN> "String" <LBRACK> <RBRACK> <ID> <RPAREN> <LBRACE>
+    <PUBLIC> <STATIC> <VOID> <MAIN> <LPAREN> "String" <LBRACK> <RBRACK> <ID> <RPAREN> <LBRACE>
       ( VarDecl() )*
       ( Stmt() )*
     <RBRACE>
@@ -119,13 +121,13 @@ void ClassDecl() :
 void MethodDecl() :
 {}
 {
-  "public"
+  "public" FuncType() <ID> 
 }
 
 void VarDecl() :
 {}
 {
-  <ID>
+  VarType() <ID>
 }
 
 void Stmt() :
@@ -135,3 +137,20 @@ void Stmt() :
     ( Stmt() )*
   <RBRACE>
 }
+
+void FuncType() :
+{}
+{
+  VarType()
+| "void"
+}
+
+void VarType() :
+{}
+{
+  "boolean"
+| "int"
+| <ID>
+}
+
+
