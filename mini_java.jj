@@ -92,14 +92,46 @@ void Program() :
 {}
 {
   MainClass()
+  ( ClassDecl() )*
 }
 
 void MainClass() :
 {}
 {
-  <CLASS> <ID> <LBRACE>
+  "class" <ID> <LBRACE>
     <PUBLIC> <STATIC> <VOID> <ID> <LPAREN> "String" <LBRACK> <RBRACK> <ID> <RPAREN> <LBRACE>
-      
+      ( VarDecl() )*
+      ( Stmt() )*
     <RBRACE>
+    ( MethodDecl() )*
+  <RBRACE>
+}
+
+void ClassDecl() :
+{}
+{
+  "class" <ID>  <LBRACE>
+    ( VarDecl() )*
+    ( MethodDecl() )*
+  <RBRACE>
+}
+
+void MethodDecl() :
+{}
+{
+  "public"
+}
+
+void VarDecl() :
+{}
+{
+  <ID>
+}
+
+void Stmt() :
+{}
+{
+  <LBRACE>
+    ( Stmt() )*
   <RBRACE>
 }
