@@ -1,6 +1,7 @@
 #!/bin/bash
 
-cd /home/jonathan/Documents/comp-constr/compilatrocious
+cd $COMPILATROCIOUS_DIR
 make
 cd grammar_parser
-java MiniJava
+cat ../test/test000.minij | java MiniJava
+cat ../test/test001.minij | java MiniJava
