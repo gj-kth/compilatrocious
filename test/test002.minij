@@ -12,5 +12,7 @@ class test {
 }
 
 class Adder {
-    public int add(
+    public int add() {
+      return 0;
+    }
 }

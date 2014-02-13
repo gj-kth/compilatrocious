@@ -24,6 +24,7 @@ public class MiniJava{
     public static void main(String args[]) throws ParseException {
         MiniJava parser = new MiniJava(System.in);
         parser.Program();
+        System.out.println("Success");
     }
 }
 
@@ -129,7 +130,7 @@ void MethodDecl() :
   "public" Type() <ID> <LPAREN> ( ArgList() )? <RPAREN> <LBRACE>
     ( VarDecl() )*
     ( Stmt() )*
-    "return" Expr()
+    "return" Expr() <SEMI>
   <RBRACE>
 }
 
