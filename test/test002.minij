@@ -1,18 +1,7 @@
 class test {
     public static void main (String [] args) {
-        int a;
-        int b;
-        int c;
-        
-        a = 3;
-        b = 4;
-        
-        
-    }
-}
-
-class Adder {
-    public int add() {
-      return 0;
+    	int a;
+    	boolean b;
+    	a = 5;
     }
 }

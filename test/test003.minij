@@ -1,0 +1,19 @@
+class test {
+    public static void main (String [] args) {
+        int a;
+        boolean b;
+        int[] c;
+        
+        a = 3;
+        b = false;
+        c = new int[1];
+        
+        
+    }
+}
+
+class Adder {
+    public int add() {
+      return 0;
+    }
+}

@@ -1,0 +1,19 @@
+class test {
+    public static void main (String [] args) {
+        int a;
+        int[] b;
+        a = 5;
+        b = new int[1];
+        {
+            if(a) {
+                System.out.println(a);
+            }else{
+                while(a) {
+                    b[0] = a;
+                }
+            }
+        }
+
+        if(a) System.out.println(a); else {}
+    }
+}

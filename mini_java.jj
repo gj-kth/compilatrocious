@@ -159,13 +159,19 @@ void Stmt() :
     ( Stmt() )*
   <RBRACE>
 | <IF> <LPAREN> Expr() <RPAREN> Stmt() <ELSE> Stmt()
-| <ID> <ASSIGN> Expr() <SEMI>
+| "System.out.println" <LPAREN> Expr() <RPAREN> <SEMI>
+| <WHILE> <LPAREN> Expr() <RPAREN> Stmt()
+| <ID> (<LBRACK> Expr() <RBRACK>)? <ASSIGN> Expr() <SEMI>
 }
 
 void Expr() :
 {}
 {
-<INT_LITERAL>
+  <INT_LITERAL>
+| <ID>
+| <TRUE>
+| <FALSE>
+| <NEW> <INT> <LBRACK> Expr() <RBRACK>
 }
 
 void Op() :
@@ -178,7 +184,7 @@ void Type() :
 {}
 {
   "boolean"
-| "int"
+| "int" (<LBRACK> <RBRACK>)?
 }
 
 
