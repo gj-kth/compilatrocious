@@ -126,25 +126,29 @@ void ClassDecl() :
 void MethodDecl() :
 {}
 {
-  "public" FuncType() <ID> <LPAREN>  
+  "public" Type() <ID> <LPAREN> ( ArgList() )? <RPAREN> <LBRACE>
+    ( VarDecl() )*
+    ( Stmt() )*
+    "return" Expr()
+  <RBRACE>
 }
 
 void ArgList() :
 {}
 {
-  VarType() <ID> (ArgListTail())*
+  Type() <ID> (ArgListTail())*
 }
 
 void ArgListTail() :
 {}
 {
-  <COMMA> VarType() <ID>
+  <COMMA> Type() <ID>
 }
 
 void VarDecl() :
 {}
 {
-  VarType() <ID> <SEMI>
+  Type() <ID> <SEMI>
 }
 
 void Stmt() :
@@ -169,14 +173,7 @@ void Op() :
   "==" | "&&" | "<" | "+" | "-" | "*"
 }
 
-void FuncType() :
-{}
-{
-  VarType()
-| "void"
-}
-
-void VarType() :
+void Type() :
 {}
 {
   "boolean"
