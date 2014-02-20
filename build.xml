@@ -1,10 +1,13 @@
 <project name="compilatrocious" default="javacc" basedir=".">
-    <target name="javacc">
+    <target name="javacc" description="Generate parser">
         <javacc
             target="src/mini_java.jj"
             outputdirectory="src/grammar_parser"
             javacchome="lib/javacc-5.0"
             />
+    </target>
+    <target name="parser" depends="javacc" description="Compile parser">
+        <javac srcdir="src/grammar_parser" destdir="src/grammar_parser" />
     </target>
     <target name="clean" description="Clean up.">
         <delete>
