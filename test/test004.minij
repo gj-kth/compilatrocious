@@ -15,5 +15,6 @@ class test {
         }
 
         if(a) System.out.println(a); else {}
+
     }
 }
