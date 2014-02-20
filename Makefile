@@ -2,11 +2,11 @@
 all: parser
 
 parser: javacc
-	javac grammar_parser/*.java
+	javac src/grammar_parser/*.java
 
-javacc: mini_java.jj
-	cd grammar_parser; javacc ../mini_java.jj
+javacc: src/mini_java.jj
+	cd src/grammar_parser; ../../lib/javacc-5.0/bin/javacc ../mini_java.jj
 
 clean:
-	rm -f grammar_parser/*.java
-	rm -f grammar_parser/*.class
+	rm -f src/grammar_parser/*.java
+	rm -f src/grammar_parser/*.class
