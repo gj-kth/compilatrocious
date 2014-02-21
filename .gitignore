@@ -1,3 +1,7 @@
+# Ignore build directory
+build
+
+# Ignore class files
 *.class
 
 # Package Files #
