@@ -90,9 +90,9 @@ TOKEN :
 }
 
 /* IDENTIFIERS */
-TOKEN [IGNORE_CASE]:
+TOKEN :
 {
-  <ID: (["a"-"z"]) (["a"-"z"] | ["0"-"9"] | "-" | "_")*>
+  <ID: (["a"-"z"] | ["A"-"Z"]) (["a"-"z"] | ["A"-"Z"] | ["0"-"9"] | "-" | "_")*>
 }
 
 /* LITERALS */
