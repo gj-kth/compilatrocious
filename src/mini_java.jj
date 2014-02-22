@@ -19,6 +19,8 @@ options {
 }
 PARSER_BEGIN(MiniJava)
 
+package compilatrocious.parser;
+
 public class MiniJava{
 
     public static void main(String args[]) throws ParseException {
@@ -86,9 +88,9 @@ TOKEN :
 }
 
 /* IDENTIFIERS */
-TOKEN :
+TOKEN [IGNORE_CASE]:
 {
-  <ID: (["a"-"z"] | ["A"-"Z"]) (["a"-"z"] | ["A"-"Z"] | ["0"-"9"] | "-" | "_")*>
+  <ID: (["a"-"z"]) (["a"-"z"] | ["0"-"9"] | "-" | "_")*>
 }
 
 /* LITERALS */
