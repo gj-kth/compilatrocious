@@ -23,11 +23,13 @@ package compilatrocious.parser;
 
 public class MiniJava{
 
+/*
     public static void main(String args[]) throws ParseException {
         MiniJava parser = new MiniJava(System.in);
         parser.Program();
         System.out.println("Success");
     }
+*/
 }
 
 PARSER_END(MiniJava)
@@ -99,11 +101,12 @@ TOKEN :
   <INT_LITERAL: ("0" | ["1"-"9"](["0"-"9"])*)>
 }
 
-void Program() :
+SimpleNode Program() :
 {}
 {
   MainClass()
   ( ClassDecl() )*
+  {return jjtThis;}
 }
 
 void MainClass() :
