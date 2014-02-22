@@ -3,19 +3,19 @@
     <property name="build" location="build" />
 
     <target name="init" description="Initialize build environment">
-        <mkdir dir="${build}/grammar_parser" />
+        <mkdir dir="${build}" />
     </target>
 
     <target name="javacc" depends="init" description="Generate parser">
         <javacc
             target="src/mini_java.jj"
-            outputdirectory="${build}/grammar_parser"
+            outputdirectory="${build}"
             javacchome="lib/javacc-5.0"
             />
     </target>
 
     <target name="parser" depends="javacc" description="Compile parser">
-        <javac srcdir="${build}/grammar_parser" destdir="${build}/grammar_parser" />
+        <javac srcdir="${build}" destdir="${build}" />
     </target>
 
     <target name="clean" description="Clean up.">
