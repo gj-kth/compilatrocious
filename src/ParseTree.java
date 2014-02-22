@@ -2,8 +2,11 @@ package compilatrocious.parser;
 
 class ParseTree {
     public static void main(String[] args) {
-        MiniJava minij = new MiniJava(System.in);
+        parseAndPrint(System.in);
+    }
 
+    public static void parseAndPrint(java.io.InputStream stream){
+        MiniJava minij = new MiniJava(stream);
         try{
             SimpleNode parseTree = minij.Program();
             printSimple(parseTree);

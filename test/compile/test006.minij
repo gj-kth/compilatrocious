@@ -1,0 +1,20 @@
+class test {
+    public static void main (String [] args) {
+    	int a;
+    	int[] b;
+    	int c;
+    	a = 1 + 1;
+    	a = b[2];
+    	a = b.length;
+    	a = test.main();
+    	a = 5;
+    	a = true;
+    	a = false;
+    	a = b;
+    	a = this;
+    	a = new int[c];
+    	a = new test();
+    	a = ! true;
+    	a = (1 + 3);
+    }
+}
