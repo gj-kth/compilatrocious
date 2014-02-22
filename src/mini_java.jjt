@@ -76,6 +76,8 @@ TOKEN :
 | <WHILE: "while">
 | <MAIN: "main">
 | <STRING: "String">
+| <LENGTH: "length">
+| <NOT: "!">
 }
 
 /* OPERATORS */
@@ -172,11 +174,14 @@ void Stmt() :
 void Expr() :
 {}
 {
-  <INT_LITERAL>
-| <ID>
-| <TRUE>
-| <FALSE>
-| <NEW> <INT> <LBRACK> Expr() <RBRACK>
+  <INT_LITERAL> (Op() Expr())?
+| <ID> (<LBRACK> Expr() <RBRACK>)? (<DOT> ((<ID>|<MAIN>) <LPAREN> <RPAREN> | <LENGTH>))? (Op() Expr())?
+| <TRUE> (Op() Expr())?
+| <FALSE> (Op() Expr())?
+| <NOT> Expr()
+| <NEW> (<INT> <LBRACK> Expr() <RBRACK> |<ID> <LPAREN> <RPAREN>)
+| <THIS>
+| <LPAREN> Expr() <RPAREN>
 }
 
 void Op() :
