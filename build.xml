@@ -1,21 +1,31 @@
 <project name="compilatrocious" default="parser" basedir=".">
     <property name="src" location="src" />
+    <property name="lib" location="lib" />
     <property name="build" location="build" />
 
     <target name="init" description="Initialize build environment">
         <mkdir dir="${build}" />
     </target>
 
-    <target name="javacc" depends="init" description="Generate parser">
-        <javacc
-            target="src/mini_java.jj"
+    <target name="jjtree" depends="init" description="Run JJTree to generate javacc file">
+        <jjtree
+            target="${src}/mini_java.jjt"
             outputdirectory="${build}"
-            javacchome="lib/javacc-5.0"
+            javacchome="${lib}/javacc-5.0"
+            />
+    </target>
+
+    <target name="javacc" depends="jjtree" description="Generate parser using javacc">
+        <javacc
+            target="${build}/mini_java.jj"
+            outputdirectory="${build}"
+            javacchome="${lib}/javacc-5.0"
             />
     </target>
 
     <target name="parser" depends="javacc" description="Compile parser">
         <javac srcdir="${build}" destdir="${build}" />
+        <javac srcdir="${src}" destdir="${build}" />
     </target>
 
     <target name="clean" description="Clean up.">
