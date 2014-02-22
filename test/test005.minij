@@ -1,9 +1,9 @@
 class test {
     public static void main (String [] args) {
         boolean a;
+        int b;
         a = true && false;
         a = 5 < 10;
-        int b;
         b = 1 + 1;
         b = b - b;
         b = b * 7;

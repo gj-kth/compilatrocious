@@ -1,8 +1,9 @@
 class test {
     public static void main (String [] args) {
     	int a;
-    	a = 1 + 1;
     	int[] b;
+    	int c;
+    	a = 1 + 1;
     	a = b[2];
     	a = b.length;
     	a = test.main();
@@ -11,7 +12,6 @@ class test {
     	a = false;
     	a = b;
     	a = this;
-    	int c;
     	a = new int[c];
     	a = new test();
     	a = ! true;
