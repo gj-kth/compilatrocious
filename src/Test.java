@@ -2,7 +2,7 @@ package compilatrocious.parser;
 
 import java.io.*;
 
-class Test {
+public class Test {
 
     public static final boolean PRINT = false;
 
@@ -14,11 +14,12 @@ class Test {
     }
 
     public static void testCompile(){
-        testFilesInDir(new File("/home/jonathan/Documents/comp-constr/compilatrocious/test/compile"));
+        System.out.println(System.getenv("COMPILATROCIOUS_ROOT"));
+        testFilesInDir(new File(System.getenv("COMPILATROCIOUS_ROOT") + "/test/compile"));
     }
 
     public static void testNonCompile(){
-        testFilesInDir(new File("/home/jonathan/Documents/comp-constr/compilatrocious/test/noncompile"));   
+        testFilesInDir(new File(System.getenv("COMPILATROCIOUS_ROOT") + "/test/noncompile"));   
     }       
 
     static void testFilesInDir(File dir){

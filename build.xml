@@ -28,6 +28,20 @@
         <javac srcdir="${src}" destdir="${build}" />
     </target>
 
+    <target name="test" description="Run test suite">
+        <java
+            classname="compilatrocious.parser.Test"
+            fork="true">
+
+            <!-- set environment variable, depends on fork=true --> 
+            <env key="COMPILATROCIOUS_ROOT" value="${basedir}"/>
+
+            <classpath>
+                <pathelement path="${build}" />
+            </classpath>
+        </java>
+    </target>
+
     <target name="clean" description="Clean up.">
         <delete dir="${build}" />
     </target>
