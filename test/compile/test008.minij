@@ -1,0 +1,23 @@
+class test {
+    public static void main (String [] args) {
+    	Adder a;
+    	a.getSum(10);
+    }
+}
+
+class Adder{
+	int x;
+	int y;
+	int getSum(int z){
+		return x + y + z;
+	}
+}
+
+class Printer{
+	int print(String)
+}
+
+class B{
+	int x;
+}
+

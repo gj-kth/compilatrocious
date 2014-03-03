@@ -1,0 +1,7 @@
+class test {
+    public static void main (String [] args) {
+    	int a;
+    	a = a + 5 + 3 - 2;
+        a = a[a.length].f()[10].getX().getY(a - 0);
+    }
+}

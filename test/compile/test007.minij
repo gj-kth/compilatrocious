@@ -1,0 +1,52 @@
+class test {
+    public static void main (String [] args) {
+    }
+}
+
+class A{
+}
+
+class B{
+	int x;
+}
+
+class C{
+	public int f(){
+		return 0;
+	}
+}
+
+class D{
+	int x;
+	public int f(){
+		return x;
+	}
+}
+
+class E{
+	int x;
+	int y;
+}
+
+class F{
+	public boolean f(){
+		return true;
+	}
+
+	public int g(){
+		return 0;
+	}
+}
+
+class G{
+	int x;
+	int y;
+
+	public int f(){
+		return 9684;
+	}
+
+	public boolean g(){
+		return false;
+	}
+}

@@ -4,7 +4,7 @@ import java.io.*;
 
 public class Test {
 
-    public static final boolean PRINT = false;
+    public static final boolean PRINT = true;
 
     public static void main(String[] args) {
          println("Testing compile ... ");
@@ -36,7 +36,7 @@ public class Test {
         println("File: " + testFile.getPath());
         try {
             InputStream is = new FileInputStream(testFile);
-            ParseTree.parseAndPrint(is);
+            ParseTree.parse(is);
             is.close(); 
         } catch (Exception e) {
             e.printStackTrace();
