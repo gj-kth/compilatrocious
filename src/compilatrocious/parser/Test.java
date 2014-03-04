@@ -10,7 +10,7 @@ public class Test {
          println("Testing compile ... ");
          testCompile();
          println("Testing noncompile ... ");
-         testNonCompile();
+         //testNonCompile();
     }
 
     public static void testCompile(){
