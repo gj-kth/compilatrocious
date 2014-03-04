@@ -21,15 +21,24 @@ class ParseTree {
         System.out.println("Success!!!");
         System.out.println("----------");
         parseTree.dump("");
+        printDetails(parseTree);
         System.out.println("---------------------------------------------------");
     }
 
     //Currently not very useful. 
     static void printDetails(SimpleNode parseTree){
         System.out.println("--- " + parseTree.jjtGetValue() + " ---");
-        for(int c = 0; c < parseTree.jjtGetNumChildren(); c++){
-            Node child = parseTree.jjtGetChild(c);
-            System.out.println(child);
+        System.out.println("numchildren: " + parseTree.jjtGetNumChildren());
+        //SimpleNode node = (SimpleNode) parseTree.jjtGetChild(0);
+        printNodes(parseTree);
+    }
+
+    static void printNodes(SimpleNode node) {
+        SimpleNode child;
+        for(int c = 0; c < node.jjtGetNumChildren(); c++){
+            child = (SimpleNode) node.jjtGetChild(c);
+            System.out.println("token is: " + child.toString() + " value is: " + child.jjtGetValue());
+            printNodes(child);
         }
     }
 }

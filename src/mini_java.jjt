@@ -172,9 +172,9 @@ void Stmt() :
 }
 
 void Expr() :
-{}
+{Token i;}
 {
-  <INT_LITERAL> (Op() Expr())?
+  i=<INT_LITERAL> (Op() Expr())?   {jjtThis.value=new Integer(i.image);}
 | <ID> (<LBRACK> Expr() <RBRACK>)? (<DOT> ((<ID>|<MAIN>) <LPAREN> <RPAREN> | <LENGTH>))? (Op() Expr())?
 | <TRUE> (Op() Expr())?
 | <FALSE> (Op() Expr())?
