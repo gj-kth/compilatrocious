@@ -1,0 +1,8 @@
+class classBeforeMain {
+    public randomfunc () {
+    }
+}
+class main {
+    public static void main (String [] args) {
+    }
+}

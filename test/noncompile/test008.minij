@@ -1,0 +1,5 @@
+class main_with_return {
+    public static void main (String [] args) {
+        return 0;
+    }
+}

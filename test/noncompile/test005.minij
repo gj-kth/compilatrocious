@@ -1,0 +1,7 @@
+class wrong_order {
+    public static void main (String [] args) {
+        int a;
+        a = 1;
+        int b;
+    }
+}

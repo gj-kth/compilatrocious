@@ -1,0 +1,7 @@
+class func_without_return {
+    public static void main (String [] args) {
+    }
+
+    public int func() {
+    }
+}
