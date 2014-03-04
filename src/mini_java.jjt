@@ -74,7 +74,6 @@ TOKEN :
 | <TRUE: "true">
 | <VOID: "void">
 | <WHILE: "while">
-| <MAIN: "main">
 | <STRING: "String">
 | <LENGTH: "length">
 | <NOT: "!">
@@ -94,7 +93,8 @@ TOKEN :
 /* IDENTIFIERS */
 TOKEN :
 {
-  <ID: (["a"-"z"] | ["A"-"Z"]) (["a"-"z"] | ["A"-"Z"] | ["0"-"9"] | "-" | "_")*>
+  <MAIN: "main">
+| <ID: (["a"-"z"] | ["A"-"Z"]) (["a"-"z"] | ["A"-"Z"] | ["0"-"9"] | "-" | "_")*>
 }
 
 /* LITERALS */
@@ -194,7 +194,7 @@ void ExprSuffix() :
 {}
 {
  <LBRACK> Expr() <RBRACK>
-| <DOT> ((<ID>|<MAIN>) <LPAREN> (ExprList())? <RPAREN> | <LENGTH>)
+| <DOT> ( (<MAIN> | <ID>) <LPAREN> (ExprList())? <RPAREN> | <LENGTH>)
 | Op() Expr()
 }
 
