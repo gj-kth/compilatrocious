@@ -116,7 +116,7 @@ void MainClass() :
 {
   "class" <ID> <LBRACE>
     <PUBLIC> <STATIC> <VOID> <MAIN> <LPAREN> "String" <LBRACK> <RBRACK> <ID> <RPAREN> <LBRACE>
-      ( VarDecl() )*
+      ( LOOKAHEAD(2) VarDecl() )*
       ( Stmt() )*
     <RBRACE>
   <RBRACE>
@@ -125,7 +125,7 @@ void MainClass() :
 void ClassDecl() :
 {}
 {
-  "class" <ID>  <LBRACE>
+  "class" <ID> <LBRACE>
     ( VarDecl() )*
     ( MethodDecl() )*
   <RBRACE>
@@ -135,8 +135,8 @@ void MethodDecl() :
 {}
 {
   "public" Type() <ID> <LPAREN> ( ArgList() )? <RPAREN> <LBRACE>
-  ( VarDecl() )*
-  ( Stmt() )*
+    ( LOOKAHEAD(2) VarDecl() )*
+    ( Stmt() )*
   "return" Expr() <SEMI>
   <RBRACE>
 }
@@ -174,7 +174,7 @@ void Stmt() :
 void Expr() :
 {}
 {
-  ExprPrefix() (ExprSuffix())*
+  (<NOT>)* ExprPrefix() (ExprSuffix())?
 }
 
 void ExprPrefix() :
@@ -183,8 +183,7 @@ void ExprPrefix() :
   <FALSE> 
 | <TRUE>
 | i=<INT_LITERAL> {jjtThis.value=new Integer(i.image);}
-| <ID> (<LBRACK> Expr() <RBRACK>)?
-| <NOT> Expr()
+| <ID>
 | <NEW> (<INT> <LBRACK> Expr() <RBRACK> |<ID> <LPAREN> <RPAREN>)
 | <THIS>
 | <LPAREN> Expr() <RPAREN>
@@ -193,8 +192,8 @@ void ExprPrefix() :
 void ExprSuffix() :
 {}
 {
- <LBRACK> Expr() <RBRACK>
-| <DOT> ( (<MAIN> | <ID>) <LPAREN> (ExprList())? <RPAREN> | <LENGTH>)
+  <LBRACK> Expr() <RBRACK> (ExprSuffix())?
+| <DOT> ( (<MAIN> | <ID>) <LPAREN> (ExprList())? <RPAREN> | <LENGTH>) (ExprSuffix())?
 | Op() Expr()
 }
 
@@ -221,4 +220,5 @@ void Type() :
 {
   "boolean"
 | "int" (<LBRACK> <RBRACK>)?
+| <ID>
 }
