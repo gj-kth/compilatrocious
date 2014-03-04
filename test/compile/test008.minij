@@ -1,20 +1,24 @@
 class test {
     public static void main (String [] args) {
     	Adder a;
-    	a.getSum(10);
+        int b;
+    	b = a.getSum(10);
     }
 }
 
 class Adder{
 	int x;
 	int y;
-	int getSum(int z){
-		return x + y + z;
+	public int getSum(int z){
+	    return x + y + z;
 	}
 }
 
 class Printer{
-	int print(String)
+	public int print(int i) {
+            System.out.println(i);
+            return 0;
+        }
 }
 
 class B{
