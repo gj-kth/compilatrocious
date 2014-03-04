@@ -5,6 +5,16 @@ class ParseTree {
         parseAndPrint(System.in);
     }
 
+    public static void parse(java.io.InputStream stream){
+        MiniJava minij = new MiniJava(stream);
+        try{
+            SimpleNode parseTree = minij.Program();
+        }catch(Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
     public static void parseAndPrint(java.io.InputStream stream){
         MiniJava minij = new MiniJava(stream);
         try{

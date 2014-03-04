@@ -135,9 +135,9 @@ void MethodDecl() :
 {}
 {
   "public" Type() <ID> <LPAREN> ( ArgList() )? <RPAREN> <LBRACE>
-    ( VarDecl() )*
-    ( Stmt() )*
-    "return" Expr() <SEMI>
+  ( VarDecl() )*
+  ( Stmt() )*
+  "return" Expr() <SEMI>
   <RBRACE>
 }
 
@@ -172,16 +172,42 @@ void Stmt() :
 }
 
 void Expr() :
+{}
+{
+  ExprPrefix() (ExprSuffix())*
+}
+
+void ExprPrefix() :
 {Token i;}
 {
-  i=<INT_LITERAL> (Op() Expr())?   {jjtThis.value=new Integer(i.image);}
-| <ID> (<LBRACK> Expr() <RBRACK>)? (<DOT> ((<ID>|<MAIN>) <LPAREN> <RPAREN> | <LENGTH>))? (Op() Expr())?
-| <TRUE> (Op() Expr())?
-| <FALSE> (Op() Expr())?
+  <FALSE> 
+| <TRUE>
+| i=<INT_LITERAL> {jjtThis.value=new Integer(i.image);}
+| <ID> (<LBRACK> Expr() <RBRACK>)?
 | <NOT> Expr()
 | <NEW> (<INT> <LBRACK> Expr() <RBRACK> |<ID> <LPAREN> <RPAREN>)
 | <THIS>
 | <LPAREN> Expr() <RPAREN>
+}
+
+void ExprSuffix() :
+{}
+{
+ <LBRACK> Expr() <RBRACK>
+| <DOT> ((<ID>|<MAIN>) <LPAREN> (ExprList())? <RPAREN> | <LENGTH>)
+| Op() Expr()
+}
+
+void ExprList() :
+{}
+{
+  Expr() (ExprListTail())*
+}
+
+void ExprListTail() :
+{}
+{
+  <COMMA> Expr()
 }
 
 void Op() :
@@ -196,5 +222,3 @@ void Type() :
   "boolean"
 | "int" (<LBRACK> <RBRACK>)?
 }
-
-
