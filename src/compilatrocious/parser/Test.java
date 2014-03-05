@@ -109,10 +109,9 @@ public class Test {
 
     static boolean testProgram(InputStream programText, boolean positiveTest, String filePath) throws IOException{
         try { 
+            SimpleNode parsed = ParseTree.parse(programText);
             if(PRINT_PARSETREE){
-                ParseTree.parseAndPrint(programText);
-            }else{
-                ParseTree.parse(programText);
+                ParseTree.printSimple(parsed);
             }
             programText.close(); 
             if(!positiveTest){

@@ -3,32 +3,18 @@ package compilatrocious.parser;
 class ParseTree {
     public static void main(String[] args) {
         try{
-            parseAndPrint(System.in);
+            SimpleNode parsed = parse(System.in);
+            printSimple(parsed);
         }catch(Exception e){
             System.out.println(e.getMessage());
             e.printStackTrace();
         }
     }
 
-    public static void parse(java.io.InputStream stream) throws ParseException{
+    public static SimpleNode parse(java.io.InputStream stream) throws ParseException{
         MiniJava minij = new MiniJava(stream);
-        //try{
-            SimpleNode parseTree = minij.Program();
-        //}catch(Exception e) {
-        //    System.out.println(e.getMessage());
-        //    e.printStackTrace();
-        //}
-    }
-
-    public static void parseAndPrint(java.io.InputStream stream) throws ParseException{
-        MiniJava minij = new MiniJava(stream);
-        //try{
-            SimpleNode parseTree = minij.Program();
-            printSimple(parseTree);
-        //}catch(Exception e) {
-            //System.out.println(e.getMessage());
-            //e.printStackTrace();
-        //}
+        SimpleNode parseTree = minij.Program();
+        return parseTree;
     }
 
     static void printSimple(SimpleNode parseTree){
