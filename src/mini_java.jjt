@@ -93,7 +93,7 @@ TOKEN :
 /* IDENTIFIERS */
 TOKEN :
 {
-  <MAIN: "main">
+<MAIN: "main">
 | <ID: (["a"-"z"] | ["A"-"Z"]) (["a"-"z"] | ["A"-"Z"] | ["0"-"9"] | "-" | "_")*>
 }
 
@@ -115,7 +115,7 @@ void MainClass() :
 {}
 {
   "class" <ID> <LBRACE>
-    <PUBLIC> <STATIC> <VOID> <MAIN> <LPAREN> "String" <LBRACK> <RBRACK> <ID> <RPAREN> <LBRACE>
+    <PUBLIC> <STATIC> <VOID> "main" <LPAREN> "String" <LBRACK> <RBRACK> <ID> <RPAREN> <LBRACE>
       ( LOOKAHEAD(2) VarDecl() )*
       ( Stmt() )*
     <RBRACE>
@@ -193,7 +193,7 @@ void ExprSuffix() :
 {}
 {
   <LBRACK> Expr() <RBRACK> (ExprSuffix())?
-| <DOT> ( (<MAIN> | <ID>) <LPAREN> (ExprList())? <RPAREN> | <LENGTH>) (ExprSuffix())?
+| <DOT> ( ("main" | <ID>) <LPAREN> (ExprList())? <RPAREN> | <LENGTH>) (ExprSuffix())?
 | Op() Expr()
 }
 

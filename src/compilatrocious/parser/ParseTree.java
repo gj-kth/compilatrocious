@@ -5,14 +5,14 @@ class ParseTree {
         parseAndPrint(System.in);
     }
 
-    public static void parse(java.io.InputStream stream){
+    public static void parse(java.io.InputStream stream) throws ParseException{
         MiniJava minij = new MiniJava(stream);
-        try{
+        //try{
             SimpleNode parseTree = minij.Program();
-        }catch(Exception e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-        }
+        //}catch(Exception e) {
+        //    System.out.println(e.getMessage());
+        //    e.printStackTrace();
+        //}
     }
 
     public static void parseAndPrint(java.io.InputStream stream){
