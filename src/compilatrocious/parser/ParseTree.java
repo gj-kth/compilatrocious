@@ -2,7 +2,12 @@ package compilatrocious.parser;
 
 class ParseTree {
     public static void main(String[] args) {
-        parseAndPrint(System.in);
+        try{
+            parseAndPrint(System.in);
+        }catch(Exception e){
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     public static void parse(java.io.InputStream stream) throws ParseException{
@@ -15,15 +20,15 @@ class ParseTree {
         //}
     }
 
-    public static void parseAndPrint(java.io.InputStream stream){
+    public static void parseAndPrint(java.io.InputStream stream) throws ParseException{
         MiniJava minij = new MiniJava(stream);
-        try{
+        //try{
             SimpleNode parseTree = minij.Program();
             printSimple(parseTree);
-        }catch(Exception e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-        }
+        //}catch(Exception e) {
+            //System.out.println(e.getMessage());
+            //e.printStackTrace();
+        //}
     }
 
     static void printSimple(SimpleNode parseTree){

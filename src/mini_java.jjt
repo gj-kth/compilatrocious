@@ -112,9 +112,9 @@ SimpleNode Program() :
 }
 
 void MainClass() :
-{}
+{Token i;}
 {
-  "class" <ID> <LBRACE>
+  "class" i=<ID> <LBRACE> {jjtThis.value=new String(i.image);}
     <PUBLIC> <STATIC> <VOID> "main" <LPAREN> "String" <LBRACK> <RBRACK> <ID> <RPAREN> <LBRACE>
       ( LOOKAHEAD(2) VarDecl() )*
       ( Stmt() )*
@@ -123,18 +123,18 @@ void MainClass() :
 }
 
 void ClassDecl() :
-{}
+{Token i;}
 {
-  "class" <ID> <LBRACE>
+  "class" i=<ID> <LBRACE> {jjtThis.value=new String(i.image);}
     ( VarDecl() )*
     ( MethodDecl() )*
   <RBRACE>
 }
 
 void MethodDecl() :
-{}
+{Token i;}
 {
-  "public" Type() <ID> <LPAREN> ( ArgList() )? <RPAREN> <LBRACE>
+  "public" Type() i=<ID> <LPAREN> ( ArgList() )? <RPAREN> <LBRACE> {jjtThis.value=new String(i.image);}
     ( LOOKAHEAD(2) VarDecl() )*
     ( Stmt() )*
   "return" Expr() <SEMI>
@@ -154,9 +154,9 @@ void ArgListTail() :
 }
 
 void VarDecl() :
-{}
+{Token i;}
 {
-  Type() <ID> <SEMI>
+  Type() i=<ID> <SEMI> {jjtThis.value=new String(i.image);}
 }
 
 void Stmt() :
@@ -183,7 +183,7 @@ void ExprPrefix() :
   <FALSE> 
 | <TRUE>
 | i=<INT_LITERAL> {jjtThis.value=new Integer(i.image);}
-| <ID>
+| i=<ID>          {jjtThis.value=new String(i.image);}
 | <NEW> (<INT> <LBRACK> Expr() <RBRACK> |<ID> <LPAREN> <RPAREN>)
 | <THIS>
 | <LPAREN> Expr() <RPAREN>

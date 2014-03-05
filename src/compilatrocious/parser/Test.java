@@ -5,7 +5,8 @@ import java.util.*;
 
 public class Test {
 
-    public static final boolean PRINT = false;
+    public static final boolean PRINT_FILENAMES = false;
+    public static final boolean PRINT_PARSETREE = false;
 
     public static void main(String[] args){
          println("COMPILATROCIOUS_ROOT = " + System.getenv("COMPILATROCIOUS_ROOT")); 
@@ -107,8 +108,12 @@ public class Test {
     }
 
     static boolean testProgram(InputStream programText, boolean positiveTest, String filePath) throws IOException{
-        try {
-            ParseTree.parse(programText);
+        try { 
+            if(PRINT_PARSETREE){
+                ParseTree.parseAndPrint(programText);
+            }else{
+                ParseTree.parse(programText);
+            }
             programText.close(); 
             if(!positiveTest){
                 System.out.println(filePath);
@@ -126,7 +131,7 @@ public class Test {
     }
 
     private static void println(String str){
-        if(PRINT){
+        if(PRINT_FILENAMES){
             System.out.println(str);
         }
     }
