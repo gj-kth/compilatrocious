@@ -7,32 +7,39 @@ public class Test {
 
     public static final boolean PRINT_FILENAMES = false;
     public static final boolean PRINT_PARSETREE = false;
+    public static final boolean PRINT_FAILED_TESTS = true;
 
     public static void main(String[] args){
          println("COMPILATROCIOUS_ROOT = " + System.getenv("COMPILATROCIOUS_ROOT")); 
          try{
-            testCompile();
-             testNonCompile();
-             testNonCompileOneliners();   
+            List<String> outputs = new ArrayList<String>();
+            outputs.add(testCompile());
+            outputs.add(testNonCompile());
+            outputs.add(testNonCompileOneliners());
+            for(String output : outputs){
+                System.out.println(output);
+            }
          }catch(Exception e){
             printException(e);
          }
-         
     }
 
-    public static void testCompile(){
-        System.out.print("Testing compile ... ");
-        testFilesInDir(new File(System.getenv("COMPILATROCIOUS_ROOT") + "/test/compile"), true);
+    public static String testCompile(){
+        System.out.println("Testing compile ...");
+        String output = testFilesInDir(new File(System.getenv("COMPILATROCIOUS_ROOT") + "/test/compile"), true);
+        return "compile: " + output;
     }
 
-    public static void testNonCompile(){
-        System.out.print("Testing noncompile ... ");
-        testFilesInDir(new File(System.getenv("COMPILATROCIOUS_ROOT") + "/test/noncompile"), false);   
+    public static String testNonCompile(){
+        System.out.println("Testing noncompile ...");
+        String output = testFilesInDir(new File(System.getenv("COMPILATROCIOUS_ROOT") + "/test/noncompile"), false);   
+        return "noncompile: " + output;
     }    
 
-    public static void testNonCompileOneliners() throws FileNotFoundException, IOException{
-        System.out.print("Testing noncompile-oneliners ...");
-        testOneliners( new File(System.getenv("COMPILATROCIOUS_ROOT") + "/test/noncompile/oneliners"), false);
+    public static String testNonCompileOneliners() throws FileNotFoundException, IOException{
+        System.out.println("Testing noncompile oneliners ...");
+        String output = testOneliners( new File(System.getenv("COMPILATROCIOUS_ROOT") + "/test/noncompile/oneliners"), false);
+        return "noncompile oneliners: " + output;
     }   
 
     private static void printFiles(List<File> files){
@@ -41,9 +48,7 @@ public class Test {
         }
     }
 
-   
-
-    private static void testOneliners(File fileContainingOneliners, boolean positiveTests) throws FileNotFoundException, IOException{
+    private static String testOneliners(File fileContainingOneliners, boolean positiveTests) throws FileNotFoundException, IOException{
         BufferedReader br = new BufferedReader(new FileReader(fileContainingOneliners));
         String line;
         int lineNumber = 1;
@@ -57,24 +62,26 @@ public class Test {
             lineNumber ++;
         }
         int numOneliners = lineNumber - 1;
-        System.out.println("TESTS PASSED: " + (numOneliners - failedLines.size()) + "/" + numOneliners);
         br.close();
+        return "TESTS PASSED: " + (numOneliners - failedLines.size()) + "/" + numOneliners;
     }
 
     private static boolean testOneliner(String oneliner, boolean positiveTest, String fakeFilepath) throws IOException{
-        //System.out.println("Testing oneliner " + fakeFilepath); //TODO
-        //System.out.println("----------         " + oneliner + "            ------------");
-        String programText = "class test {\n"
-                           + "  public static void main (String [] args) {\n"
-                           +        oneliner + "\n"
-                           + "  }\n"
-                           + "}";
+        println("Oneliner: " + fakeFilepath);
+        String programText = createProgramFromOneliner(oneliner);
         InputStream is = new ByteArrayInputStream(programText.getBytes());
         return testProgram(is, positiveTest, fakeFilepath);
     }
 
+    private static String createProgramFromOneliner(String oneliner){
+        return  "class test {\n"
+              + "  public static void main (String [] args) {\n"
+              +        oneliner + "\n"
+              + "  }\n"
+              + "}";
+    }
 
-    static void testFilesInDir(File dir, boolean positiveTests){
+    static String testFilesInDir(File dir, boolean positiveTests){
         println("Directory: " + dir.getPath());
         File[] files = dir.listFiles();
         List<File> failedTests = new ArrayList<File>();
@@ -86,8 +93,7 @@ public class Test {
                 }
             }
         }
-
-        System.out.println("TESTS PASSED: " + (files.length - failedTests.size()) + "/" + files.length);
+        return "TESTS PASSED: " + (files.length - failedTests.size()) + "/" + files.length;
     }
 
     /**
@@ -115,14 +121,18 @@ public class Test {
             }
             programText.close(); 
             if(!positiveTest){
-                System.out.println(filePath);
-                System.out.println("Negative test case didn't throw exception.");
+                if(PRINT_FAILED_TESTS){
+                    System.out.println(filePath);
+                    System.out.println("Negative test case didn't throw exception.");    
+                }
                 return false;
             }
         } catch (TokenMgrError | ParseException e) {
             if(positiveTest){
-                System.out.println(filePath);
-                printException(e);
+                if(PRINT_FAILED_TESTS){
+                    System.out.println(filePath);
+                    printException(e);
+                }
                 return false;
             }
         }
