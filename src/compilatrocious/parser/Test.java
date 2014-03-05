@@ -12,34 +12,42 @@ public class Test {
     public static void main(String[] args){
          println("COMPILATROCIOUS_ROOT = " + System.getenv("COMPILATROCIOUS_ROOT")); 
          try{
-            List<String> outputs = new ArrayList<String>();
-            outputs.add(testCompile());
-            outputs.add(testNonCompile());
-            outputs.add(testNonCompileOneliners());
-            for(String output : outputs){
-                System.out.println(output);
+            Map<String,TestResult> results = new HashMap<String,TestResult>();
+            results.put("compile", testCompile());
+            results.put("noncompile", testNonCompile());
+            results.put("noncompile oneliners", testNonCompileOneliners());
+            boolean allTestsSucceeded = true;
+            System.out.println();
+            for(Map.Entry<String,TestResult> entry : results.entrySet()){
+                TestResult res = entry.getValue();
+                System.out.println(entry.getKey() + ": " + res);
+                if(res.numPassed < res.numTests){
+                    allTestsSucceeded = false;
+                }
+            }
+            if(allTestsSucceeded){
+                System.out.println("\n+++ ALL TESTS PASSED +++");
+            }else{
+                System.out.println("\n--- SOME TESTS FAILED ---");
             }
          }catch(Exception e){
             printException(e);
          }
     }
 
-    public static String testCompile(){
+    public static TestResult testCompile(){
         System.out.println("Testing compile ...");
-        String output = testFilesInDir(new File(System.getenv("COMPILATROCIOUS_ROOT") + "/test/compile"), true);
-        return "compile: " + output;
+        return testFilesInDir(new File(System.getenv("COMPILATROCIOUS_ROOT") + "/test/compile"), true);
     }
 
-    public static String testNonCompile(){
+    public static TestResult testNonCompile(){
         System.out.println("Testing noncompile ...");
-        String output = testFilesInDir(new File(System.getenv("COMPILATROCIOUS_ROOT") + "/test/noncompile"), false);   
-        return "noncompile: " + output;
+        return testFilesInDir(new File(System.getenv("COMPILATROCIOUS_ROOT") + "/test/noncompile"), false);   
     }    
 
-    public static String testNonCompileOneliners() throws FileNotFoundException, IOException{
+    public static TestResult testNonCompileOneliners() throws FileNotFoundException, IOException{
         System.out.println("Testing noncompile oneliners ...");
-        String output = testOneliners( new File(System.getenv("COMPILATROCIOUS_ROOT") + "/test/noncompile/oneliners"), false);
-        return "noncompile oneliners: " + output;
+        return testOneliners( new File(System.getenv("COMPILATROCIOUS_ROOT") + "/test/noncompile/oneliners"), false);
     }   
 
     private static void printFiles(List<File> files){
@@ -48,7 +56,7 @@ public class Test {
         }
     }
 
-    private static String testOneliners(File fileContainingOneliners, boolean positiveTests) throws FileNotFoundException, IOException{
+    private static TestResult testOneliners(File fileContainingOneliners, boolean positiveTests) throws FileNotFoundException, IOException{
         BufferedReader br = new BufferedReader(new FileReader(fileContainingOneliners));
         String line;
         int lineNumber = 1;
@@ -63,7 +71,7 @@ public class Test {
         }
         int numOneliners = lineNumber - 1;
         br.close();
-        return "TESTS PASSED: " + (numOneliners - failedLines.size()) + "/" + numOneliners;
+        return new TestResult(numOneliners - failedLines.size(), numOneliners);
     }
 
     private static boolean testOneliner(String oneliner, boolean positiveTest, String fakeFilepath) throws IOException{
@@ -81,7 +89,7 @@ public class Test {
               + "}";
     }
 
-    static String testFilesInDir(File dir, boolean positiveTests){
+    static TestResult testFilesInDir(File dir, boolean positiveTests){
         println("Directory: " + dir.getPath());
         File[] files = dir.listFiles();
         List<File> failedTests = new ArrayList<File>();
@@ -93,7 +101,7 @@ public class Test {
                 }
             }
         }
-        return "TESTS PASSED: " + (files.length - failedTests.size()) + "/" + files.length;
+        return new TestResult(files.length - failedTests.size(), files.length);
     }
 
     /**
@@ -152,5 +160,19 @@ public class Test {
         System.out.println("--------------------------------------------------------");
         System.out.println(sw.toString());
         System.out.println("--------------------------------------------------------");
+    }
+
+    private static class TestResult{
+        int numTests;
+        int numPassed;
+        
+        TestResult(int numPassed, int numTests){
+            this.numTests = numTests;
+            this.numPassed = numPassed;
+        }
+
+        public String toString(){
+            return "TESTS PASSED: " + numPassed + "/" + numTests;
+        }
     }
 }
