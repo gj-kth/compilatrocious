@@ -1,0 +1,65 @@
+class Program {
+    public static void main (String [] args) {
+    	Game g;
+    	boolean dummy;
+    	g = new Game();
+    	
+    	dummy = g.init();
+    }
+}
+
+class Game {
+	Player p1;
+	Player p2;
+	
+	public boolean init(boolean twoPlayers){
+		boolean dummy;
+		p1 = new Player();
+		dummy = p1.init(3,5);
+		if(twoPlayers){
+			p2 = new Player();
+			dummy = p2.init(10,10);
+		}else{}
+		return true;
+	}
+
+	public boolean gameloop(){
+		boolean running;
+		Random r;
+		r = new Random();
+		running = true;
+		while(running){
+			if(r.nextInt(2) < 1){
+				running = p1.loseHealth(1);
+			}else{}
+		}
+		return true;
+	}
+}
+
+class Player {
+	int health;
+	int[] location;
+	boolean alive;
+
+	public boolean init(int[] loc){
+		health = 10;
+		alive = true;
+		location = loc;
+		return true;
+	}
+
+	public boolean init(int x, int y){
+		int[] loc;
+		loc = new int[2];
+		loc[0] = x;
+		loc[1] = y;
+		return this.init(loc);
+	}
+
+	public boolean loseHealth(int amount){
+		health = health - amount;
+		alive = health < 1;
+		return alive;
+	}
+}
