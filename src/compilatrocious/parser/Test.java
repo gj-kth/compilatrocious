@@ -5,29 +5,12 @@ import java.util.*;
 
 public class Test {
 
-    public static final String ANSI_RESET = "\u001B[0m";
-    public static final String ANSI_BLACK = "\u001B[30m";
-    public static final String ANSI_RED = "\u001B[31m";
-    public static final String ANSI_GREEN = "\u001B[32m";
-    public static final String ANSI_YELLOW = "\u001B[33m";
-    public static final String ANSI_BLUE = "\u001B[34m";
-    public static final String ANSI_PURPLE = "\u001B[35m";
-    public static final String ANSI_CYAN = "\u001B[36m";
-    public static final String ANSI_WHITE = "\u001B[37m";
-
-    public static void printRed(String str) {
-        System.out.println(ANSI_RED + str + ANSI_RESET);
-    }
-    public static void printGreen(String str) {
-        System.out.println(ANSI_GREEN + str + ANSI_RESET);
-    }
-
     public static final boolean PRINT_FILENAMES = false;
     public static final boolean PRINT_PARSETREE = false;
     public static final boolean PRINT_FAILED_TESTS = true;
 
     public static void main(String[] args){
-         println("COMPILATROCIOUS_ROOT = " + System.getenv("COMPILATROCIOUS_ROOT")); 
+         Printer.conditionalPrintln("COMPILATROCIOUS_ROOT = " + System.getenv("COMPILATROCIOUS_ROOT"), PRINT_FILENAMES); 
          try{
             Map<String,TestResult> results = new HashMap<String,TestResult>();
             results.put("compile", testCompile());
@@ -37,18 +20,22 @@ public class Test {
             System.out.println();
             for(Map.Entry<String,TestResult> entry : results.entrySet()){
                 TestResult res = entry.getValue();
-                System.out.println(entry.getKey() + ": " + res);
+                System.out.print(entry.getKey() + ": PASSED ");
                 if(res.numPassed < res.numTests){
                     allTestsSucceeded = false;
+                    Printer.printRed("" + res);
+                }else{
+                    Printer.printGreen("" + res);
                 }
             }
+            System.out.println();
             if(allTestsSucceeded){
-                printGreen("\n+++ ALL TESTS PASSED +++");
+                Printer.printGreen("+++ ALL TESTS PASSED +++");
             }else{
-                printRed("\n--- SOME TESTS FAILED ---");
+                Printer.printRed("--- SOME TESTS FAILED ---");
             }
          }catch(Exception e){
-            printException(e);
+            Printer.printThrowable(e);
          }
     }
 
@@ -92,7 +79,7 @@ public class Test {
     }
 
     private static boolean testOneliner(String oneliner, boolean positiveTest, String fakeFilepath) throws IOException{
-        println("Oneliner: " + fakeFilepath);
+        Printer.conditionalPrintln("Oneliner: " + fakeFilepath, PRINT_FILENAMES);
         String programText = createProgramFromOneliner(oneliner);
         InputStream is = new ByteArrayInputStream(programText.getBytes());
         return testProgram(is, positiveTest, fakeFilepath);
@@ -107,7 +94,7 @@ public class Test {
     }
 
     static TestResult testFilesInDir(File dir, boolean positiveTests){
-        println("Directory: " + dir.getPath());
+        Printer.conditionalPrintln("Directory: " + dir.getPath(), PRINT_FILENAMES);
         File[] files = dir.listFiles();
         List<File> failedTests = new ArrayList<File>();
         for(File f : files){
@@ -127,7 +114,7 @@ public class Test {
     * (return == true) means that test was passed
     */
     static boolean testFile(File testFile, boolean positiveTest){
-        println("File: " + testFile.getPath());
+        Printer.conditionalPrintln("File: " + testFile.getPath(), PRINT_FILENAMES);
         try {
             InputStream is = new FileInputStream(testFile);
             return testProgram(is, positiveTest, testFile.getPath());
@@ -156,27 +143,12 @@ public class Test {
             if(positiveTest){
                 if(PRINT_FAILED_TESTS){
                     System.out.println(filePath);
-                    printException(e);
+                    Printer.printThrowable(e);
                 }
                 return false;
             }
         }
         return true;
-    }
-
-    private static void println(String str){
-        if(PRINT_FILENAMES){
-            System.out.println(str);
-        }
-    }
-
-    private static void printException(Throwable e){
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
-        e.printStackTrace(pw);
-        System.out.println("--------------------------------------------------------");
-        System.out.println(sw.toString());
-        System.out.println("--------------------------------------------------------");
     }
 
     private static class TestResult{
@@ -189,7 +161,7 @@ public class Test {
         }
 
         public String toString(){
-            return "TESTS PASSED: " + numPassed + "/" + numTests;
+            return "" + numPassed + "/" + numTests;
         }
     }
 }
