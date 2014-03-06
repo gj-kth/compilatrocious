@@ -4,7 +4,7 @@ class ParseTree {
     public static void main(String[] args) {
         try{
             SimpleNode parsed = parse(System.in);
-            printSimple(parsed);
+            dumpTree(parsed);
         }catch(Exception e){
             System.out.println(e.getMessage());
             e.printStackTrace();
@@ -17,29 +17,20 @@ class ParseTree {
         return parseTree;
     }
 
-    static void printSimple(SimpleNode parseTree){
-        System.out.println("---------------------------------------------------");
-        System.out.println("Success!!!");
-        System.out.println("----------");
-        parseTree.dump("");
-        printDetails(parseTree);
-        System.out.println("---------------------------------------------------");
+    static void dumpTree(SimpleNode root){
+        dump(root, "");
     }
 
-    //Currently not very useful. 
-    static void printDetails(SimpleNode parseTree){
-        System.out.println("--- " + parseTree.jjtGetValue() + " ---");
-        System.out.println("numchildren: " + parseTree.jjtGetNumChildren());
-        //SimpleNode node = (SimpleNode) parseTree.jjtGetChild(0);
-        printNodes(parseTree);
-    }
-
-    static void printNodes(SimpleNode node) {
-        SimpleNode child;
-        for(int c = 0; c < node.jjtGetNumChildren(); c++){
-            child = (SimpleNode) node.jjtGetChild(c);
-            System.out.println("token is: " + child.toString() + " value is: " + child.jjtGetValue());
-            printNodes(child);
+    private static void dump(SimpleNode root, String prefix) {
+        System.out.print(prefix + root);
+        Printer.printGreen(root.jjtGetValue() != null ? " (" + root.jjtGetValue() + ")" : "");
+        if (root.children != null) {
+          for (int i = 0; i < root.children.length; ++i) {
+            SimpleNode n = (SimpleNode)root.children[i];
+            if (n != null) {
+              dump(n, prefix + "     ");
+            }
+          }
         }
     }
 }
