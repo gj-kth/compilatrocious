@@ -93,8 +93,7 @@ TOKEN :
 /* IDENTIFIERS */
 TOKEN :
 {
-<MAIN: "main">
-| <ID: (["a"-"z"] | ["A"-"Z"]) (["a"-"z"] | ["A"-"Z"] | ["0"-"9"] | "-" | "_")*>
+ <ID: (["a"-"z"] | ["A"-"Z"]) (["a"-"z"] | ["A"-"Z"] | ["0"-"9"] | "-" | "_")*>
 }
 
 /* LITERALS */
@@ -112,10 +111,18 @@ SimpleNode Program() :
 }
 
 void MainClass() :
-{Token i;}
+{Token class_name, method_name;}
 {
-  "class" i=<ID> <LBRACE> {jjtThis.value=new String(i.image);}
-    <PUBLIC> <STATIC> <VOID> "main" <LPAREN> "String" <LBRACK> <RBRACK> <ID> <RPAREN> <LBRACE>
+  "class" class_name=<ID> <LBRACE>
+    <PUBLIC> <STATIC> <VOID> method_name=<ID> <LPAREN> "String" <LBRACK> <RBRACK> <ID> <RPAREN> <LBRACE>
+    {
+        String str = new String(method_name.image);
+        if(!str.equals("main")){
+            throw new ParseException();
+        }
+
+        jjtThis.value=new String(class_name.image);
+    }
       ( LOOKAHEAD(2) VarDecl() )*
       ( Stmt() )*
     <RBRACE>
