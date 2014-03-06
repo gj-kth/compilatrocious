@@ -64,7 +64,6 @@ TOKEN :
 | <CLASS: "class">
 | <ELSE: "else">
 | <FOR: "for">
-| <FALSE: "false">
 | <IF: "if">
 | <INT: "int">
 | <NEW: "new">
@@ -72,7 +71,6 @@ TOKEN :
 | <RETURN: "return">
 | <STATIC: "static">
 | <THIS: "this">
-| <TRUE: "true">
 | <VOID: "void">
 | <WHILE: "while">
 | <STRING: "String">
@@ -101,6 +99,7 @@ TOKEN :
 TOKEN :
 {
   <INT_LITERAL: ("0" | ["1"-"9"](["0"-"9"])*)>
+| <BOOL_LITERAL: ("true" | "false" )>
 }
 
 SimpleNode Program() :
@@ -206,6 +205,12 @@ void Int() :
   <INT>
 }
 
+void IntLiteral() :
+{Token i;}
+{
+  i=<INT_LITERAL> {jjtThis.value=new Integer(i.image);}
+}
+
 void IntArray() :
 {}
 {
@@ -216,6 +221,11 @@ void Boolean() :
 {}
 {
   <BOOL>
+}
+void BoolLiteral() :
+{Token b;}
+{
+  b=<BOOL_LITERAL> {jjtThis.value=new Boolean(b.image);}
 }
 
 void Type() :
@@ -248,12 +258,11 @@ void Expr() :
 }
 
 void ExprPrefix() :
-{Token i;}
+{}
 {
-  <FALSE> 
-| <TRUE>
-| i=<INT_LITERAL> {jjtThis.value=new Integer(i.image);}
-| i=<ID>          {jjtThis.value=new String(i.image);}
+  BoolLiteral()
+| IntLiteral()
+| Identifier()
 | <NEW> (<INT> <LBRACK> Expr() <RBRACK> |<ID> <LPAREN> <RPAREN>)
 | <THIS>
 | <LPAREN> Expr() <RPAREN>
