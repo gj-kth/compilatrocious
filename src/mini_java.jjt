@@ -111,54 +111,80 @@ SimpleNode Program() :
   {return jjtThis;}
 }
 
+/* Class Productions */
 void MainClass() :
-{Token class_name, method_name;}
+{}
 {
-  "class" class_name=<ID> <LBRACE>
-    <PUBLIC> <STATIC> <VOID> method_name=<ID> <LPAREN> "String" <LBRACK> <RBRACK> <ID> <RPAREN> <LBRACE>
-    {
-        String str = new String(method_name.image);
-        if(!str.equals("main")){
-            throw new ParseException();
-        }
+  "class" Identifier() <LBRACE>
+    MainMethod()
+  <RBRACE>
+}
 
-        jjtThis.value=new String(class_name.image);
-    }
+void MainMethod() :
+{Token name;}
+{
+    <PUBLIC> <STATIC> <VOID> name=<ID> <LPAREN> "String" <LBRACK> <RBRACK> <ID> <RPAREN> <LBRACE>
+      {
+        String str = new String(name.image);
+        if(!str.equals("main")){
+            throw new ParseException("Expected main, found " + str);
+        }
+        jjtThis.value=str;
+      }
       ( LOOKAHEAD(2) VarDecl() )*
       ( Stmt() )*
     <RBRACE>
-  <RBRACE>
+}
+
+void ClassBody() :
+{}
+{
+  ( VarDecl() )*
+  ( MethodDecl() )*
 }
 
 void ClassDecl() :
-{Token i;}
+{}
 {
-  "class" i=<ID> <LBRACE> {jjtThis.value=new String(i.image);}
-    ( VarDecl() )*
-    ( MethodDecl() )*
+  "class" Identifier() <LBRACE>
+    ClassBody()
   <RBRACE>
 }
 
-void MethodDecl() :
-{Token i;}
+/* Method Productions */
+void MethodBody() :
+{}
 {
-  "public" Type() i=<ID> <LPAREN> ( ArgList() )? <RPAREN> <LBRACE> {jjtThis.value=new String(i.image);}
-    ( LOOKAHEAD(2) VarDecl() )*
-    ( Stmt() )*
-  "return" Expr() <SEMI>
+  ( LOOKAHEAD(2) VarDecl() )*
+  ( Stmt() )*
+}
+
+void Return() :
+{}
+{
+  <RETURN> Expr() <SEMI>
+}
+
+void MethodDecl() :
+{}
+{
+  "public" Type() Identifier() <LPAREN> ( ArgList() )? <RPAREN> <LBRACE>
+    MethodBody()
+    Return()
   <RBRACE>
 }
 
 void ArgList() :
 {}
 {
-  Type() <ID> (ArgListTail())*
+  (Arg())+
 }
 
-void ArgListTail() :
+void Arg() :
 {}
 {
-  <COMMA> Type() <ID>
+  Type() Identifier()
+| <COMMA> Type() Identifier()
 }
 
 void VarDecl() :
@@ -167,6 +193,7 @@ void VarDecl() :
   Type() Identifier() <SEMI>
 }
 
+/* Basic Productions */
 void Identifier() :
 {Token id;}
 {
@@ -191,6 +218,16 @@ void Boolean() :
   <BOOL>
 }
 
+void Type() :
+{}
+{
+  Boolean()
+| LOOKAHEAD(2) IntArray()
+| Int()
+| Identifier()
+}
+
+/* Statement Productions */
 void Stmt() :
 {}
 {
@@ -203,6 +240,7 @@ void Stmt() :
 | <ID> (<LBRACK> Expr() <RBRACK>)? <ASSIGN> Expr() <SEMI>
 }
 
+/* Expression Productions */
 void Expr() :
 {}
 {
@@ -245,13 +283,4 @@ void Op() :
 {}
 {
   "&&" | "<" | "+" | "-" | "*"
-}
-
-void Type() :
-{}
-{
-  Boolean()
-| IntArray()
-| Int()
-| Identifier()
 }
