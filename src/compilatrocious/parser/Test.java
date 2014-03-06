@@ -6,7 +6,7 @@ import java.util.*;
 public class Test {
 
     public static final boolean PRINT_FILENAMES = false;
-    public static final boolean PRINT_PARSETREE = false;
+    public static final boolean PRINT_PARSETREE = true;
     public static final boolean PRINT_FAILED_TESTS = true;
 
     public static void main(String[] args){
@@ -129,7 +129,7 @@ public class Test {
         try { 
             SimpleNode parsed = ParseTree.parse(programText);
             if(PRINT_PARSETREE){
-                ParseTree.printSimple(parsed);
+                ParseTree.dumpTree(parsed);
             }
             programText.close(); 
             if(!positiveTest){
