@@ -16,6 +16,7 @@ options {
   BUILD_TOKEN_MANAGER = true;
   SANITY_CHECK = true;
   FORCE_LA_CHECK = false;
+  MULTI = true;
 }
 PARSER_BEGIN(MiniJava)
 
@@ -161,9 +162,33 @@ void ArgListTail() :
 }
 
 void VarDecl() :
-{Token i;}
+{}
 {
-  Type() i=<ID> <SEMI> {jjtThis.value=new String(i.image);}
+  Type() Identifier() <SEMI>
+}
+
+void Identifier() :
+{Token id;}
+{
+  id=<ID> {jjtThis.value=new String(id.image);}
+}
+
+void Int() :
+{}
+{
+  <INT>
+}
+
+void IntArray() :
+{}
+{
+  <INT> <LBRACK> <RBRACK>
+}
+
+void Boolean() :
+{}
+{
+  <BOOL>
 }
 
 void Stmt() :
@@ -225,7 +250,8 @@ void Op() :
 void Type() :
 {}
 {
-  "boolean"
-| "int" (<LBRACK> <RBRACK>)?
-| <ID>
+  Boolean()
+| IntArray()
+| Int()
+| Identifier()
 }
