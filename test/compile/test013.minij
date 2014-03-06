@@ -1,0 +1,90 @@
+class a {
+    public static void main (String [] args) {
+    }
+}
+
+class b{
+	public int a(){
+		return 0;
+	}
+	public boolean b(){
+		return false;
+	}
+	public int c(int a, boolean b, int[] c){
+		return 1000;
+	}
+	public int d(){
+		return 1;
+	}
+	public int e(){
+		return 1;
+	}
+	public int f(){
+		return 1;
+	}
+	public int g(){
+		return 1;
+	}
+	public int h(){
+		return 1;
+	}
+	public int i(){
+		return 1;
+	}
+	public int j(){
+		return 1;
+	}
+	public int k(){
+		return 1;
+	}
+}
+class c{}
+class d{}
+class e{}
+class f{}
+class g{}
+class h{}
+class i{}
+class j{}
+class k{}
+class l{}
+class m{}
+class n{}
+class o{}
+class p{}
+class q{
+	public int a(){
+		return 0;
+	}
+	public boolean b(){
+		return false;
+	}
+	public int c(int a, boolean b, int[] c){
+		return 1000;
+	}
+	public int d(){
+		return 1;
+	}
+	public int e(){
+		return 1;
+	}
+	public int f(){
+		return 1;
+	}
+	public int g(){
+		return 1;
+	}
+	public int h(){
+		return 1;
+	}
+	public int i(){
+		return 1;
+	}
+	public int j(){
+		return 1;
+	}
+	public int k(){
+		return 1;
+	}
+}
+class r{}
