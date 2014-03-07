@@ -314,7 +314,11 @@ void ExprListTail() :
 }
 
 void Op() :
-{}
+{Token operator;}
 {
-  "&&" | "<" | "+" | "-" | "*"
+  operator="&&" {jjtThis.value = new String(operator.image);}
+| operator="<" {jjtThis.value = new String(operator.image);}
+| operator="+" {jjtThis.value = new String(operator.image);}
+| operator="-" {jjtThis.value = new String(operator.image);}
+| operator="*" {jjtThis.value = new String(operator.image);}
 }
