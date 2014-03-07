@@ -119,22 +119,6 @@ void MainClass() :
   <RBRACE>
 }
 
-void MainMethod() :
-{Token name;}
-{
-    <PUBLIC> <STATIC> <VOID> name=<ID> <LPAREN> "String" <LBRACK> <RBRACK> <ID> <RPAREN> <LBRACE>
-      {
-        String str = new String(name.image);
-        if(!str.equals("main")){
-            throw new ParseException("Expected main, found " + str);
-        }
-        jjtThis.value=str;
-      }
-      ( LOOKAHEAD(2) VarDecl() )*
-      ( Stmt() )*
-    <RBRACE>
-}
-
 void ClassBody() :
 {}
 {
@@ -162,6 +146,21 @@ void Return() :
 {}
 {
   <RETURN> Expr() <SEMI>
+}
+
+void MainMethod() :
+{Token name;}
+{
+    <PUBLIC> <STATIC> <VOID> name=<ID> <LPAREN> "String" <LBRACK> <RBRACK> <ID> <RPAREN> <LBRACE>
+      {
+        String str = new String(name.image);
+        if(!str.equals("main")){
+            throw new ParseException("Expected main, found " + str);
+        }
+        jjtThis.value=str;
+      }
+      MethodBody()
+    <RBRACE>
 }
 
 void MethodDecl() :
@@ -241,14 +240,40 @@ void Type() :
 void Stmt() :
 {}
 {
+  Block()
+| Conditional()
+| Print()
+| While()
+| Assignment()
+}
+
+void Block() :
+{}
+{
   <LBRACE>
     ( Stmt() )*
   <RBRACE>
-| <IF> <LPAREN> Expr() <RPAREN> Stmt() <ELSE> Stmt()
-| "System.out.println" <LPAREN> Expr() <RPAREN> <SEMI>
-| <WHILE> <LPAREN> Expr() <RPAREN> Stmt()
-| <ID> (<LBRACK> Expr() <RBRACK>)? <ASSIGN> Expr() <SEMI>
 }
+
+void Assignment() :
+{}
+{Identifier() (<LBRACK> Expr() <RBRACK>)? <ASSIGN> Expr() <SEMI>}
+
+void Conditional() :
+{}
+{
+  LOOKAHEAD(3)
+  <IF> <LPAREN> Expr() <RPAREN> Stmt() <ELSE> Stmt()
+| <IF> <LPAREN> Expr() <RPAREN> Stmt()
+}
+
+void Print() :
+{}
+{"System.out.println" <LPAREN> Expr() <RPAREN> <SEMI>}
+
+void While() :
+{}
+{<WHILE> <LPAREN> Expr() <RPAREN> Stmt()}
 
 /* Expression Productions */
 void Expr() :
