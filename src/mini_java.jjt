@@ -282,7 +282,7 @@ void Expr() :
   (<NOT>)* ExprPrefix() (ExprSuffix())?
 }
 
-void ExprPrefix() :
+void ExprPrefix() #void :
 {}
 {
   BoolLiteral()
@@ -293,7 +293,7 @@ void ExprPrefix() :
 | <LPAREN> Expr() <RPAREN>
 }
 
-void ExprSuffix() :
+void ExprSuffix() #void :
 {}
 {
   <LBRACK> Expr() <RBRACK> (ExprSuffix())?
