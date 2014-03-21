@@ -1,4 +1,4 @@
-<project name="compilatrocious" default="parser" basedir=".">
+<project name="compilatrocious" default="compile" basedir=".">
     <property name="src" location="src" />
     <property name="lib" location="lib" />
     <property name="build" location="build" />
@@ -10,7 +10,7 @@
 
     <target name="jjtree" depends="init" description="Run JJTree to generate javacc file">
         <jjtree
-            target="${src}/mini_java.jjt"
+            target="${src}/compilatrocious/parser/MiniJava.jjt"
             outputdirectory="${build}/compilatrocious/parser"
             javacchome="${lib}/javacc-5.0"
             />
@@ -18,17 +18,17 @@
 
     <target name="javacc" depends="jjtree" description="Generate parser using javacc">
         <javacc
-            target="${build}/compilatrocious/parser/mini_java.jj"
+            target="${build}/compilatrocious/parser/MiniJava.jj"
             javacchome="${lib}/javacc-5.0"
             />
     </target>
 
-    <target name="parser" depends="javacc" description="Compile parser">
+    <target name="compile" depends="javacc" description="Compile">
         <javac includeantruntime="false" srcdir="${build}" destdir="${build}" />
         <javac includeantruntime="false" srcdir="${src}" destdir="${build}" />
     </target>
 
-    <target name="test" depends="parser" description="Run test suite">
+    <target name="test" depends="compile" description="Run test suite">
         <java
             classname="compilatrocious.parser.Test"
             fork="true">
