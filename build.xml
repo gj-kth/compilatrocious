@@ -53,6 +53,7 @@
 
     <target name="clean" description="Clean up.">
         <delete dir="${build}" />
+        <delete file="mjc.jar" />
     </target>
 
 </project>
