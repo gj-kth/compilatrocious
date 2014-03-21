@@ -1,6 +1,9 @@
 # Ignore build directory
 build
 
+# Ignore tigris description file
+DESC
+
 # Ignore class files
 *.class
 
