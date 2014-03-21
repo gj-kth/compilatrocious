@@ -17,6 +17,7 @@ options {
   SANITY_CHECK = true;
   FORCE_LA_CHECK = false;
   MULTI = true;
+  VISITOR = true;
 }
 PARSER_BEGIN(MiniJava)
 
