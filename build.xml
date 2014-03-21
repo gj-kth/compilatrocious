@@ -1,4 +1,4 @@
-<project name="compilatrocious" default="compile" basedir=".">
+<project name="compilatrocious" default="jar" basedir=".">
     <property name="src" location="src" />
     <property name="lib" location="lib" />
     <property name="build" location="build" />
@@ -26,6 +26,15 @@
     <target name="compile" depends="javacc" description="Compile">
         <javac includeantruntime="false" srcdir="${build}" destdir="${build}" />
         <javac includeantruntime="false" srcdir="${src}" destdir="${build}" />
+    </target>
+
+    <target name="jar" depends="compile" description="Generate a jar file for distribution.">
+        <jar destfile="mjc.jar">
+            <fileset dir="${build}">
+                <exclude name="**/*.java"/>
+                <exclude name="**/*.jj"/>
+            </fileset>
+        </jar>
     </target>
 
     <target name="test" depends="compile" description="Run test suite">
