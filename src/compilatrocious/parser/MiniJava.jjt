@@ -23,25 +23,42 @@ PARSER_BEGIN(MiniJava)
 
 package compilatrocious.parser;
 
-public class MiniJava{
-
-/*
-    public static void main(String args[]) throws ParseException {
-        MiniJava parser = new MiniJava(System.in);
-        parser.Program();
-        System.out.println("Success");
-    }
-*/
-}
+public class MiniJava{}
 
 PARSER_END(MiniJava)
 
+/* WHITESPACE */
 SKIP :
 {
   " "
 | "\t"
 | "\n"
 | "\r"
+}
+
+/* COMMENTS */
+SKIP :
+{
+  "//" : IN_SL_COMMENT
+| "/*" : IN_ML_COMMENT
+}
+
+<IN_SL_COMMENT> SKIP :
+{
+  < "\n" | "\r" | "\r\n" > : DEFAULT
+}
+<IN_SL_COMMENT> MORE :
+{
+  <~[]>
+}
+
+<IN_ML_COMMENT> SKIP :
+{
+  < "*/" > : DEFAULT
+}
+<IN_ML_COMMENT> MORE :
+{
+  <~[]>
 }
 
 /* SEPARATORS */

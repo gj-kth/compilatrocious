@@ -1,0 +1,24 @@
+/*
+ * Class comment
+ */
+class comments {
+
+    /*
+     * Method comment
+     */
+    public static void main(String[] args) {
+        // Just commenting this print
+        System.out.println(0);
+        /*
+         * A wild block comment appeared!
+         */
+        System.out.println(1);
+        // Single line comment attacks
+        /* Attack is super effective! */
+        System.out.println(2);
+        //Yay!
+    }
+    /*
+     * :(
+     */
+}
