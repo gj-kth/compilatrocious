@@ -100,7 +100,7 @@ TOKEN :
 TOKEN :
 {
   <ASSIGN: "=">
-| <LOG_AND: "&&">
+| <AND: "&&">
 | <LT: "<">
 | <PLUS: "+">
 | <MINUS: "-">
@@ -308,42 +308,69 @@ void While() :
 {<WHILE> <LPAREN> Expr() <RPAREN> Stmt()}
 
 /* Expression Productions */
-void Expr() :
+void Expr() #void :
 {}
 {
-  ExprPrefix() (ExprSuffix())?
-| NegExpr() 
+  Comparison()
+//| ExprPrefix() (ExprSuffix())?
 }
 
-void NegExpr() :
+void Comparison() #void :
 {}
 {
-  <NOT> Expr()
+  Sum() (<LT> Sum() #LessThan(2) | <AND> Sum() #And(2))*
 }
 
-void ExprPrefix() #void :
+void Sum() #void :
+{}
+{
+  Product() (<PLUS> Product() #Plus(2) | <MINUS> Product() #Minus(2))*
+}
+
+void Product() #void :
+{}
+{
+  ExprGet() (<STAR> ExprGet() #Mult(2))*
+}
+
+void ExprGet() #void :
+{}
+{
+  ExprPart() (<LBRACK> Expr() <RBRACK> #ArrayAccess(2)
+             | <DOT> AfterDot() #ObjAccess(2) )*
+}
+
+void AfterDot() #void :
+{Token m;}
+{
+  Identifier() <LPAREN> ExprList() <RPAREN> #Call(2)
+| <LENGTH> #ArrayLength
+}
+
+void ExprPart() #void :
 {}
 {
   BoolLiteral()
 | IntLiteral()
 | Identifier()
-| <NEW> (<INT> <LBRACK> Expr() <RBRACK> |<ID> <LPAREN> <RPAREN>)
-| <THIS>
-| <LPAREN> Expr() <RPAREN>
+| New()
+| <THIS> #This
+| <NOT> ExprPart() #NegExpr
+| (<LPAREN> Expr() <RPAREN>) #Expr
 }
 
-void ExprSuffix() #void :
+void New() #void :
 {}
 {
-  <LBRACK> Expr() <RBRACK> (ExprSuffix())?
-| <DOT> ( ("main" | <ID>) <LPAREN> (ExprList())? <RPAREN> | <LENGTH>) (ExprSuffix())?
-| Op() Expr()
+  LOOKAHEAD(2)
+  <NEW> (<INT> <LBRACK> Expr() <RBRACK>) #NewArray
+| <NEW> (<ID> <LPAREN> <RPAREN>) #NewObject
 }
 
 void ExprList() :
 {}
 {
-  Expr() (ExprListTail())*
+  (Expr() (ExprListTail())*)?
 }
 
 void ExprListTail() #void :
