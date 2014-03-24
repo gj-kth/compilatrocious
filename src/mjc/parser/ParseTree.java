@@ -1,6 +1,6 @@
 package mjc.parser;
 
-class ParseTree {
+public class ParseTree {
     public static void main(String[] args) {
         try{
             SimpleNode parsed = parse(System.in);
