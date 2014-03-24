@@ -325,7 +325,7 @@ void ExprList() :
   Expr() (ExprListTail())*
 }
 
-void ExprListTail() :
+void ExprListTail() #void :
 {}
 {
   <COMMA> Expr()
