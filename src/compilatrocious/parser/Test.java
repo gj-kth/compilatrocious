@@ -16,6 +16,7 @@ public class Test {
             results.put("compile", testCompile());
             results.put("noncompile", testNonCompile());
             results.put("noncompile oneliners", testNonCompileOneliners());
+            results.put("programs", testPrograms());
             boolean allTestsSucceeded = true;
             System.out.println();
             for(Map.Entry<String,TestResult> entry : results.entrySet()){
@@ -42,6 +43,11 @@ public class Test {
     public static TestResult testCompile(){
         System.out.println("Testing compile ...");
         return testFilesInDir(new File(System.getenv("COMPILATROCIOUS_ROOT") + "/test/compile"), true);
+    }
+
+    public static TestResult testPrograms(){
+        System.out.println("Testing programs ...");
+        return testFilesInDir(new File(System.getenv("COMPILATROCIOUS_ROOT") + "/test/programs"), true);
     }
 
     public static TestResult testNonCompile(){

@@ -175,7 +175,7 @@ void MainMethod() :
         if(!str.equals("main")){
             throw new ParseException("Expected main, found " + str);
         }
-        jjtThis.value=str;
+        jjtThis.value=name;
       }
       MethodBody()
     <RBRACE>
@@ -213,7 +213,7 @@ void VarDecl() :
 void Identifier() :
 {Token id;}
 {
-  id=<ID> {jjtThis.value=new String(id.image);}
+  id=<ID> {jjtThis.value=id;}
 }
 
 void Int() :
@@ -225,7 +225,7 @@ void Int() :
 void IntLiteral() :
 {Token i;}
 {
-  i=<INT_LITERAL> {jjtThis.value=new Integer(i.image);}
+  i=<INT_LITERAL> {jjtThis.value=i;}
 }
 
 void IntArray() :
@@ -242,7 +242,7 @@ void Boolean() :
 void BoolLiteral() :
 {Token b;}
 {
-  b=<BOOL_LITERAL> {jjtThis.value=new Boolean(b.image);}
+  b=<BOOL_LITERAL> {jjtThis.value=b;}
 }
 
 void Type() :
