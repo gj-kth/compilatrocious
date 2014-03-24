@@ -273,9 +273,23 @@ void Block() :
   <RBRACE>
 }
 
-void Assignment() :
+void Assignment() #void:
 {}
-{Identifier() (<LBRACK> Expr() <RBRACK>)? <ASSIGN> Expr() <SEMI>}
+{
+  LOOKAHEAD(2)
+  SingleAssignment()
+| ArrayAssignment()
+}
+
+void SingleAssignment() :
+{}
+{Identifier() <ASSIGN> Expr() <SEMI>}
+
+void ArrayAssignment() :
+{}
+{
+  Identifier() <LBRACK> Expr() <RBRACK> <ASSIGN> Expr() <SEMI>
+}
 
 void Conditional() :
 {}
