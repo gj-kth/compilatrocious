@@ -21,7 +21,7 @@ options {
 }
 PARSER_BEGIN(MiniJava)
 
-package compilatrocious.parser;
+package mjc.parser;
 
 public class MiniJava{}
 
@@ -297,7 +297,14 @@ void While() :
 void Expr() :
 {}
 {
-  (<NOT>)* ExprPrefix() (ExprSuffix())?
+  ExprPrefix() (ExprSuffix())?
+| NegExpr() 
+}
+
+void NegExpr() :
+{}
+{
+  <NOT> Expr()
 }
 
 void ExprPrefix() #void :

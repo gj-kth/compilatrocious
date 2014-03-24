@@ -1,4 +1,4 @@
-package compilatrocious.parser;
+package mjc.parser;
 
 class ParseTree {
     public static void main(String[] args) {

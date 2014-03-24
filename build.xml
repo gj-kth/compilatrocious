@@ -7,20 +7,20 @@
     <target name="init" description="Initialize build environment">
         <tstamp />
         <mkdir dir="${build}" />
-        <mkdir dir="${gensrc}/compilatrocious/parser" />
+        <mkdir dir="${gensrc}/mjc/parser" />
     </target>
 
     <target name="jjtree" depends="init" description="Run JJTree to generate javacc file">
         <jjtree
-            target="${src}/compilatrocious/parser/MiniJava.jjt"
-            outputdirectory="${gensrc}/compilatrocious/parser"
+            target="${src}/mjc/parser/MiniJava.jjt"
+            outputdirectory="${gensrc}/mjc/parser"
             javacchome="${lib}/javacc-5.0"
             />
     </target>
 
     <target name="javacc" depends="jjtree" description="Generate parser using javacc">
         <javacc
-            target="${gensrc}/compilatrocious/parser/MiniJava.jj"
+            target="${gensrc}/mjc/parser/MiniJava.jj"
             javacchome="${lib}/javacc-5.0"
             />
     </target>
@@ -45,7 +45,7 @@
 
     <target name="test" depends="compile" description="Run test suite">
         <java
-            classname="compilatrocious.parser.Test"
+            classname="mjc.parser.Test"
             fork="true">
 
             <!-- set environment variable, depends on fork=true --> 

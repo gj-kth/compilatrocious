@@ -1,4 +1,4 @@
-package compilatrocious.parser;
+package mjc.parser;
 
 import java.io.*;
 import java.util.*;
