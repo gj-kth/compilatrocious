@@ -331,12 +331,12 @@ void ExprListTail() :
   <COMMA> Expr()
 }
 
-void Op() :
-{Token operator;}
+void Op() #void :
+{}
 {
-  operator="&&" {jjtThis.value = new String(operator.image);}
-| operator="<" {jjtThis.value = new String(operator.image);}
-| operator="+" {jjtThis.value = new String(operator.image);}
-| operator="-" {jjtThis.value = new String(operator.image);}
-| operator="*" {jjtThis.value = new String(operator.image);}
+  "&&" #And
+| "<"  #LessThan
+| "+"  #Plus
+| "-"  #Minus
+| "*"  #Mult
 }
