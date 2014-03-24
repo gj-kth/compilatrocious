@@ -1,31 +1,37 @@
 <project name="compilatrocious" default="jar" basedir=".">
     <property name="src" location="src" />
+    <property name="gensrc" location="gensrc" />
     <property name="lib" location="lib" />
     <property name="build" location="build" />
 
     <target name="init" description="Initialize build environment">
         <tstamp />
-        <mkdir dir="${build}/compilatrocious/parser" />
+        <mkdir dir="${build}" />
+        <mkdir dir="${gensrc}/compilatrocious/parser" />
     </target>
 
     <target name="jjtree" depends="init" description="Run JJTree to generate javacc file">
         <jjtree
             target="${src}/compilatrocious/parser/MiniJava.jjt"
-            outputdirectory="${build}/compilatrocious/parser"
+            outputdirectory="${gensrc}/compilatrocious/parser"
             javacchome="${lib}/javacc-5.0"
             />
     </target>
 
     <target name="javacc" depends="jjtree" description="Generate parser using javacc">
         <javacc
-            target="${build}/compilatrocious/parser/MiniJava.jj"
+            target="${gensrc}/compilatrocious/parser/MiniJava.jj"
             javacchome="${lib}/javacc-5.0"
             />
     </target>
 
     <target name="compile" depends="javacc" description="Compile">
-        <javac includeantruntime="false" srcdir="${build}" destdir="${build}" />
-        <javac includeantruntime="false" srcdir="${src}" destdir="${build}" />
+        <javac
+            includeantruntime="false"
+            destdir="${build}">
+            <src path="${src}" />
+            <src path="${gensrc}" />
+        </javac>
     </target>
 
     <target name="jar" depends="compile" description="Generate a jar file for distribution.">
@@ -53,6 +59,7 @@
 
     <target name="clean" description="Clean up.">
         <delete dir="${build}" />
+        <delete dir="${gensrc}" />
         <delete file="mjc.jar" />
     </target>
 

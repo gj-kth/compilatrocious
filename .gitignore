@@ -1,5 +1,6 @@
-# Ignore build directory
+# Ignore build and gensrc directory
 build
+gensrc
 
 # Ignore tigris description file
 DESC
