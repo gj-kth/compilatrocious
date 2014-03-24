@@ -135,6 +135,7 @@ public class Test {
         try { 
             SimpleNode parsed = ParseTree.parse(programText);
             if(PRINT_PARSETREE){
+                System.out.println(filePath);
                 ParseTree.dumpTree(parsed);
             }
             programText.close(); 
