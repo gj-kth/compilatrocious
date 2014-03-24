@@ -288,7 +288,7 @@ void SingleAssignment() :
 void ArrayAssignment() :
 {}
 {
-  Identifier() <LBRACK> Expr() <RBRACK> <ASSIGN> Expr() <SEMI>
+  Identifier() <LBRACK> Expr() <RBRACK> #ArrayAccess(2) <ASSIGN> Expr() <SEMI>
 }
 
 void Conditional() :
@@ -308,7 +308,7 @@ void While() :
 {<WHILE> <LPAREN> Expr() <RPAREN> Stmt()}
 
 /* Expression Productions */
-void Expr() #void :
+void Expr() :
 {}
 {
   Comparison()
@@ -337,7 +337,9 @@ void ExprGet() #void :
 {}
 {
   ExprPart() (<LBRACK> Expr() <RBRACK> #ArrayAccess(2)
-             | <DOT> AfterDot() #ObjAccess(2) )*
+             | LOOKAHEAD(2)
+               <DOT> Identifier() <LPAREN> ExprList() <RPAREN> #Call(3)
+             | <DOT> <LENGTH> #ArrayLength(1))*
 }
 
 void AfterDot() #void :
@@ -356,14 +358,14 @@ void ExprPart() #void :
 | New()
 | <THIS> #This
 | <NOT> ExprPart() #NegExpr
-| (<LPAREN> Expr() <RPAREN>) #Expr
+| (<LPAREN> Expr() <RPAREN>)
 }
 
 void New() #void :
 {}
 {
   LOOKAHEAD(2)
-  <NEW> (<INT> <LBRACK> Expr() <RBRACK>) #NewArray
+  <NEW> (<INT> <LBRACK> Expr() <RBRACK>) #NewIntArray
 | <NEW> (<ID> <LPAREN> <RPAREN>) #NewObject
 }
 
