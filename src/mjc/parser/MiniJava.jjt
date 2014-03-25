@@ -124,7 +124,7 @@ SimpleNode Program() :
 {}
 {
   MainClass()
-  ( ClassDecl() )*
+  ( ClassDecl() )* #ClassDecls(true)
   {return jjtThis;}
 }
 
@@ -137,11 +137,11 @@ void MainClass() :
   <RBRACE>
 }
 
-void ClassBody() :
+void ClassBody() #void:
 {}
 {
-  ( VarDecl() )*
-  ( MethodDecl() )*
+  ( VarDecl() )* #VarDecls(true)
+  ( MethodDecl() )* #MethodDecls(true)
 }
 
 void ClassDecl() :
@@ -156,11 +156,11 @@ void ClassDecl() :
 void MethodBody() :
 {}
 {
-  ( LOOKAHEAD(2) VarDecl() )*
-  ( Stmt() )*
+  ( LOOKAHEAD(2) VarDecl() )* #VarDecls(true)
+  ( Stmt() )* #StmtBlock(true)
 }
 
-void Return() :
+void Return() #void:
 {}
 {
   <RETURN> Expr() <SEMI>
@@ -169,7 +169,7 @@ void Return() :
 void MainMethod() :
 {Token name;}
 {
-    <PUBLIC> <STATIC> <VOID> name=<ID> <LPAREN> "String" <LBRACK> <RBRACK> <ID> <RPAREN> <LBRACE>
+    <PUBLIC> <STATIC> <VOID> name=<ID> <LPAREN> "String" <LBRACK> <RBRACK> Identifier() <RPAREN> <LBRACE>
       {
         String str = new String(name.image);
         if(!str.equals("main")){
@@ -184,7 +184,7 @@ void MainMethod() :
 void MethodDecl() :
 {}
 {
-  "public" Type() Identifier() <LPAREN> ( ArgList() )? <RPAREN> <LBRACE>
+  "public" Type() Identifier() <LPAREN> ArgList() <RPAREN> <LBRACE>
     MethodBody()
     Return()
   <RBRACE>
@@ -193,7 +193,7 @@ void MethodDecl() :
 void ArgList() :
 {}
 {
-  (Arg())+
+  (Arg())*
 }
 
 void Arg() :
@@ -258,14 +258,14 @@ void Type() :
 void Stmt() :
 {}
 {
-  Block()
+  StmtBlock()
 | Conditional()
 | Print()
 | While()
 | Assignment()
 }
 
-void Block() :
+void StmtBlock() :
 {}
 {
   <LBRACE>
@@ -288,15 +288,15 @@ void SingleAssignment() :
 void ArrayAssignment() :
 {}
 {
-  Identifier() <LBRACK> Expr() <RBRACK> #ArrayAccess(2) <ASSIGN> Expr() <SEMI>
+  Identifier() <LBRACK> Expr() <RBRACK> <ASSIGN> Expr() <SEMI>
 }
 
-void Conditional() :
+void Conditional() #void:
 {}
 {
   LOOKAHEAD(3)
-  <IF> <LPAREN> Expr() <RPAREN> Stmt() <ELSE> Stmt()
-| <IF> <LPAREN> Expr() <RPAREN> Stmt()
+  (<IF> <LPAREN> Expr() <RPAREN> Stmt() <ELSE> Stmt()) #IfElse
+| (<IF> <LPAREN> Expr() <RPAREN> Stmt()) #If
 }
 
 void Print() :
@@ -366,7 +366,7 @@ void New() #void :
 {
   LOOKAHEAD(2)
   <NEW> (<INT> <LBRACK> Expr() <RBRACK>) #NewIntArray
-| <NEW> (<ID> <LPAREN> <RPAREN>) #NewObject
+| <NEW> (Identifier() <LPAREN> <RPAREN>) #NewObject
 }
 
 void ExprList() :
