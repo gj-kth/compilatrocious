@@ -157,7 +157,7 @@ void MethodBody() :
 {}
 {
   ( LOOKAHEAD(2) VarDecl() )* #VarDecls(true)
-  ( Stmt() )* #StmtBlock(true)
+  ( Stmt() )* #Stmts(true)
 }
 
 void Return() #void:
@@ -258,18 +258,18 @@ void Type() :
 void Stmt() :
 {}
 {
-  StmtBlock()
+  Block()
 | Conditional()
 | Print()
 | While()
 | Assignment()
 }
 
-void StmtBlock() :
+void Block() :
 {}
 {
   <LBRACE>
-    ( Stmt() )*
+    ( Stmt() )* #Stmts(true)
   <RBRACE>
 }
 
@@ -336,7 +336,7 @@ void Product() #void :
 void ExprGet() #void :
 {}
 {
-  ExprPart() (<LBRACK> Expr() <RBRACK> #ArrayAccess(2)
+  ExprPart()  (<LBRACK> Expr() <RBRACK> #ArrayAccess(2)
              | LOOKAHEAD(2)
                <DOT> Identifier() <LPAREN> ExprList() <RPAREN> #Call(3)
              | <DOT> <LENGTH> #ArrayLength(1))*
