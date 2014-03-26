@@ -79,7 +79,7 @@ public class SymbolTableVisitor implements MiniJavaVisitor{
 		Node methodBody = node.jjtGetChild(1);
 		SymbolTable paramsTable = new SymbolTable();
 		String argNameString = getVal(argNameId);
-		paramsTable.insert(argNameString, "String");
+		paramsTable.insert(argNameString, "String[]");
 		SymbolTable localsTable = (SymbolTable)methodBody.jjtAccept(this,data);
 		return new MethodData("void", paramsTable, localsTable);
 	}
