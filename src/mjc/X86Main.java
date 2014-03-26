@@ -11,11 +11,11 @@ class X86Main {
             System.exit(1);
         }
         
-        String file = args[0];
+        String in_file = args[0];
         FileInputStream source;
 
         try{
-            source = new FileInputStream(file);
+            source = new FileInputStream(in_file);
 
             try{
                 SimpleNode tree = ParseTree.parse(source);
@@ -25,6 +25,25 @@ class X86Main {
             }
 
         }catch(FileNotFoundException e) {
+            System.exit(1);
+        }
+
+        // Dummy program
+        String program = "    .text\n    .globl      main\n    .type       main, @function\nmain:\n    movl $0, %eax\n    ret\n";
+
+        // Get filename
+        String[] path = in_file.split("[/\\.]");
+        String out_file = path[path.length-2]+".s";
+
+        PrintWriter destination;
+
+        try{
+            destination = new PrintWriter("./" + out_file);
+
+            destination.print(program);
+            destination.close();
+
+        }catch(Exception e){
             System.exit(1);
         }
 
