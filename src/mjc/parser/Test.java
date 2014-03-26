@@ -136,7 +136,9 @@ public class Test {
             SimpleNode parsed = ParseTree.parse(programText);
             if(PRINT_PARSETREE){
                 System.out.println(filePath);
-                ParseTree.dumpTree(parsed);
+                SymbolTableVisitor visitor = new SymbolTableVisitor();
+                parsed.jjtAccept(visitor, null);
+                //ParseTree.dumpTree(parsed);
             }
             programText.close(); 
             if(!positiveTest){

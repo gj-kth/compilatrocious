@@ -2,7 +2,7 @@ package mjc.parser;
 
 import java.util.HashMap;
 
-public class Symbol {
+public class Symbol{
     private String name;
 
     private static HashMap<String,Symbol> symbols = new HashMap<String,Symbol>();
