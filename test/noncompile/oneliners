@@ -5,7 +5,7 @@ String a;
 boolean[] a;
 abc[] a;
 if true {} else {}
-if (true) {}
+if (true {}
 while true {}
 System.out.println();
 a[] = 1;
