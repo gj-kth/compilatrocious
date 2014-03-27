@@ -160,7 +160,7 @@ public class SymbolTableVisitor implements MiniJavaVisitor{
 	public Object visit(ASTArrayAssignment node, Object data){
 		return visitChildren(node, data);
 	}
-	
+
 	public Object visit(ASTIfElse node, Object data){
 		return visitChildren(node, data);
 	}
@@ -276,6 +276,15 @@ public class SymbolTableVisitor implements MiniJavaVisitor{
 
 		public String toString(String prefix){
 			return prefix + "params:\n" + paramsTable.toString(prefix + "\t") + "\n" + prefix + "locals:\n" + localsTable.toString(prefix + "\t");
+		}
+	}
+
+	private class Pair<T1,T2>{
+		T1 first;
+		T2 second;
+		Pair(T1 f, T2 s){
+			first = f;
+			second = s;
 		}
 	}
 

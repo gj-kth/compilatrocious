@@ -291,22 +291,22 @@ void ArrayAssignment() :
   Identifier() <LBRACK> Expr() <RBRACK> <ASSIGN> Expr() <SEMI>
 }
 
-void Conditional() :
+void Conditional() #void:
 {}
 {
-  IfPart() ( <ELSE> ElsePart() #IfElse(2) )?
+  IfPart() ( <ELSE> 
+            {
+              Node ifNode = jjtree.popNode();
+              jjtree.pushNode(ifNode.jjtGetChild(0));
+              jjtree.pushNode(ifNode.jjtGetChild(1));
+            } 
+            Stmt()  #IfElse(3) )?
 }
 
 void IfPart() #void :
 {}
 {
   <IF> <LPAREN> Expr() <RPAREN> Stmt() #If(2)
-}
-
-void ElsePart() #void :
-{}
-{
-  Stmt() #Else(1)
 }
 
 void Print() :

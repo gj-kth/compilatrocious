@@ -6,7 +6,8 @@ import java.util.*;
 public class Test {
 
     public static final boolean PRINT_FILENAMES = false;
-    public static final boolean PRINT_PARSETREE = true;
+    public static final boolean PRINT_PARSETREE = false;
+    public static final boolean PRINT_SYMBOL_TABLE = true;
     public static final boolean PRINT_FAILED_TESTS = true;
 
     public static void main(String[] args){
@@ -136,9 +137,11 @@ public class Test {
             SimpleNode parsed = ParseTree.parse(programText);
             if(PRINT_PARSETREE){
                 System.out.println(filePath);
+                ParseTree.dumpTree(parsed);
+            }
+            if(PRINT_SYMBOL_TABLE){
                 SymbolTableVisitor visitor = new SymbolTableVisitor();
                 parsed.jjtAccept(visitor, null);
-                //ParseTree.dumpTree(parsed);
             }
             programText.close(); 
             if(!positiveTest){
