@@ -1,5 +1,7 @@
 package mjc.parser;
 
+import java.lang.IllegalArgumentException;
+
 public class SymbolTable implements HasPrefixedToString{
 
 	final int SIZE = 256;
@@ -14,6 +16,9 @@ public class SymbolTable implements HasPrefixedToString{
 
 	void insert(Symbol s, Object b) {
 		int index = getIndex(s);
+                if(table[index] != null) {
+                    throw new IllegalArgumentException("Symbol " + s.toString() + " already defined!");
+                }
 		table[index]=new SymbolTableBucket(s, b);
 	}
 
