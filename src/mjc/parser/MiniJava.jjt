@@ -291,10 +291,22 @@ void ArrayAssignment() :
   Identifier() <LBRACK> Expr() <RBRACK> <ASSIGN> Expr() <SEMI>
 }
 
-void Conditional() #If :
+void Conditional() #void :
 {}
 {
-  <IF> <LPAREN> Expr() <RPAREN> Stmt() ( <ELSE> Stmt())? #IfElse(>2)
+  IfPart() ( <ELSE> ElsePart() #IfElse(2) )?
+}
+
+void IfPart() #void :
+{}
+{
+  <IF> <LPAREN> Expr() <RPAREN> Stmt() #If
+}
+
+void ElsePart() #void :
+{}
+{
+  Stmt() #Else
 }
 
 void Print() :
