@@ -140,8 +140,10 @@ public class Test {
                 ParseTree.dumpTree(parsed);
             }
             if(PRINT_SYMBOL_TABLE){
+                System.out.println(filePath);
                 SymbolTableVisitor visitor = new SymbolTableVisitor();
-                parsed.jjtAccept(visitor, null);
+                SymbolTable t = (SymbolTable) parsed.jjtAccept(visitor, null);
+                System.out.println(t.toString(""));
             }
             programText.close(); 
             if(!positiveTest){
