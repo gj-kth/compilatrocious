@@ -291,7 +291,7 @@ void ArrayAssignment() :
   Identifier() <LBRACK> Expr() <RBRACK> <ASSIGN> Expr() <SEMI>
 }
 
-void Conditional() #void :
+void Conditional() :
 {}
 {
   IfPart() ( <ELSE> ElsePart() #IfElse(2) )?
@@ -300,13 +300,13 @@ void Conditional() #void :
 void IfPart() #void :
 {}
 {
-  <IF> <LPAREN> Expr() <RPAREN> Stmt() #If
+  <IF> <LPAREN> Expr() <RPAREN> Stmt() #If(2)
 }
 
 void ElsePart() #void :
 {}
 {
-  Stmt() #Else
+  Stmt() #Else(1)
 }
 
 void Print() :
