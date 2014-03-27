@@ -14,20 +14,19 @@ public class SymbolTable implements HasPrefixedToString{
 
 	void insert(Symbol s, Object b) {
 		int index = getIndex(s);
-		table[index]=new SymbolTableBucket(s, b, table[index]);
+		table[index]=new SymbolTableBucket(s, b);
 	}
 
 	Object lookup(Symbol s) {
 		int index = getIndex(s);
-		for (SymbolTableBucket b = table[index]; b!=null; b=b.next)
-			if (s.equals(b.key)) 
-				return b.binding;
+		if (table[index]!=null && s.equals(table[index].key)) 
+			return table[index].binding;
 		return null;
 	}
 
 	void pop(Symbol s) {
 		int index = getIndex(s);
-		table[index]=table[index].next;
+		table[index]=null;
 	}
 
 	private int getIndex(Symbol s){
