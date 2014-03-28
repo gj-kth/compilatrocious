@@ -107,17 +107,17 @@ TOKEN :
 | <STAR: "*">
 }
 
-/* IDENTIFIERS */
-TOKEN :
-{
- <ID: (["a"-"z"] | ["A"-"Z"]) (["a"-"z"] | ["A"-"Z"] | ["0"-"9"] | "-" | "_")*>
-}
-
 /* LITERALS */
 TOKEN :
 {
   <INT_LITERAL: ("0" | ["1"-"9"](["0"-"9"])*)>
 | <BOOL_LITERAL: ("true" | "false" )>
+}
+
+/* IDENTIFIERS */
+TOKEN :
+{
+ <ID: (["a"-"z"] | ["A"-"Z"]) (["a"-"z"] | ["A"-"Z"] | ["0"-"9"] | "-" | "_")*>
 }
 
 SimpleNode Program() :
@@ -239,6 +239,7 @@ void Boolean() :
 {
   <BOOL>
 }
+
 void BoolLiteral() :
 {Token b;}
 {
@@ -350,13 +351,6 @@ void ExprGet() #void :
              | LOOKAHEAD(2)
                <DOT> Identifier() <LPAREN> ExprList() <RPAREN> #Call(3)
              | <DOT> <LENGTH> #ArrayLength(1))*
-}
-
-void AfterDot() #void :
-{Token m;}
-{
-  Identifier() <LPAREN> ExprList() <RPAREN> #Call(2)
-| <LENGTH> #ArrayLength
 }
 
 void ExprPart() #void :
