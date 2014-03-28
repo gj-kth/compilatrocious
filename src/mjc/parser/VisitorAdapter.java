@@ -175,10 +175,21 @@ public abstract class VisitorAdapter implements MiniJavaVisitor{
 		return shouldNotBeVisited(node, data);
 	}
 
-	
-	private Object shouldNotBeVisited(SimpleNode node, Object data){
+	protected String getVal(Node node){
+		Object val = ((SimpleNode)node).value;
+		return val.toString();
+	}
+
+	protected Object shouldNotBeVisited(SimpleNode node, Object data){
 		new Exception("visit should not be called with this class(?)  node: " + node.getClass() + ", data: " + data).printStackTrace();
 		System.exit(0);
+		return null;
+	}
+
+	protected Object visitChildren(Node parent, Object data){
+		for(int i = 0; i < parent.jjtGetNumChildren(); i ++){
+			parent.jjtGetChild(i).jjtAccept(this, null);
+		}
 		return null;
 	}
 }

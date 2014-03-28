@@ -1,4 +1,7 @@
 package mjc.parser;
+import mjc.parser.VisitorUtil.Pair;
+import mjc.parser.VisitorUtil.ClassData;
+import mjc.parser.VisitorUtil.MethodData;
 
 public class SymbolTableVisitor extends VisitorAdapter{
 
@@ -128,58 +131,4 @@ public class SymbolTableVisitor extends VisitorAdapter{
 		return node.jjtGetChild(0).jjtAccept(this,data);
 	}
 
-	private Object visitChildren(Node parent, Object data){
-		for(int i = 0; i < parent.jjtGetNumChildren(); i ++){
-			parent.jjtGetChild(i).jjtAccept(this, null);
-		}
-		return null;
-	}
-
-	private String getVal(Node node){
-		Object val = ((SimpleNode)node).value;
-		return val.toString();
-	}
-
-	private class ClassData implements HasPrefixedToString{
-		SymbolTable fieldsTable;
-		SymbolTable methodsTable;
-		public ClassData(SymbolTable f, SymbolTable m){
-			fieldsTable = f;
-			methodsTable = m;
-		}
-
-		public String toString(String prefix){
-			return prefix + "fields:\n" + fieldsTable.toString(prefix + "\t") + "\n" + prefix + "methods:\n" + methodsTable.toString(prefix + "\t");
-		}
-	}
-
-	private class MethodData implements HasPrefixedToString{
-		String returnType;
-		SymbolTable paramsTable;
-		SymbolTable localsTable;
-		public MethodData(String r, SymbolTable p, SymbolTable l){
-			returnType = r;
-			paramsTable = p;
-			localsTable = l;
-			if(paramsTable == null){
-				throw new IllegalArgumentException("paramsTable is null");
-			}
-			if(localsTable == null){
-				throw new IllegalArgumentException("localsTable is null");
-			}
-		}
-
-		public String toString(String prefix){
-			return prefix + returnType + "\n" + prefix + "params:\n" + paramsTable.toString(prefix + "\t") + "\n" + prefix + "locals:\n" + localsTable.toString(prefix + "\t");
-		}
-	}
-
-	private class Pair<T1,T2>{
-		T1 first;
-		T2 second;
-		Pair(T1 f, T2 s){
-			first = f;
-			second = s;
-		}
-	}
 }
