@@ -146,13 +146,13 @@ public class TypeCheckVisitor extends VisitorAdapter{
 		return visitLiteral(node, data, "boolean");
 	}
 
-	private Object visitLiteral(Node node, Object data, String type){
+	private Object visitLiteral(SimpleNode node, Object data, String type){
 		ExprInput input = (ExprInput) data;
 		if(input.expectedType != null && !(input.expectedType.equals(type))){
-			throw new WrongType(input.varScope, input.expectedType, type);
+			throw new WrongType(input.varScope, input.expectedType, type, node);
 		}
 		if(input.varScope != null){
-			checkVariableType(input.varScope, type);	
+			checkVariableType(input.varScope, type, node);
 		}
 		return ((Token)((SimpleNode)node).value).image;
 	}
@@ -160,7 +160,7 @@ public class TypeCheckVisitor extends VisitorAdapter{
 	public Object visit(ASTLessThan node, Object data){
 		ExprInput input = (ExprInput) data;
 		if(input.expectedType != null && !(input.expectedType.equals("boolean"))){
-			throw new WrongType(input.varScope, input.expectedType, "boolean");
+			throw new WrongType(input.varScope, input.expectedType, "boolean", node);
 		}
 		Node expr1 = node.jjtGetChild(0);
 		Node expr2 = node.jjtGetChild(1);
@@ -173,7 +173,7 @@ public class TypeCheckVisitor extends VisitorAdapter{
 	public Object visit(ASTAnd node, Object data){
 		ExprInput input = (ExprInput) data;
 		if(input.expectedType != null && !(input.expectedType.equals("boolean"))){
-			throw new WrongType(input.varScope, input.expectedType, "boolean");
+			throw new WrongType(input.varScope, input.expectedType, "boolean", node);
 		}
 		Node expr1 = node.jjtGetChild(0);
 		Node expr2 = node.jjtGetChild(1);
@@ -194,10 +194,10 @@ public class TypeCheckVisitor extends VisitorAdapter{
 		return visitIntBinop(node, data);
 	}
 
-	public Object visitIntBinop(Node node, Object data){
+	public Object visitIntBinop(SimpleNode node, Object data){
 		ExprInput input = (ExprInput) data;
 		if(input.expectedType != null && !(input.expectedType.equals("int"))){
-			throw new WrongType(input.varScope, input.expectedType, "int");
+			throw new WrongType(input.varScope, input.expectedType, "int", node);
 		}
 		Node expr1 = node.jjtGetChild(0);
 		Node expr2 = node.jjtGetChild(1);
@@ -245,19 +245,19 @@ public class TypeCheckVisitor extends VisitorAdapter{
 		//TODO
 	}
 
-	private void checkVariableType(VariableScopeWithName scope, String expectedType){
+	private void checkVariableType(VariableScopeWithName scope, String expectedType, SimpleNode node){
 		ClassData classData = (ClassData) symbolTable.lookup(scope.className);
 		MethodData methodData = (MethodData) classData.methodsTable.lookup(scope.method);
 		String varType;
 		if((varType = (String)methodData.localsTable.lookup(scope.varName)) == null){
 			if((varType = (String)methodData.paramsTable.lookup(scope.varName)) == null){
 				if((varType = (String)classData.fieldsTable.lookup(scope.varName)) == null){
-					throw new ReferencedMissingVariable(scope);
+					throw new ReferencedMissingVariable(scope, node);
 				}
 			}
 		}
 		if(!(varType.equals(expectedType))){
-			throw new WrongType(scope, expectedType, varType);
+			throw new WrongType(scope, expectedType, varType, node);
 		}
 	}
 

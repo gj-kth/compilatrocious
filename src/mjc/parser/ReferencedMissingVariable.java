@@ -9,7 +9,8 @@ import mjc.parser.VisitorUtil.VariableScopeWithName;
 
 
 public class ReferencedMissingVariable extends Error{
-	public ReferencedMissingVariable(VariableScopeWithName scope){
-		super("Scope: " + scope);
+	public ReferencedMissingVariable(VariableScopeWithName scope, SimpleNode node){
+		super("Scope: " + scope + " at line "
+                        + ((Token)node.value).beginLine + " column " + ((Token)node.value).beginColumn);
 	}
 }

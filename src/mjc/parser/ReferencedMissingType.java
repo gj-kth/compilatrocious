@@ -9,7 +9,8 @@ import mjc.parser.VisitorUtil.VariableScopeWithName;
 
 
 public class ReferencedMissingType extends Error{
-	public ReferencedMissingType(VariableScope scope, String typeName){
-		super("Scope: " + scope + ", typeName: " + typeName);
+	public ReferencedMissingType(VariableScope scope, String typeName, SimpleNode node){
+		super("Scope: " + scope + ", typeName: " + typeName + " at line "
+                        + ((Token)node.value).beginLine + " column " + ((Token)node.value).beginColumn);
 	}
 }
