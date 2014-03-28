@@ -44,28 +44,32 @@ public class VisitorUtil{
 		}
 	}
 
-	public static class VariableScope{
+	public static class Scope{
 		String className;
-		String method;
-		VariableScope(String c, String m){
-			className = c;
-			method = m;
-		}
-
-		public String toString(){
-			return className + "." + method + "()";
-		}
-	}
-
-	public static class VariableScopeWithName extends VariableScope{
+		String methodName;
 		String varName;
-		VariableScopeWithName(String c, String m, String n){
-			super(c,m);
-			varName = n;
-		}
 
+		Scope(String c){
+			this(c, null,null);
+		}
+		Scope(String c, String m){
+			this(c,m,null);
+		}
+		Scope(String c, String m, String v){
+			className = c;
+			methodName = m;
+			varName = v;
+		}
 		public String toString(){
-			return super.toString() + "." + varName;
+			String s = className;
+			if(methodName != null){
+				s += "." + methodName + "()";
+				if(varName != null){
+					s += "." + varName;
+				}
+			}
+			return s;
 		}
 	}
+
 }

@@ -7,8 +7,8 @@ import mjc.parser.VisitorUtil.MethodData;
 import mjc.parser.VisitorUtil.Scope;
 
 
-public class WrongType extends Error{
-	public WrongType(Scope scope, String expectedType, String foundType){
-		super("Scope: " + scope + ", expected '" + expectedType + "', found '" + foundType + "'");
+public class ReferencedMissingMethod extends Error{
+	public ReferencedMissingMethod(Scope scope, String typeName){
+		super("Scope: " + scope + ", methodName: " + typeName);
 	}
 }
