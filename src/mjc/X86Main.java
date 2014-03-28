@@ -20,7 +20,8 @@ class X86Main {
             try{
                 SimpleNode tree = ParseTree.parse(source);
                 source.close();
-            }catch(TokenMgrError | ParseException | IOException e) {
+            }catch(IllegalArgumentException | TokenMgrError | ParseException | IOException e) {
+                e.printStackTrace();
                 System.exit(1);
             }
 

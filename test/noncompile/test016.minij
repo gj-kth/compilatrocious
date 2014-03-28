@@ -1,0 +1,16 @@
+class double_decl {
+
+    public static void main(String[] args) {
+        int a;
+        int b;
+        boolean a;
+
+        a = 3;
+        b = 4;
+        a = true;
+
+        if(a) {
+            b = a;
+        }
+    }
+}
