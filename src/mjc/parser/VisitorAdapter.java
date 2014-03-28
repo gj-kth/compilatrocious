@@ -188,7 +188,7 @@ public abstract class VisitorAdapter implements MiniJavaVisitor{
 
 	protected Object visitChildren(Node parent, Object data){
 		for(int i = 0; i < parent.jjtGetNumChildren(); i ++){
-			parent.jjtGetChild(i).jjtAccept(this, null);
+			parent.jjtGetChild(i).jjtAccept(this, data);
 		}
 		return null;
 	}
