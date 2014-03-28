@@ -294,7 +294,7 @@ void ArrayAssignment() :
 void Conditional() #void:
 {}
 {
-  IfPart() ( <ELSE> 
+  IfPart() (LOOKAHEAD(2) <ELSE> 
             {
               Node ifNode = jjtree.popNode();
               jjtree.pushNode(ifNode.jjtGetChild(0));
