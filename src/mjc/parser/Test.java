@@ -134,19 +134,23 @@ public class Test {
 
     static boolean testProgram(InputStream programText, boolean positiveTest, String filePath) throws IOException{
         try { 
+            // Build parsetree
             SimpleNode parsed = ParseTree.parse(programText);
             if(PRINT_PARSETREE){
                 System.out.println(filePath);
                 ParseTree.dumpTree(parsed);
             }
+
+            // Type check
+            SymbolTableVisitor visitor = new SymbolTableVisitor();
+            SymbolTable symbolTable = (SymbolTable) parsed.jjtAccept(visitor, null);
             if(PRINT_SYMBOL_TABLE){
                 System.out.println(filePath);
-                SymbolTableVisitor visitor = new SymbolTableVisitor();
-                SymbolTable symbolTable = (SymbolTable) parsed.jjtAccept(visitor, null);
-                //System.out.println(symbolTable.toString(""));
-                TypeCheckVisitor visitor2 = new TypeCheckVisitor(symbolTable);
-                parsed.jjtAccept(visitor2, null);
+                System.out.println(symbolTable.toString(""));
             }
+            TypeCheckVisitor visitor2 = new TypeCheckVisitor(symbolTable);
+            parsed.jjtAccept(visitor2, null);
+
             programText.close(); 
             if(!positiveTest){
                 if(PRINT_FAILED_TESTS){
