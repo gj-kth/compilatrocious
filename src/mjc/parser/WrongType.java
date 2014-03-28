@@ -8,7 +8,9 @@ import mjc.parser.VisitorUtil.Scope;
 
 
 public class WrongType extends Error{
-	public WrongType(Scope scope, String expectedType, String foundType){
-		super("Scope: " + scope + ", expected '" + expectedType + "', found '" + foundType + "'");
+
+	public WrongType(Scope scope, String expectedType, String foundType, SimpleNode node){
+		super("Scope: " + scope + ", expected '" + expectedType + "', found '" + foundType + "' at line "
+                        + ((Token)node.value).beginLine + " column " + ((Token)node.value).beginColumn);
 	}
 }
