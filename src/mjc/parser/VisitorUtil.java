@@ -44,29 +44,32 @@ public class VisitorUtil{
 		}
 	}
 
-	public static class Scope{
+	public static class Context{
 		String className;
 		String methodName;
 		String varName;
 
-		Scope(String c){
+		Context(String c){
 			this(c, null,null);
 		}
-		Scope(String c, String m){
+		Context(String c, String m){
 			this(c,m,null);
 		}
-		Scope(String c, String m, String v){
+		Context(String c, String m, String v){
 			className = c;
 			methodName = m;
 			varName = v;
+		}
+		Context(Object other){
+			this(((Context)other).className, ((Context)other).methodName, ((Context)other).varName);
 		}
 		public String toString(){
 			String s = className;
 			if(methodName != null){
 				s += "." + methodName + "()";
-				if(varName != null){
-					s += "." + varName;
-				}
+			}
+			if(varName != null){
+				s += "." + varName;
 			}
 			return s;
 		}
