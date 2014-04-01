@@ -11,7 +11,6 @@ public class WrongType extends TypecheckError{
 
 	public WrongType(Context scope, String expectedType, String foundType, SimpleNode node){
 		super(str(scope, expectedType, foundType, node));
-		int a-b;
 	}
 
 	private static String str(Context scope, String expectedType, String foundType, SimpleNode node){
