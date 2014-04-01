@@ -7,7 +7,7 @@ import mjc.parser.VisitorUtil.MethodData;
 import mjc.parser.VisitorUtil.Context;
 
 
-public class ReferencedMissingMethod extends Error{
+public class ReferencedMissingMethod extends TypecheckError{
 	public ReferencedMissingMethod(Context scope, String typeName){
 		super("Context: " + scope + ", methodName: " + typeName);
 	}

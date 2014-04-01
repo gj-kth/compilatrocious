@@ -60,14 +60,9 @@ public class TypeCheckVisitor extends VisitorAdapter{
 		Node methodBody = node.jjtGetChild(3);
 		methodBody.jjtAccept(this, context);
 		Node returnExp = node.jjtGetChild(4);
-		//ExprInput exprInput = new ExprInput(
-		//returnStmt.jjtAccept(this, returnType); //Check that returnstatement evaluates to correct type!
-
-		//TODO
-
-		//TODO
+		String expectedReturnType = getFunctionReturnType(context);
+		returnExp.jjtAccept(this, new ExprInput(context, expectedReturnType));
 		return null;
-
 	}
 	
 	//data == class.method() context
@@ -458,6 +453,15 @@ public class TypeCheckVisitor extends VisitorAdapter{
 			}
 		}
 		return varType;
+	}
+
+	private String getFunctionReturnType(Context context){
+		if(context == null || context.className == null || context.methodName == null || context.varName != null){
+			throw new NullPointerException("context == " + context);
+		}
+		ClassData classData = (ClassData) symbolTable.lookup(context.className);
+		MethodData methodData = (MethodData) classData.methodsTable.lookup(context.methodName);
+		return methodData.returnType;
 	}
 
 	//Given as input to all expression-visit-methods.

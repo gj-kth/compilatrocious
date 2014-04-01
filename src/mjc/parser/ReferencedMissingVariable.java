@@ -7,7 +7,7 @@ import mjc.parser.VisitorUtil.MethodData;
 import mjc.parser.VisitorUtil.Context;
 
 
-public class ReferencedMissingVariable extends Error{
+public class ReferencedMissingVariable extends TypecheckError{
 
 	public ReferencedMissingVariable(Context scope, SimpleNode node){
 		super(str(scope, node));

@@ -7,7 +7,7 @@ import mjc.parser.VisitorUtil.MethodData;
 import mjc.parser.VisitorUtil.Context;
 
 
-public class WrongType extends Error{
+public class WrongType extends TypecheckError{
 
 	public WrongType(Context scope, String expectedType, String foundType, SimpleNode node){
 		super(str(scope, expectedType, foundType, node));

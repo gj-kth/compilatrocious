@@ -7,7 +7,7 @@ import mjc.parser.VisitorUtil.MethodData;
 import mjc.parser.VisitorUtil.Context;
 
 
-public class ReferencedMissingType extends Error{
+public class ReferencedMissingType extends TypecheckError{
 
 	public ReferencedMissingType(Context scope, String typeName, SimpleNode node){
 		super("Context: " + scope + ", typeName: " + typeName + " at line "

@@ -159,8 +159,7 @@ public class Test {
                 }
                 return false;
             }
-        } catch (IllegalArgumentException | WrongType | ReferencedMissingType | ReferencedMissingVariable
-                    | TokenMgrError | ParseException e) {
+        } catch (TypecheckError | TokenMgrError | ParseException e) {
             if(positiveTest){
                 if(PRINT_FAILED_TESTS){
                     System.out.println(filePath);
