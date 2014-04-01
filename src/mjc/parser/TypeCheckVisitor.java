@@ -292,7 +292,6 @@ public class TypeCheckVisitor extends VisitorAdapter{
 		List<String> paramTypes = (List<String>) expList.jjtAccept(this, childInput);
 
 		String methodName = getVal(methodId);
-		System.out.println(methodName + ":    " + Arrays.toString(paramTypes.toArray())); //TODO
 		
 		String objType = (String) objExp.jjtAccept(this, childInput);
 		String returnType = checkCall(objType, methodName, input.expectedType, paramTypes, (SimpleNode)methodId);
@@ -363,7 +362,7 @@ public class TypeCheckVisitor extends VisitorAdapter{
 		//Om det står this.getB()  vill vi kontrollera att getB finns, osv
 		//TODO
 		//TODO
-		return null;
+		return currentClass;
 	}
 	
 	public Object visit(ASTNewIntArray node, Object data){

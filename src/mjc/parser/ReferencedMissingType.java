@@ -10,8 +10,7 @@ import mjc.parser.VisitorUtil.Context;
 public class ReferencedMissingType extends TypecheckError{
 
 	public ReferencedMissingType(Context scope, String typeName, SimpleNode node){
-		super("Context: " + scope + ", typeName: " + typeName + " at line "
-                        + ((Token)node.value).beginLine + " column " + ((Token)node.value).beginColumn);
+		super(str(scope, typeName, node));
 	}
 
 	private static String str(Context scope, String typeName, SimpleNode node){

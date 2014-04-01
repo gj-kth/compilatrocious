@@ -16,6 +16,9 @@ public class Symbol{
     }
 
     public static Symbol symbol(String n) {
+        if(n==null) {
+            throw new IllegalArgumentException("String is null!");
+        }
         String u = n.intern();
         Symbol s = symbols.get(u);
         if(s==null) {
