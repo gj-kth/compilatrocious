@@ -17,4 +17,8 @@ public class SymbolTableBucket implements HasPrefixedToString{
 		}
 		return s;
 	}
+
+        public String toString() {
+            return toString("");
+        }
 }

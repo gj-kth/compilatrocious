@@ -26,9 +26,9 @@ public class SymbolTable implements HasPrefixedToString{
 
 	void insert(Symbol s, Object b) {
 		int index = getIndex(s);
-        if(table[index] != null) {
-            throw new DuplicateDeclaration(s, b);
-        }
+                if(table[index] != null) {
+                    throw new DuplicateDeclaration(s, b, table[index]);
+                }
 		table[index]=new SymbolTableBucket(s, b);
 	}
 
@@ -73,4 +73,8 @@ public class SymbolTable implements HasPrefixedToString{
 		}
 		return s;
 	}
+
+        public String toString() {
+            return toString("");
+        }
 }

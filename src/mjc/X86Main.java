@@ -29,7 +29,7 @@ class X86Main {
                 //TypeCheckVisitor visitor2 = new TypeCheckVisitor(symbolTable);
                 //tree.jjtAccept(visitor2, null);
 
-            }catch(Exception e) {
+            }catch(TypecheckError | ParseException | TokenMgrError | IOException e) {
                 //e.printStackTrace();
                 printError(e);
                 System.exit(1);

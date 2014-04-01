@@ -14,6 +14,10 @@ public class VisitorUtil{
 		public String toString(String prefix){
 			return prefix + "fields:\n" + fieldsTable.toString(prefix + "\t") + "\n" + prefix + "methods:\n" + methodsTable.toString(prefix + "\t");
 		}
+
+                public String toString() {
+                    return toString("");
+                }
 	}
 
 	public static class MethodData implements HasPrefixedToString{
@@ -40,6 +44,10 @@ public class VisitorUtil{
 		public String toString(String prefix){
 			return prefix + returnType + "\n" + prefix + "params:\n" + paramsTable.toString(prefix + "\t") + "\n" + prefix + "locals:\n" + localsTable.toString(prefix + "\t");
 		}
+
+                public String toString() {
+                    return toString("");
+                }
 	}
 
 	public static class Pair<T1,T2>{
