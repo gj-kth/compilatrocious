@@ -1,5 +1,7 @@
 package mjc.parser;
 
+import java.util.*;
+
 public class VisitorUtil{
 	public static class ClassData implements HasPrefixedToString{
 		SymbolTable fieldsTable;
@@ -17,13 +19,18 @@ public class VisitorUtil{
 	public static class MethodData implements HasPrefixedToString{
 		String returnType;
 		SymbolTable paramsTable;
+		List<String> paramTypes;
 		SymbolTable localsTable;
-		public MethodData(String r, SymbolTable p, SymbolTable l){
+		public MethodData(String r, SymbolTable p, List<String> pt, SymbolTable l){
 			returnType = r;
 			paramsTable = p;
+			paramTypes = pt;
 			localsTable = l;
 			if(paramsTable == null){
 				throw new IllegalArgumentException("paramsTable is null");
+			}
+			if(paramTypes == null){
+				throw new IllegalArgumentException("paramTypes is null");	
 			}
 			if(localsTable == null){
 				throw new IllegalArgumentException("localsTable is null");

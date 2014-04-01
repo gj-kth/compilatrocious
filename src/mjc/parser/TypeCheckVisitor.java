@@ -282,14 +282,19 @@ public class TypeCheckVisitor extends VisitorAdapter{
 	
 	public Object visit(ASTCall node, Object data){
 		ExprInput input = assertExprInput(data);
+		ExprInput childInput = new ExprInput(input);
+		childInput.expectedType = null;
+
 		Node objExp = node.jjtGetChild(0);
 		Node methodId = node.jjtGetChild(1);
 		Node expList = node.jjtGetChild(2);
-		List<String> paramTypes = (List<String>) expList.jjtAccept(this, input);
+
+		List<String> paramTypes = (List<String>) expList.jjtAccept(this, childInput);
+
 		String methodName = getVal(methodId);
-		ExprInput objInput = new ExprInput(input);
-		objInput.expectedType = null;
-		String objType = (String) objExp.jjtAccept(this, objInput);
+		System.out.println(methodName + ":    " + Arrays.toString(paramTypes.toArray())); //TODO
+		
+		String objType = (String) objExp.jjtAccept(this, childInput);
 		String returnType = checkCall(objType, methodName, input.expectedType, paramTypes, (SimpleNode)methodId);
 		checkExpectedType(input, returnType, node);
 		return returnType;
@@ -325,7 +330,15 @@ public class TypeCheckVisitor extends VisitorAdapter{
 			throw new WrongType(new Context(className, methodName), methodData.returnType, expectedReturnType, node);
 		}
 		SymbolTable paramsTable = methodData.paramsTable;
-		for(String foundParamType : foundParamTypes){
+		if(foundParamTypes.size() != methodData.paramTypes.size()){
+			throw new WrongNumberArgs(new Context(className, methodName), methodData.paramTypes.size(), foundParamTypes.size(), node);
+		}
+		for(int paramNum = 0; paramNum < foundParamTypes.size(); paramNum ++){
+			String correctType = methodData.paramTypes.get(paramNum);
+			String foundType = foundParamTypes.get(paramNum);
+			if(!(foundType.equals(correctType))){
+				throw new WrongType(new Context(className, methodName), correctType, foundType, node);
+			}
 			//TODO
 			//Vi vill kolla att de funna argumenten (x,y,z i "a.getB(x,y,z)") 
 			// stämmer överens med de deklarerade (public int getB(int x, int y, int z))

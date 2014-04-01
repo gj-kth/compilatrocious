@@ -1,10 +1,22 @@
 package mjc.parser;
 
+import java.util.*;
+
 public class SymbolTable implements HasPrefixedToString{
 
 	final int SIZE = 256;
 	SymbolTableBucket table[] = new SymbolTableBucket[SIZE];
 	
+	public SymbolTable(){
+
+	}
+
+	public SymbolTable(HashMap<String,String> map){
+		for(String key : map.keySet()){
+			insert(key, map.get(key));
+		}
+	}
+
 	private int hash(String s) {
 		int h=0;
 		for(int i=0; i<s.length(); i++)
