@@ -80,34 +80,18 @@ public class TypeCheckVisitor extends VisitorAdapter{
 	
 	
 
-	
+	// If id is an <expression> : return TYPE of expression
+	// Else                     : return id
 	public Object visit(ASTIdentifier node, Object data){
-		
 		if(data instanceof ExprInput){ //This Identifier is an expression
-			
-
-
-
-			//TODO
-
-			//Kolla att variablen med denna id finns, och att den är av rätt typ!
-
-
-
-			//((ExprInput)data).
-			//Context context;
-			//String expectedType;
+			ExprInput input = (ExprInput)data;
+			Context context = input.context;
+			String varType = getVarType(context, node);
+			checkExpectedType(input, varType, node);
+			return varType;
 		}
-
 		return getVal(node);
 	}
-	
-	
-
-
-
-
-
 
 	//--------------------------------------------
 	//                 STATEMENTS
