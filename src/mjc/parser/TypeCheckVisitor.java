@@ -127,13 +127,14 @@ public class TypeCheckVisitor extends VisitorAdapter{
 	public Object visit(ASTArrayAssignment node, Object data){
 		Context context = new Context(assertDataContext(data));
 		String varName = (String) node.jjtGetChild(0).jjtAccept(this, null);
+		//No bound checking takes place. This could be done using child1
 		Node expr = node.jjtGetChild(2); //2, not 1
 		context.varName = varName;
 		String varType = getVarType(context, node);
 		if(!(varType.equals("int[]"))){
 			throw new WrongType(context, "int[]", varType, node);
 		}
-		expr.jjtAccept(this, new ExprInput(context, varType));
+		expr.jjtAccept(this, new ExprInput(context, "int"));
 		return null;
 	}
 

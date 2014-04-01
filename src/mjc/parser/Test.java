@@ -7,7 +7,7 @@ public class Test {
 
     public static final boolean PRINT_FILENAMES = false;
     public static final boolean PRINT_PARSETREE = false;
-    public static final boolean PRINT_SYMBOL_TABLE = true;
+    public static final boolean PRINT_SYMBOL_TABLE = false;
     public static final boolean PRINT_FAILED_TESTS = true;
 
     public static void main(String[] args){
