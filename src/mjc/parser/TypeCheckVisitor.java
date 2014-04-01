@@ -60,8 +60,10 @@ public class TypeCheckVisitor extends VisitorAdapter{
 		Node methodBody = node.jjtGetChild(3);
 		methodBody.jjtAccept(this, context);
 		Node returnExp = node.jjtGetChild(4);
-		//ExprInput exprInput = new ExprInput(
-		//returnStmt.jjtAccept(this, returnType); //Check that returnstatement evaluates to correct type!
+		String evaluatedReturnType = (String) returnExp.jjtAccept(this, context);
+		String expectedReturnType = ""; //TODO  Get the correct returntype from symboltable
+		//if(!evaluatedReturnType.equals()) //Check that it matches evaluedreturn type
+		
 
 		//TODO
 
