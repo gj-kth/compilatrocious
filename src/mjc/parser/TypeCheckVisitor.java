@@ -85,7 +85,8 @@ public class TypeCheckVisitor extends VisitorAdapter{
 	public Object visit(ASTIdentifier node, Object data){
 		if(data instanceof ExprInput){ //This Identifier is an expression
 			ExprInput input = (ExprInput)data;
-			Context context = input.context;
+			Context context = new Context(input.context);
+			context.varName = getVal(node);
 			String varType = getVarType(context, node);
 			checkExpectedType(input, varType, node);
 			return varType;
@@ -154,9 +155,9 @@ public class TypeCheckVisitor extends VisitorAdapter{
 	//General visit for "if", "ifelse" and "while"
 	// node consists of '1' expression and 'numStmts' statements
 	private Object visitCondStmts(Node node, Object data, int numStmts){
-		assertDataContext(data);
+		Context context = assertDataContext(data);
 		Node booleanExpr = node.jjtGetChild(0);
-		booleanExpr.jjtAccept(this, new ExprInput(null, "boolean"));
+		booleanExpr.jjtAccept(this, new ExprInput(context, "boolean"));
 		for(int i = 0; i < numStmts; i++){
 			Node stmt = node.jjtGetChild(1 + i);
 			stmt.jjtAccept(this, data);
