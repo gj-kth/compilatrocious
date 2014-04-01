@@ -338,7 +338,7 @@ public class TypeCheckVisitor extends VisitorAdapter{
 	public Object visit(ASTArrayLength node, Object data){
 		ExprInput input = new ExprInput(assertExprInput(data));
 		checkExpectedType(input, "int", node);
-		input.expectedType = "int";
+		input.expectedType = "int[]";
 		return node.jjtGetChild(0).jjtAccept(this, input);
 	}
 	
