@@ -287,7 +287,9 @@ public class TypeCheckVisitor extends VisitorAdapter{
 		Node expList = node.jjtGetChild(2);
 		List<String> paramTypes = (List<String>) expList.jjtAccept(this, input);
 		String methodName = getVal(methodId);
-		String objType = (String) objExp.jjtAccept(this, input);
+		ExprInput objInput = new ExprInput(input);
+		objInput.expectedType = null;
+		String objType = (String) objExp.jjtAccept(this, objInput);
 		String returnType = checkCall(objType, methodName, input.expectedType, paramTypes, (SimpleNode)methodId);
 		checkExpectedType(input, returnType, node);
 		return returnType;
