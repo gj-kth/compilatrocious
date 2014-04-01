@@ -2,6 +2,7 @@ package mjc;
 
 import mjc.parser.*;
 import java.io.*;
+import java.util.ArrayList;
 
 class X86Main {
 
@@ -20,12 +21,22 @@ class X86Main {
             try{
                 SimpleNode tree = ParseTree.parse(source);
                 source.close();
-            }catch(IllegalArgumentException | TokenMgrError | ParseException | IOException e) {
-                e.printStackTrace();
+
+                // Type check
+                SymbolTableVisitor visitor = new SymbolTableVisitor();
+                SymbolTable symbolTable = (SymbolTable) tree.jjtAccept(visitor, null);
+
+                //TypeCheckVisitor visitor2 = new TypeCheckVisitor(symbolTable);
+                //tree.jjtAccept(visitor2, null);
+
+            }catch(Exception e) {
+                //e.printStackTrace();
+                printError(e);
                 System.exit(1);
             }
 
         }catch(FileNotFoundException e) {
+            e.printStackTrace();
             System.exit(1);
         }
 
@@ -45,9 +56,21 @@ class X86Main {
             destination.close();
 
         }catch(Exception e){
+            e.printStackTrace();
             System.exit(1);
         }
 
         System.exit(0);
+    }
+
+    private static void printError(Throwable e) {
+        StackTraceElement[] st = e.getStackTrace();
+        ArrayList<StackTraceElement> stal = new ArrayList<StackTraceElement>();
+
+        for(int i = 0; (i < 4 ) && (i < st.length); i++) {
+            st[st.length-(1+i)] = st[i];
+        }
+        e.setStackTrace(st);
+        e.printStackTrace();
     }
 }
