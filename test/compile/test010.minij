@@ -4,7 +4,7 @@ class Program {
     	boolean dummy;
     	g = new Game();
     	
-    	dummy = g.init();
+    	dummy = g.init(true);
     }
 }
 
@@ -27,7 +27,7 @@ class Game {
 		boolean running;
 		Random r;
 		r = new Random();
-		running = true;
+                running = r.init();
 		while(running){
 			if(r.nextInt(2) < 1){
 				running = p1.loseHealth(1);
@@ -49,7 +49,7 @@ class Player {
 		return true;
 	}
 
-	public boolean init2(int x, int y){
+    public boolean init2(int x, int y){
 		int[] loc;
 		loc = new int[2];
 		loc[0] = x;
@@ -62,4 +62,20 @@ class Player {
 		alive = health < 1;
 		return alive;
 	}
+}
+
+class Random {
+    boolean flip;
+
+    public boolean init() {
+        flip = true;
+        return true;
+    }
+
+    public int nextInt(int max) {
+        int retVal;
+        flip = !flip;
+        if(flip) retVal = max; else retVal = 0;
+        return retVal;
+    }
 }
