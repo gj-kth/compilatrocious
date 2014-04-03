@@ -294,6 +294,10 @@ public class TypeCheckVisitor extends VisitorAdapter{
 		String methodName = getVal(methodId);
 		
 		String objType = (String) objExp.jjtAccept(this, childInput);
+		System.out.println("objType: " + objType); //TODO
+		System.out.println("input exp: " + input.expectedType);
+		System.out.println("paramTypes: " + Arrays.toString(paramTypes.toArray()));
+		System.out.println("method name. " + methodName);
 		String returnType = checkCall(objType, methodName, input.expectedType, paramTypes, (SimpleNode)methodId);
 		checkExpectedType(input, returnType, node);
 		return returnType;
@@ -325,7 +329,7 @@ public class TypeCheckVisitor extends VisitorAdapter{
 		if(methodData == null){
 			throw new ReferencedMissingMethod(null, methodName);
 		}
-		if(!(methodData.returnType.equals(expectedReturnType))){
+		if(expectedReturnType != null && !(methodData.returnType.equals(expectedReturnType))){
 			throw new WrongType(new Context(className, methodName), methodData.returnType, expectedReturnType, node);
 		}
 		SymbolTable paramsTable = methodData.paramsTable;
