@@ -4,8 +4,7 @@ import java.util.*;
 
 public class SymbolTable implements HasPrefixedToString{
 
-	final int SIZE = 256;
-	SymbolTableBucket table[] = new SymbolTableBucket[SIZE];
+        private HashMap<Symbol,Object> map = new HashMap<Symbol,Object>();
 	
 	public SymbolTable(){
 
@@ -17,39 +16,16 @@ public class SymbolTable implements HasPrefixedToString{
 		}
 	}
 
-	private int hash(String s) {
-		int h=0;
-		for(int i=0; i<s.length(); i++)
-			h=h*65599+s.charAt(i);
-		return h;
-	}
-
 	void insert(Symbol s, Object b) {
-		int index = getIndex(s);
-                if(table[index] != null) {
-                    throw new DuplicateDeclaration(s, b, table[index]);
+
+                if(map.get(s) != null) {
+                    throw new DuplicateDeclaration(s, b, map.get(s));
                 }
-		table[index]=new SymbolTableBucket(s, b);
+                map.put(s,b);
 	}
 
 	Object lookup(Symbol s) {
-		int index = getIndex(s);
-		if (table[index]!=null && s.equals(table[index].key)) 
-			return table[index].binding;
-		return null;
-	}
-
-	void pop(Symbol s) {
-		int index = getIndex(s);
-		table[index]=null;
-	}
-
-	private int getIndex(Symbol s){
-		int index=hash(s.toString())%SIZE;
-		if(index < 0 ){
-			index += SIZE;
-		}
-		return index;
+            return map.get(s);
 	}
 
 	void insert(String s, Object b) {
@@ -60,18 +36,25 @@ public class SymbolTable implements HasPrefixedToString{
 		return lookup(Symbol.symbol(s));
 	}
 
-	void pop(String s) {
-		pop(Symbol.symbol(s));
-	}
-
 	public String toString(String prefix){
-		String s = prefix + "*SYMTABLE*";
-		for(int i = 0; i < table.length; i++){
-			if(table[i] != null){
-				s += "\n" + table[i].toString(prefix + "\t") ;	
-			}
-		}
-		return s;
+		StringBuilder sb = new StringBuilder(prefix + "*SYMTABLE*");
+
+                Iterator<Symbol> it = map.keySet().iterator();
+                Symbol sym;
+                Object obj;
+                prefix = prefix + "\t"; //Move right one level
+                while(it.hasNext()) {
+                    sym = it.next();
+                    obj = map.get(sym);
+                    sb.append("\n" + prefix + sym + ": ");
+                    if(obj instanceof HasPrefixedToString){
+                            sb.append("\n" + ((HasPrefixedToString)obj).toString(prefix + "\t"));
+                    }else{
+                            sb.append("\n" + prefix + "\t" + obj);
+                    }
+                }
+
+		return sb.toString();
 	}
 
         public String toString() {
