@@ -1,0 +1,10 @@
+class main {
+    public static void main(String[] args) {
+        int a;
+        a = wrong_return();
+    }
+
+    public int wrong_return() {
+        return true;
+    }
+}

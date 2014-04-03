@@ -1,0 +1,15 @@
+class main {
+
+    public static void main(String[] args) {
+        int a;
+        int c;
+        boolean b;
+        c = 4;
+        b = false;
+        a = call_with_wrong_number_of_args(c, b);
+    }
+
+    public int call_with_wrong_number_of_args(int c) {
+        return c;
+    }
+}
