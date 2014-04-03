@@ -100,17 +100,11 @@ TOKEN :
 TOKEN :
 {
   <ASSIGN: "=">
-| <LOG_AND: "&&">
+| <AND: "&&">
 | <LT: "<">
 | <PLUS: "+">
 | <MINUS: "-">
 | <STAR: "*">
-}
-
-/* IDENTIFIERS */
-TOKEN :
-{
- <ID: (["a"-"z"] | ["A"-"Z"]) (["a"-"z"] | ["A"-"Z"] | ["0"-"9"] | "-" | "_")*>
 }
 
 /* LITERALS */
@@ -120,11 +114,17 @@ TOKEN :
 | <BOOL_LITERAL: ("true" | "false" )>
 }
 
+/* IDENTIFIERS */
+TOKEN :
+{
+ <ID: (["a"-"z"] | ["A"-"Z"] | "_") (["a"-"z"] | ["A"-"Z"] | ["0"-"9"] | "_")*>
+}
+
 SimpleNode Program() :
 {}
 {
   MainClass()
-  ( ClassDecl() )*
+  ( ClassDecl() )* #ClassDecls(true)
   {return jjtThis;}
 }
 
@@ -137,11 +137,11 @@ void MainClass() :
   <RBRACE>
 }
 
-void ClassBody() :
+void ClassBody() #void:
 {}
 {
-  ( VarDecl() )*
-  ( MethodDecl() )*
+  ( VarDecl() )* #VarDecls(true)
+  ( MethodDecl() )* #MethodDecls(true)
 }
 
 void ClassDecl() :
@@ -156,11 +156,11 @@ void ClassDecl() :
 void MethodBody() :
 {}
 {
-  ( LOOKAHEAD(2) VarDecl() )*
-  ( Stmt() )*
+  ( LOOKAHEAD(2) VarDecl() )* #VarDecls(true)
+  ( Stmt() )* #Stmts(true)
 }
 
-void Return() :
+void Return() #void:
 {}
 {
   <RETURN> Expr() <SEMI>
@@ -169,7 +169,7 @@ void Return() :
 void MainMethod() :
 {Token name;}
 {
-    <PUBLIC> <STATIC> <VOID> name=<ID> <LPAREN> "String" <LBRACK> <RBRACK> <ID> <RPAREN> <LBRACE>
+    <PUBLIC> <STATIC> <VOID> name=<ID> <LPAREN> "String" <LBRACK> <RBRACK> Identifier() <RPAREN> <LBRACE>
       {
         String str = new String(name.image);
         if(!str.equals("main")){
@@ -184,7 +184,7 @@ void MainMethod() :
 void MethodDecl() :
 {}
 {
-  "public" Type() Identifier() <LPAREN> ( ArgList() )? <RPAREN> <LBRACE>
+  "public" Type() Identifier() <LPAREN> ArgList() <RPAREN> <LBRACE>
     MethodBody()
     Return()
   <RBRACE>
@@ -193,7 +193,7 @@ void MethodDecl() :
 void ArgList() :
 {}
 {
-  (Arg())+
+  (Arg())*
 }
 
 void Arg() :
@@ -239,6 +239,7 @@ void Boolean() :
 {
   <BOOL>
 }
+
 void BoolLiteral() :
 {Token b;}
 {
@@ -269,7 +270,7 @@ void Block() :
 {}
 {
   <LBRACE>
-    ( Stmt() )*
+    ( Stmt() )* #Stmts(true)
   <RBRACE>
 }
 
@@ -291,12 +292,22 @@ void ArrayAssignment() :
   Identifier() <LBRACK> Expr() <RBRACK> <ASSIGN> Expr() <SEMI>
 }
 
-void Conditional() :
+void Conditional() #void:
 {}
 {
-  LOOKAHEAD(3)
-  <IF> <LPAREN> Expr() <RPAREN> Stmt() <ELSE> Stmt()
-| <IF> <LPAREN> Expr() <RPAREN> Stmt()
+  IfPart() (LOOKAHEAD(2) <ELSE> 
+            {
+              Node ifNode = jjtree.popNode();
+              jjtree.pushNode(ifNode.jjtGetChild(0));
+              jjtree.pushNode(ifNode.jjtGetChild(1));
+            } 
+            Stmt()  #IfElse(3) )?
+}
+
+void IfPart() #void :
+{}
+{
+  <IF> <LPAREN> Expr() <RPAREN> Stmt() #If(2)
 }
 
 void Print() :
@@ -311,39 +322,61 @@ void While() :
 void Expr() :
 {}
 {
-  ExprPrefix() (ExprSuffix())?
-| NegExpr() 
+  Comparison()
+//| ExprPrefix() (ExprSuffix())?
 }
 
-void NegExpr() :
+void Comparison() #void :
 {}
 {
-  <NOT> Expr()
+  Sum() (<LT> Sum() #LessThan(2) | <AND> Sum() #And(2))*
 }
 
-void ExprPrefix() #void :
+void Sum() #void :
+{}
+{
+  Product() (<PLUS> Product() #Plus(2) | <MINUS> Product() #Minus(2))*
+}
+
+void Product() #void :
+{}
+{
+  ExprGet() (<STAR> ExprGet() #Mult(2))*
+}
+
+void ExprGet() #void :
+{}
+{
+  ExprPart()  (<LBRACK> Expr() <RBRACK> #ArrayAccess(2)
+             | LOOKAHEAD(2)
+               <DOT> Identifier() <LPAREN> ExprList() <RPAREN> #Call(3)
+             | <DOT> <LENGTH> #ArrayLength(1))*
+}
+
+void ExprPart() #void :
 {}
 {
   BoolLiteral()
 | IntLiteral()
 | Identifier()
-| <NEW> (<INT> <LBRACK> Expr() <RBRACK> |<ID> <LPAREN> <RPAREN>)
-| <THIS>
-| <LPAREN> Expr() <RPAREN>
+| New()
+| <THIS> #This
+| <NOT> ExprPart() #NegExpr
+| (<LPAREN> Expr() <RPAREN>)
 }
 
-void ExprSuffix() #void :
+void New() #void :
 {}
 {
-  <LBRACK> Expr() <RBRACK> (ExprSuffix())?
-| <DOT> ( ("main" | <ID>) <LPAREN> (ExprList())? <RPAREN> | <LENGTH>) (ExprSuffix())?
-| Op() Expr()
+  LOOKAHEAD(2)
+  <NEW> (<INT> <LBRACK> Expr() <RBRACK>) #NewIntArray
+| <NEW> (Identifier() <LPAREN> <RPAREN>) #NewObject
 }
 
 void ExprList() :
 {}
 {
-  Expr() (ExprListTail())*
+  (Expr() (ExprListTail())*)?
 }
 
 void ExprListTail() #void :

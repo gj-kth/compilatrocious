@@ -5,16 +5,16 @@ class test {
         a = 5;
         b = new int[1];
         {
-            if(a) {
+            if(a<1) {
                 System.out.println(a);
             }else{
-                while(a) {
+                while(a<2) {
                     b[0] = a;
                 }
             }
         }
 
-        if(a) System.out.println(a); else {}
+        if(a<6) System.out.println(a); else {}
 
     }
 }

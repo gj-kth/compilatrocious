@@ -6,7 +6,8 @@ import java.util.*;
 public class Test {
 
     public static final boolean PRINT_FILENAMES = false;
-    public static final boolean PRINT_PARSETREE = true;
+    public static final boolean PRINT_PARSETREE = false;
+    public static final boolean PRINT_SYMBOL_TABLE = false;
     public static final boolean PRINT_FAILED_TESTS = true;
 
     public static void main(String[] args){
@@ -133,11 +134,23 @@ public class Test {
 
     static boolean testProgram(InputStream programText, boolean positiveTest, String filePath) throws IOException{
         try { 
+            // Build parsetree
             SimpleNode parsed = ParseTree.parse(programText);
             if(PRINT_PARSETREE){
                 System.out.println(filePath);
                 ParseTree.dumpTree(parsed);
             }
+
+            // Type check
+            SymbolTableVisitor visitor = new SymbolTableVisitor();
+            SymbolTable symbolTable = (SymbolTable) parsed.jjtAccept(visitor, null);
+            if(PRINT_SYMBOL_TABLE){
+                System.out.println(filePath);
+                System.out.println(symbolTable.toString(""));
+            }
+            TypeCheckVisitor visitor2 = new TypeCheckVisitor(symbolTable);
+            parsed.jjtAccept(visitor2, null);
+
             programText.close(); 
             if(!positiveTest){
                 if(PRINT_FAILED_TESTS){
@@ -146,7 +159,7 @@ public class Test {
                 }
                 return false;
             }
-        } catch (TokenMgrError | ParseException e) {
+        } catch (TypecheckError | TokenMgrError | ParseException e) {
             if(positiveTest){
                 if(PRINT_FAILED_TESTS){
                     System.out.println(filePath);

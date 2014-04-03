@@ -1,0 +1,18 @@
+class test {
+
+    public static void main(String[] args) {
+        int[] a;
+        int b;
+        ArrayUtil au;
+        au = new ArrayUtil();
+        a = new int[5];
+        b = au.lastArrayIndex(a);
+        System.out.println(b);
+    }
+}
+
+class ArrayUtil {
+    public int lastArrayIndex(int[] a) {
+        return a.length-1;
+    }
+}

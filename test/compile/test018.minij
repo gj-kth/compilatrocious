@@ -1,0 +1,26 @@
+class a {
+    public static void main(String[] args) {
+        int a;
+        b c;
+        c = new b();
+        a = c.a();
+    }
+}
+
+class b {
+    int a;
+    boolean b;
+
+    public int a() {
+        b = true;
+        a = 5;
+        return a+3;
+    }
+
+    public int b() {
+        int b;
+        a = a+this.a();
+        b = a+3;
+        return b;
+    }
+}
