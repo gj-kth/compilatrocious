@@ -4,13 +4,5 @@ class double_decl {
         int a;
         int b;
         boolean a;
-
-        a = 3;
-        b = 4;
-        a = true;
-
-        if(a) {
-            b = a;
-        }
     }
 }
