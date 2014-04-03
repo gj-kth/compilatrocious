@@ -5,7 +5,7 @@ import java.util.*;
 
 public class Test {
 
-    public static final boolean PRINT_FILENAMES = false;
+    public static final boolean PRINT_FILENAMES = true;
     public static final boolean PRINT_PARSETREE = false;
     public static final boolean PRINT_SYMBOL_TABLE = false;
     public static final boolean PRINT_FAILED_TESTS = true;
@@ -101,18 +101,23 @@ public class Test {
     }
 
     static TestResult testFilesInDir(File dir, boolean positiveTests){
+        TestResult result = new TestResult(0,0);
         Printer.conditionalPrintln("Directory: " + dir.getPath(), PRINT_FILENAMES);
         File[] files = dir.listFiles();
-        List<File> failedTests = new ArrayList<File>();
         for(File f : files){
-            if(f.getName().contains(".minij")){
+            if(f.isDirectory()){
+                TestResult subResult = testFilesInDir(f, positiveTests);
+                result.numTests += subResult.numTests;
+                result.numPassed += subResult.numPassed;
+            }else if(f.getName().contains(".minij") || f.getName().contains(".java")){
                 boolean success = testFile(f, positiveTests);                
-                if(! success){
-                    failedTests.add(f);
+                result.numTests ++;
+                if(success){
+                    result.numPassed ++;
                 }
             }
         }
-        return new TestResult(files.length - failedTests.size(), files.length);
+        return result;
     }
 
     /**
