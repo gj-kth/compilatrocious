@@ -102,12 +102,11 @@ public class SymbolTableVisitor extends VisitorAdapter{
 	
 
 	public Object visit(ASTArgList node, Object data){
-		HashMap<String,String> paramsTable = new HashMap<String,String>();
-		//SymbolTable paramsTable = new SymbolTable();
+		//LinkedHashMap ensures that arguments are returned in correct order.
+		LinkedHashMap<String,String> paramsTable = new LinkedHashMap<String,String>(); 
 		for(int i = 0; i < node.jjtGetNumChildren(); i++){
 			Node arg = node.jjtGetChild(i);
 			Pair<String,String> mapping = (Pair<String,String>) arg.jjtAccept(this, null);
-			//paramsTable.insert(mapping.second, mapping.first);
 			paramsTable.put(mapping.second, mapping.first);
 		}
 		return paramsTable;

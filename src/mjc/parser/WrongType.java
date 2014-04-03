@@ -9,8 +9,19 @@ import mjc.parser.VisitorUtil.Context;
 
 public class WrongType extends TypecheckError{
 
+	public static enum Kind{
+		ASSIGN,
+		RETURN,
+		ARG,
+		UNKNOWN
+	}
+
 	public WrongType(Context scope, String expectedType, String foundType, SimpleNode node){
-		super(str(scope, expectedType, foundType, node));
+		this(scope, expectedType, foundType, node, Kind.UNKNOWN);
+	}
+
+	public WrongType(Context scope, String expectedType, String foundType, SimpleNode node, Kind details){
+		super("[" + details + "]" + str(scope, expectedType, foundType, node));
 	}
 
 	private static String str(Context scope, String expectedType, String foundType, SimpleNode node){

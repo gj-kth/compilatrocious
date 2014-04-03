@@ -326,17 +326,18 @@ public class TypeCheckVisitor extends VisitorAdapter{
 			throw new ReferencedMissingMethod(null, methodName);
 		}
 		if(expectedReturnType != null && !(methodData.returnType.equals(expectedReturnType))){
-			throw new WrongType(new Context(className, methodName), methodData.returnType, expectedReturnType, node);
+			throw new WrongType(new Context(className, methodName), methodData.returnType, expectedReturnType, node, WrongType.Kind.RETURN);
 		}
 		SymbolTable paramsTable = methodData.paramsTable;
 		if(foundParamTypes.size() != methodData.paramTypes.size()){
 			throw new WrongNumberArgs(new Context(className, methodName), methodData.paramTypes.size(), foundParamTypes.size(), node);
 		}
 		for(int paramNum = 0; paramNum < foundParamTypes.size(); paramNum ++){
+			
 			String correctType = methodData.paramTypes.get(paramNum);
 			String foundType = foundParamTypes.get(paramNum);
 			if(!(foundType.equals(correctType))){
-				throw new WrongType(new Context(className, methodName), correctType, foundType, node);
+				throw new WrongType(new Context(className, methodName), correctType, foundType, node, WrongType.Kind.ARG);
 			}
 			//TODO
 			//Vi vill kolla att de funna argumenten (x,y,z i "a.getB(x,y,z)") 

@@ -341,7 +341,14 @@ void Sum() #void :
 void Product() #void :
 {}
 {
-  ExprGet() (<STAR> ExprGet() #Mult(2))*
+  NegExpr() (<STAR> NegExpr() #Mult(2))*
+}
+
+void NegExpr() #void:
+{}
+{
+  <NOT> NegExpr() #NegExpr
+| ExprGet()
 }
 
 void ExprGet() #void :
@@ -361,7 +368,6 @@ void ExprPart() #void :
 | Identifier()
 | New()
 | <THIS> #This
-| <NOT> ExprPart() #NegExpr
 | (<LPAREN> Expr() <RPAREN>)
 }
 
