@@ -4,7 +4,7 @@ import java.util.*;
 
 public class SymbolTable implements HasPrefixedToString{
 
-        private HashMap<Symbol,Object> map = new HashMap<Symbol,Object>();
+    private HashMap<Symbol,Object> map = new HashMap<Symbol,Object>();
 	
 	public SymbolTable(){
 
@@ -16,16 +16,19 @@ public class SymbolTable implements HasPrefixedToString{
 		}
 	}
 
-	void insert(Symbol s, Object b) {
+    public HashMap<Symbol,Object> getHashMap(){
+        return map;
+    }
 
-                if(map.get(s) != null) {
-                    throw new DuplicateDeclaration(s, b, map.get(s));
-                }
-                map.put(s,b);
+	void insert(Symbol s, Object b) {
+        if(map.get(s) != null) {
+            throw new DuplicateDeclaration(s, b, map.get(s));
+        }
+        map.put(s,b);
 	}
 
 	Object lookup(Symbol s) {
-            return map.get(s);
+        return map.get(s);
 	}
 
 	void insert(String s, Object b) {
@@ -39,20 +42,20 @@ public class SymbolTable implements HasPrefixedToString{
 	public String toString(String prefix){
 		StringBuilder sb = new StringBuilder(prefix + "*SYMTABLE*");
 
-                Iterator<Symbol> it = map.keySet().iterator();
-                Symbol sym;
-                Object obj;
-                prefix = prefix + "\t"; //Move right one level
-                while(it.hasNext()) {
-                    sym = it.next();
-                    obj = map.get(sym);
-                    sb.append("\n" + prefix + sym + ": ");
-                    if(obj instanceof HasPrefixedToString){
-                            sb.append("\n" + ((HasPrefixedToString)obj).toString(prefix + "\t"));
-                    }else{
-                            sb.append("\n" + prefix + "\t" + obj);
-                    }
-                }
+        Iterator<Symbol> it = map.keySet().iterator();
+        Symbol sym;
+        Object obj;
+        prefix = prefix + "\t"; //Move right one level
+        while(it.hasNext()) {
+            sym = it.next();
+            obj = map.get(sym);
+            sb.append("\n" + prefix + sym + ": ");
+            if(obj instanceof HasPrefixedToString){
+                    sb.append("\n" + ((HasPrefixedToString)obj).toString(prefix + "\t"));
+            }else{
+                    sb.append("\n" + prefix + "\t" + obj);
+            }
+        }
 
 		return sb.toString();
 	}

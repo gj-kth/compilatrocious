@@ -39,11 +39,19 @@ public class SymbolTableVisitor extends VisitorAdapter{
 	
 	public Object visit(ASTVarDecls node, Object data){
 		SymbolTable varsTable = new SymbolTable();
+		HashMap<String,String> paramsTable = null;
+		if(data != null){ // when called from methodBody, compare to params, make sure no duplicate decls.
+			paramsTable = (HashMap<String,String>) data;
+		}
 		for(int i = 0; i < node.jjtGetNumChildren(); i ++){
 			Node varDecl = node.jjtGetChild(i);
 			Node type = varDecl.jjtGetChild(0);
 			String typeString = (String) type.jjtAccept(this, null);
 			String id = getVal(varDecl.jjtGetChild(1));
+
+			if(paramsTable != null && paramsTable.containsKey(id)){
+				throw new DuplicateDeclaration(Symbol.symbol(id), typeString, paramsTable.get(id));
+			}
 			varsTable.insert(id, typeString);
 		}
 		return varsTable;
@@ -80,7 +88,7 @@ public class SymbolTableVisitor extends VisitorAdapter{
 		SymbolTable paramsTable = new SymbolTable();
 		String argNameString = getVal(argNameId);
 		paramsTable.insert(argNameString, "String[]");
-		SymbolTable localsTable = (SymbolTable)methodBody.jjtAccept(this,data);
+		SymbolTable localsTable = (SymbolTable)methodBody.jjtAccept(this,paramsTable.getHashMap());
 		List<String> paramTypes = new ArrayList<String>();
 		paramTypes.add("String");
 		return new MethodData("void", paramsTable, paramTypes, localsTable);
@@ -92,7 +100,7 @@ public class SymbolTableVisitor extends VisitorAdapter{
 		Node argList = node.jjtGetChild(2);
 		Node methodBody = node.jjtGetChild(3);
 		HashMap<String,String> paramsTable = (HashMap<String,String>) argList.jjtAccept(this,data);
-		SymbolTable localsTable = (SymbolTable) methodBody.jjtAccept(this, null);
+		SymbolTable localsTable = (SymbolTable) methodBody.jjtAccept(this, paramsTable);
 		String returnTypeString = (String) returnType.jjtAccept(this, null);
 		String methodNameString = (String) methodNameId.jjtAccept(this, null);
 		List<String> paramTypes = new ArrayList(paramsTable.values());
