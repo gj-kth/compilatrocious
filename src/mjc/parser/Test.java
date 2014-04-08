@@ -9,6 +9,7 @@ public class Test {
     public static final boolean PRINT_PARSETREE = false;
     public static final boolean PRINT_SYMBOL_TABLE = false;
     public static final boolean PRINT_FAILED_TESTS = true;
+    public static final boolean PRINT_NEGATIVE_ST = false;
 
     public static void main(String[] args){
          Printer.conditionalPrintln("COMPILATROCIOUS_ROOT = " + System.getenv("COMPILATROCIOUS_ROOT"), PRINT_FILENAMES); 
@@ -171,7 +172,16 @@ public class Test {
                     Printer.printThrowable(e);
                 }
                 return false;
-            }
+            }else{
+				if(PRINT_NEGATIVE_ST) {
+					System.out.println("Stacktrace for negative test " + filePath + ":");
+					System.out.println("\t" + e.getMessage());
+					StackTraceElement[] st = e.getStackTrace();
+					for(int i = 0; i < st.length; i++) {
+						System.out.println("\t" + st[i]);
+					}
+				}
+			}
         }
         return true;
     }
