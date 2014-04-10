@@ -1,0 +1,76 @@
+class main {
+    public static void main(String[] args) {
+        int i;
+        int j;
+        int[] a;
+        boolean b;
+        boolean b2;
+        Other o;
+        o = new Other();
+        i = 5;
+        j = 2;
+        a = new int[2];
+        a[0] = 10;
+        a[1] = 5;
+        b = true;
+        b2 = false;
+
+        if(i < j){i=1;}
+        if(i < j && b){i = 1;}
+        if(b && !b2 && !(i + j < a[1])){i = 1;}
+        if(i < j ){i = 1;}
+        b = o.f();
+        b = true && 1+1<2;
+        b2 = o.many_args2(true,true,false,new int[2], 1, 2, true, false, 5, 6, 7, true, false, false);
+    }
+}
+
+class Other {
+	boolean a;
+	boolean b;
+	public boolean a(boolean x, int y, int z, int g, boolean h){
+		return true;
+	}
+
+	public boolean f(){
+		boolean i;
+		int a;
+		i = this.a(true, 1,2,3,false);
+		System.out.println(this.a(true, 1,1+1,5,i) && (true && true));
+		System.out.println(a < a && (true && true));
+		return true;
+	}
+
+	public int b(boolean c){
+		int b;
+		return 1;
+	}
+
+	public boolean g(){
+		b = true && true;
+		return b;
+	}
+
+	public boolean many_args(int a, int b, int c, int d, int e, boolean f){
+		return f;
+	}
+
+	public boolean many_args2(boolean a, boolean b, boolean c, int[] d, int e, int f, boolean g, boolean h, int i, int j, int k, boolean l, boolean m, boolean n){
+		return true;
+	}
+
+
+
+	public boolean call_many_args(){
+		boolean val;
+		int[] ar;
+		val = this.many_args2(true,true,false,ar, 1, 2, true, false, 5, 6, 7, true, false, false);
+		val = this.many_args2(true,true,false,new int[2], 1, 2, true, false, 5, 6, 7, true, false, false);
+		return this.many_args(1,2,3,4,5,true);
+
+	}	
+
+
+
+
+}
