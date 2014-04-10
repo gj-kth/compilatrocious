@@ -26,8 +26,8 @@ class X86Main {
                 SymbolTableVisitor visitor = new SymbolTableVisitor();
                 SymbolTable symbolTable = (SymbolTable) tree.jjtAccept(visitor, null);
 
-                //TypeCheckVisitor visitor2 = new TypeCheckVisitor(symbolTable);
-                //tree.jjtAccept(visitor2, null);
+                TypeCheckVisitor visitor2 = new TypeCheckVisitor(symbolTable);
+                tree.jjtAccept(visitor2, null);
 
             }catch(TypecheckError | ParseException | TokenMgrError | IOException e) {
                 //e.printStackTrace();
