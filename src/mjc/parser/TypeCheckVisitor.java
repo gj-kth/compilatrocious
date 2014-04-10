@@ -208,6 +208,12 @@ public class TypeCheckVisitor extends VisitorAdapter{
 	public Object visit(ASTIntLiteral node, Object data){
 		ExprInput input = assertExprInput(data);
 		checkExpectedType(input, "int", node);
+		try{
+			int value = new Integer(((Token)node.value).image);
+		}catch(NumberFormatException e){
+			throw new WrongType(null, "int", "int_lit not valid int", node);
+		}
+
 		return "int";
 	}
 
