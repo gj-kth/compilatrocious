@@ -1,0 +1,6 @@
+class main {
+    public static void main(String[] args) {
+        int i;
+        i = 999999999999999999;
+    }
+}
