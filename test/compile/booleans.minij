@@ -36,8 +36,8 @@ class Other {
 		boolean i;
 		int a;
 		i = this.a(true, 1,2,3,false);
-		System.out.println(this.a(true, 1,1+1,5,i) && (true && true));
-		System.out.println(a < a && (true && true));
+		//System.out.println(this.a(true, 1,1+1,5,i) && (true && true));
+		//System.out.println(a < a && (true && true));
 		return true;
 	}
 
