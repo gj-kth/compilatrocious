@@ -4,7 +4,7 @@ class Test {
 		int a;
 		boolean b;
 		oc = new OtherClass();
-		oc.add(a, b); // Call with (int,boolean) instead of (int,int)
+		a = oc.add(a, b); // Call with (int,boolean) instead of (int,int)
 	}
 }
 
