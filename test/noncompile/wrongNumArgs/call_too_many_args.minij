@@ -1,14 +1,22 @@
-class main {
+class Main {
 
     public static void main(String[] args) {
         int a;
         int c;
+        Other o;
+        
         boolean b;
+        o = new Other();
+        
         c = 4;
         b = false;
-        a = call_with_wrong_number_of_args(c, b);
+        a = o.call_with_wrong_number_of_args(c, b);
     }
 
+    
+}
+
+class Other{
     public int call_with_wrong_number_of_args(int c) {
         return c;
     }
