@@ -1,0 +1,11 @@
+class main {
+    public static void main(String[] args) {
+        int a;
+        boolean b;
+        a = 10;
+        b = false;
+        if(b + true < a){
+        	a = 5;
+        }
+    }
+}

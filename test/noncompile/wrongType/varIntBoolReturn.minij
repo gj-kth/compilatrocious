@@ -1,0 +1,14 @@
+class main {
+    public static void main(String[] args) {
+        int a;
+        Other o;
+        o = new Other();
+        a = o.f(2);
+    }
+}
+
+class Other{
+	public boolean f(int a) {
+        return true;
+    }
+}
