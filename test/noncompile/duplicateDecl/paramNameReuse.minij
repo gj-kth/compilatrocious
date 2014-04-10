@@ -1,0 +1,21 @@
+class main {
+    public static void main(String[] args) {
+        int i;
+        int j;
+        int[] a;
+        boolean b;
+        boolean b2;
+        Other o;
+        o = new Other();
+        b = o.a();
+    }
+}
+
+class Other {
+	boolean a;
+	boolean b;
+	public boolean a(boolean x, int x, int z, int g, boolean h){
+	
+		return false;
+	}
+}
