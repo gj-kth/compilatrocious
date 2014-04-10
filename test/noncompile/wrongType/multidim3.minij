@@ -1,0 +1,12 @@
+class Main {
+	public static void main(String[] args) {
+		int[] a;
+		int[] b;
+		int[] c;
+		a = new int[2];
+		b = new int[2];
+		c = new int[2];
+		a[0] = b;
+		a[1] = c;
+	}
+}

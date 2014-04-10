@@ -1,0 +1,10 @@
+class Main {
+	public static void main(String[] args) {
+		int b;
+		b = 5;
+
+		if(b < this) {
+			b = 4;
+		}
+	}
+}
