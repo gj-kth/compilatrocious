@@ -1,7 +1,7 @@
 class main {
     public static void main(String[] args) {
         int a;
-        if((a + 5)/10){
+        if((a + 5)-10){
         	a = 20;
         }
     }
