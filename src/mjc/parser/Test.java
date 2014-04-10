@@ -21,12 +21,14 @@ public class Test {
          try{
            
             String s = "mjc.parser.";
+            dirToException.put("parse", Class.forName(s + "ParseException"));
             dirToException.put("duplicateDecl", Class.forName(s + "DuplicateDeclaration"));  
             dirToException.put("refMissingMethod", Class.forName(s + "ReferencedMissingMethod"));  
             dirToException.put("refMissingType", Class.forName(s + "ReferencedMissingType"));
             dirToException.put("refMissingVar", Class.forName(s + "ReferencedMissingVariable"));
             dirToException.put("wrongNumArgs", Class.forName(s + "WrongNumberArgs"));
-            dirToException.put("wrongType", Class.forName(s + "WrongType"));           
+            dirToException.put("wrongType", Class.forName(s + "WrongType"));        
+
 
             Map<String,TestResult> results = new HashMap<String,TestResult>();
             results.put("compile", testCompile());
@@ -214,13 +216,13 @@ public class Test {
             if(expectedException.isInstance(e) && ! positiveTest){ //It's a negative test. The correct exception has been thrown.
                 return true;
             }
-            if(positiveTest){
-                if(PRINT_FAILED_TESTS){
-                    System.out.println(filePath);
-                    Printer.printThrowable(e);
-                }
-                return false;    
-            }else{
+
+            if(PRINT_FAILED_TESTS){
+                System.out.println(filePath);
+                System.out.println("Wrong type of exception thrown!");
+                Printer.printThrowable(e);
+            }
+            if(!positiveTest){
                 if(PRINT_NEGATIVE_ST) {
                     System.out.println("Stacktrace for negative test " + filePath + ":");
                     System.out.println("\t" + e.getMessage());
@@ -229,8 +231,8 @@ public class Test {
                         System.out.println("\t" + st[i]);
                     }
                 }
-				return false;
             }
+            return false;
         }
 
         return true; //It's a positive test. No exception was thrown.
