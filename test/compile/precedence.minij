@@ -1,0 +1,16 @@
+class main {
+    public static void main(String[] args) {
+        int i;
+        boolean b;
+        int[] a;
+
+        b = b && i < a[i + i] && !(i + i < 2 && true && a[2+2] < 2 && (true && !false));
+        i = i + (i + a[i]) + ((i) + (i) + (a[i] + a[(i+i+(5))]));
+        b = b && i + i < i + i && (b && b) && (b && i < i);
+        b = i + i < i + i && b;
+        b = a[i] + i < a[10+a[10]];
+        b = a[i] + i < a[10+a[10]] && b && !(a[i] < 10);
+        a[a[i]] = i;
+        a[a[i]+i+(i-i+100)] = a[i + ((3)+5)+100] + a[a[a[i]]];
+    }
+}
