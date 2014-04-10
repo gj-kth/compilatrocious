@@ -1,0 +1,26 @@
+class main {
+    public static void main(String[] args) {
+        Other o;
+        int i;
+        int[] array;
+        o = new Other();
+        i = o.f(new int[0], 2, new int[0]);
+        i = o.f(new int[0], array[10], array);
+        i = o.g(array);
+        i = o.h(true, array, false);
+    }
+}
+
+class Other{
+    public int f(int[] x, int y, int[] z){
+        return 0;
+    }
+
+    public int g(int[] x){
+        return 0;
+    }
+
+    public int h(boolean x, int[] y, boolean z){
+        return 0;
+    }
+}

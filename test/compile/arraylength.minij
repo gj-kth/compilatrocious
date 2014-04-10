@@ -1,0 +1,20 @@
+class main {
+    public static void main(String[] args) {
+        int i;
+        int[] a;
+        Other o;
+        o = new Other();
+        i = a.length;
+        i = o.f(a.length);
+
+
+    }
+
+
+}
+
+class Other{
+    public int f(int a){
+        return 1;
+    }
+}

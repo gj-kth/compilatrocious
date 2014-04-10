@@ -59,14 +59,21 @@ class Other {
 		return true;
 	}
 
+	public int[] x(){
+		int[] a;
+		a = new int[2];
+		a[1] = 22;
+		return a;
+	}
+
 
 
 	public boolean call_many_args(){
 		boolean val;
 		int[] ar;
-		val = this.many_args2(true,true,false,ar, 1, 2, true, false, 5, 6, 7, true, false, false);
+		val = this.many_args2(true,true,false,this.x(), 2+this.x()[0]+2, 2, true, false, 5, 6, 7, true, false, false);
 		val = this.many_args2(true,true,false,new int[2], 1, 2, true, false, 5, 6, 7, true, false, false);
-		return this.many_args(1,2,3,4,5,true);
+		return this.many_args((new int[1])[1+ar[0]],2,3,4,5,true);
 
 	}	
 
