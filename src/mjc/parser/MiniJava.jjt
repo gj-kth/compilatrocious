@@ -322,14 +322,20 @@ void While() :
 void Expr() :
 {}
 {
-  Comparison()
+  BooleanOp()
 //| ExprPrefix() (ExprSuffix())?
+}
+
+void BooleanOp() #void :
+{}
+{
+  Comparison() (<AND> Comparison() #And(2))*
 }
 
 void Comparison() #void :
 {}
 {
-  Sum() (<LT> Sum() #LessThan(2) | <AND> Sum() #And(2))*
+  Sum() (<LT> Sum() #LessThan(2))*
 }
 
 void Sum() #void :
