@@ -115,6 +115,9 @@ public class SymbolTableVisitor extends VisitorAdapter{
 		for(int i = 0; i < node.jjtGetNumChildren(); i++){
 			Node arg = node.jjtGetChild(i);
 			Pair<String,String> mapping = (Pair<String,String>) arg.jjtAccept(this, null);
+			if(paramsTable.containsKey(mapping.second)){
+				throw new DuplicateDeclaration(Symbol.symbol(mapping.second), mapping.first, paramsTable.get(mapping.second));
+			}
 			paramsTable.put(mapping.second, mapping.first);
 		}
 		return paramsTable;
