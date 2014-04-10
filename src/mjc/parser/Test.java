@@ -9,6 +9,7 @@ public class Test {
     public static final boolean PRINT_PARSETREE = false;
     public static final boolean PRINT_SYMBOL_TABLE = false;
     public static final boolean PRINT_FAILED_TESTS = true;
+    public static final boolean PRINT_NEGATIVE_ST = false;
 
     //Each negative test should fail with a specific exception
     //All tests in the same directory should throw the same exception (something similar to the dirname)
@@ -213,13 +214,22 @@ public class Test {
             if(expectedException.isInstance(e) && ! positiveTest){ //It's a negative test. The correct exception has been thrown.
                 return true;
             }
-            System.out.println("Was expecting exception of type '" + expectedException + "', found '" + e.getClass() + "'");
-            System.exit(0); //TODO
-            if(PRINT_FAILED_TESTS){
-                System.out.println(filePath);
-                Printer.printThrowable(e);
+            if(positiveTest){
+                if(PRINT_FAILED_TESTS){
+                    System.out.println(filePath);
+                    Printer.printThrowable(e);
+                }
+                return false;    
+            }else{
+                if(PRINT_NEGATIVE_ST) {
+                    System.out.println("Stacktrace for negative test " + filePath + ":");
+                    System.out.println("\t" + e.getMessage());
+                    StackTraceElement[] st = e.getStackTrace();
+                    for(int i = 0; i < st.length; i++) {
+                        System.out.println("\t" + st[i]);
+                    }
+                }
             }
-            return false;
         }
 
         return true; //It's a positive test. No exception was thrown.
