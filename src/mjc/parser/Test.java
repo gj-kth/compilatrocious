@@ -10,9 +10,23 @@ public class Test {
     public static final boolean PRINT_SYMBOL_TABLE = false;
     public static final boolean PRINT_FAILED_TESTS = true;
 
+    //Each negative test should fail with a specific exception
+    //All tests in the same directory should throw the same exception (something similar to the dirname)
+    //Below is a mapping from directoryNames to name of exception class
+    private static Map<String, Class> dirToException = new HashMap<String, Class>();
+
     public static void main(String[] args){
          Printer.conditionalPrintln("COMPILATROCIOUS_ROOT = " + System.getenv("COMPILATROCIOUS_ROOT"), PRINT_FILENAMES); 
          try{
+           
+            String s = "mjc.parser.";
+            dirToException.put("duplicateDecl", Class.forName(s + "DuplicateDeclaration"));  
+            dirToException.put("refMissingMethod", Class.forName(s + "ReferencedMissingMethod"));  
+            dirToException.put("refMissingType", Class.forName(s + "ReferencedMissingType"));
+            dirToException.put("refMissingVar", Class.forName(s + "ReferencedMissingVariable"));
+            dirToException.put("wrongNumArgs", Class.forName(s + "WrongNumberArgs"));
+            dirToException.put("wrongType", Class.forName(s + "WrongType"));           
+
             Map<String,TestResult> results = new HashMap<String,TestResult>();
             results.put("compile", testCompile());
             results.put("noncompile", testNonCompile());
@@ -36,8 +50,9 @@ public class Test {
             }else{
                 Printer.printRed("--- SOME TESTS FAILED ---");
             }
-         }catch(Exception e){
+         }catch(Throwable e){
             Printer.printThrowable(e);
+            System.exit(0); //TODO
          }
     }
 
@@ -74,7 +89,7 @@ public class Test {
         List<Integer> failedLines = new ArrayList<Integer>();
         while ((line = br.readLine()) != null) {
             String filePath = "oneliner_" + lineNumber;
-            boolean success = testOneliner(line, positiveTests, filePath);
+            boolean success = testOneliner(line, filePath, positiveTests);
             if(! success){
                 failedLines.add(lineNumber);
             }
@@ -85,11 +100,19 @@ public class Test {
         return new TestResult(numOneliners - failedLines.size(), numOneliners);
     }
 
-    private static boolean testOneliner(String oneliner, boolean positiveTest, String fakeFilepath) throws IOException{
+    private static boolean testOneliner(String oneliner, String fakeFilepath, boolean positiveTest) throws IOException{
         Printer.conditionalPrintln("Oneliner: " + fakeFilepath, PRINT_FILENAMES);
         String programText = createProgramFromOneliner(oneliner);
         InputStream is = new ByteArrayInputStream(programText.getBytes());
-        return testProgram(is, positiveTest, fakeFilepath);
+        try{
+            Class generalException = Class.forName("java.lang.Throwable");
+            return testProgram(is, positiveTest, generalException, fakeFilepath);
+        }catch(ClassNotFoundException e){
+            e.printStackTrace();
+            System.exit(0);
+            return false;
+        }
+        
     }
 
     private static String createProgramFromOneliner(String oneliner){
@@ -101,16 +124,34 @@ public class Test {
     }
 
     static TestResult testFilesInDir(File dir, boolean positiveTests){
+        try{
+            return testFilesInDir(dir, positiveTests, Class.forName("java.lang.Throwable"));
+        }catch(ClassNotFoundException e){
+            e.printStackTrace();
+            System.exit(0);
+            return null;
+        }
+    }
+
+    // expectedException == null : positive test
+    // otherwise it shows HOW the test should fail
+    static TestResult testFilesInDir(File dir, boolean positiveTests, Class expectedException){
         TestResult result = new TestResult(0,0);
         Printer.conditionalPrintln("Directory: " + dir.getPath(), PRINT_FILENAMES);
         File[] files = dir.listFiles();
         for(File f : files){
             if(f.isDirectory()){
-                TestResult subResult = testFilesInDir(f, positiveTests);
+                String dirName = f.getName();
+                TestResult subResult;
+                if(dirToException.containsKey(dirName)){
+                    subResult = testFilesInDir(f, positiveTests, dirToException.get(dirName));
+                }else{
+                    subResult = testFilesInDir(f, positiveTests, expectedException);
+                }
                 result.numTests += subResult.numTests;
                 result.numPassed += subResult.numPassed;
             }else if(f.getName().contains(".minij") || f.getName().contains(".java")){
-                boolean success = testFile(f, positiveTests);                
+                boolean success = testFile(f, positiveTests, expectedException);                
                 result.numTests ++;
                 if(success){
                     result.numPassed ++;
@@ -120,16 +161,17 @@ public class Test {
         return result;
     }
 
+
     /**
     * Tests to parse program in given file.
-    * (positiveTest == true) means that parsing 'should' be successful.
+    * (expectedException == null) means that parsing 'should' be successful.
     * (return == true) means that test was passed
     */
-    static boolean testFile(File testFile, boolean positiveTest){
+    static boolean testFile(File testFile, boolean positiveTest, Class expectedException){
         Printer.conditionalPrintln("File: " + testFile.getPath(), PRINT_FILENAMES);
         try {
             InputStream is = new FileInputStream(testFile);
-            return testProgram(is, positiveTest, testFile.getPath());
+            return testProgram(is, positiveTest, expectedException, testFile.getPath());
         } catch(Exception e){
             e.printStackTrace();
             System.exit(0);
@@ -137,7 +179,10 @@ public class Test {
         return false; //Will never be reached?
     }
 
-    static boolean testProgram(InputStream programText, boolean positiveTest, String filePath) throws IOException{
+    //Boolean determines success of test.
+    // True = test successful,
+    // False = test failed
+    static boolean testProgram(InputStream programText, boolean positiveTest, Class expectedException, String filePath) throws IOException{
         try { 
             // Build parsetree
             SimpleNode parsed = ParseTree.parse(programText);
@@ -157,23 +202,27 @@ public class Test {
             parsed.jjtAccept(visitor2, null);
 
             programText.close(); 
-            if(!positiveTest){
+            if(!positiveTest){ //It's a negative test. But no exception was thrown!
                 if(PRINT_FAILED_TESTS){
                     System.out.println(filePath);
                     System.out.println("Negative test case didn't throw exception.");    
                 }
                 return false;
             }
-        } catch (TypecheckError | TokenMgrError | ParseException e) {
-            if(positiveTest){
-                if(PRINT_FAILED_TESTS){
-                    System.out.println(filePath);
-                    Printer.printThrowable(e);
-                }
-                return false;
+        }catch(Throwable e){
+            if(expectedException.isInstance(e) && ! positiveTest){ //It's a negative test. The correct exception has been thrown.
+                return true;
             }
+            System.out.println("Was expecting exception of type '" + expectedException + "', found '" + e.getClass() + "'");
+            System.exit(0); //TODO
+            if(PRINT_FAILED_TESTS){
+                System.out.println(filePath);
+                Printer.printThrowable(e);
+            }
+            return false;
         }
-        return true;
+
+        return true; //It's a positive test. No exception was thrown.
     }
 
     private static class TestResult{
