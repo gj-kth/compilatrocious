@@ -374,7 +374,7 @@ void ExprPart() #void :
 | Identifier()
 | New()
 | <THIS> #This
-| (<LPAREN> Expr() <RPAREN>)
+| (<LPAREN> Expr() <RPAREN>) #ParenExp()
 }
 
 void New() #void :

@@ -284,9 +284,22 @@ public class TypeCheckVisitor extends VisitorAdapter{
 		input.expectedType = "int[]";
 		String type = (String) arrayObj.jjtAccept(this, input);
 		if(type.equals("new int[]")) {
-			throw new WrongType(input.context, "new int[]", "int[]", node, WrongType.Kind.UNKNOWN);
+			throw new WrongType(input.context, "int[]", "new int[]", node, WrongType.Kind.UNKNOWN);
 		}
 		return "int";
+	}
+
+	/*
+ 	 * Special case for parenthesized new int[]
+ 	 * a = new int[5][0]; is not valid
+ 	 * a = (new int[5])[0]; is valid
+ 	 */
+	public Object visit(ASTParenExp node, Object data){
+		Node childExpr = node.jjtGetChild(0);
+		String type = (String) childExpr.jjtAccept(this, data);
+		if(type.equals("new int[]"))
+			type = "int[]";
+		return type;
 	}
 	
 	public Object visit(ASTCall node, Object data){
