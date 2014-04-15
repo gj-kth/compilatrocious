@@ -131,7 +131,7 @@ public class TypeCheckVisitor extends VisitorAdapter{
 		Node expr = node.jjtGetChild(2); //2, not 1
 		context.varName = varName;
 		String varType = getVarType(context, node);
-		if(!(varType.equals("int[]"))){
+		if(!(varType.equals("new int[]")) && !(varType.equals("int[]"))){
 			throw new WrongType(context, "int[]", varType, node);
 		}
 		expr.jjtAccept(this, new ExprInput(context, "int"));
@@ -282,7 +282,10 @@ public class TypeCheckVisitor extends VisitorAdapter{
 		input.expectedType = "int";
 		indexExpr.jjtAccept(this, input);
 		input.expectedType = "int[]";
-		arrayObj.jjtAccept(this, input);
+		String type = (String) arrayObj.jjtAccept(this, input);
+		if(type.equals("new int[]")) {
+			throw new WrongType(input.context, "new int[]", "int[]", node, WrongType.Kind.UNKNOWN);
+		}
 		return "int";
 	}
 	
@@ -342,6 +345,8 @@ public class TypeCheckVisitor extends VisitorAdapter{
 			
 			String correctType = methodData.paramTypes.get(paramNum);
 			String foundType = foundParamTypes.get(paramNum);
+			if(foundType.equals("new int[]")) // Special case!!!
+				foundType = "int[]";
 			if(!(foundType.equals(correctType))){
 				throw new WrongType(new Context(className, methodName), correctType, foundType, node, WrongType.Kind.ARG);
 			}
@@ -378,7 +383,7 @@ public class TypeCheckVisitor extends VisitorAdapter{
 		checkExpectedType(input, "int[]", node);
 		input.expectedType = "int";
 		node.jjtGetChild(0).jjtAccept(this, input);
-		return "int[]";
+		return "new int[]";
 	}
 	
 	public Object visit(ASTNewObject node, Object data){
@@ -432,6 +437,12 @@ public class TypeCheckVisitor extends VisitorAdapter{
 	private void checkExpectedType(ExprInput input, String actualExprType, SimpleNode node){
 		if(input.expectedType != null && !(input.expectedType.equals(actualExprType))){
 			throw new WrongType(input.context, input.expectedType, actualExprType, node);
+		}
+	}
+
+	private void checkExpectedType(ExprInput input, String actualExprType1, String actualExprType2, SimpleNode node){
+		if(input.expectedType != null && !(input.expectedType.equals(actualExprType1)) && !(input.expectedType.equals(actualExprType2))) {
+			throw new WrongType(input.context, input.expectedType, actualExprType1 + "||" + actualExprType2, node);
 		}
 	}
 
