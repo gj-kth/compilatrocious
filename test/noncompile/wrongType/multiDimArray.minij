@@ -1,0 +1,19 @@
+class main {
+    public static void main(String[] args) {
+        int[] a;
+        int i;
+        int [] b;
+        O o;
+        o = new O();
+        i = o.f()[1][2];
+       	
+    }
+
+
+}
+
+class O{
+	public int[] f(){
+		return new int[5];
+	}
+}

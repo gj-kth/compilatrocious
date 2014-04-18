@@ -1,8 +1,0 @@
-class main {
-    public static void main(String[] args) {
-        int[] a;
-        int i;
-        a = new int[2];
-        i = a[1,2];
-    }
-}

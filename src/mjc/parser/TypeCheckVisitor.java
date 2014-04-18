@@ -225,6 +225,30 @@ public class TypeCheckVisitor extends VisitorAdapter{
 
 
 	public Object visit(ASTLessThan node, Object data){
+		return visitComparisonNode(node, data);
+	}
+
+	public Object visit(ASTLessEqual node, Object data){
+		return visitComparisonNode(node, data);
+	}
+
+	public Object visit(ASTGreaterThan node, Object data){
+		return visitComparisonNode(node, data);
+	}
+
+	public Object visit(ASTGreaterEqual node, Object data){
+		return visitComparisonNode(node, data);
+	}
+
+	public Object visit(ASTEqual node, Object data){
+		return visitComparisonNode(node, data);
+	}
+
+	public Object visit(ASTNotEqual node, Object data){
+		return visitComparisonNode(node, data);
+	}
+
+	public String visitComparisonNode(SimpleNode node, Object data){
 		ExprInput input = new ExprInput(assertExprInput(data));
 		checkExpectedType(input, "boolean", node);
 		Node expr1 = node.jjtGetChild(0);

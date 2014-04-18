@@ -1,0 +1,13 @@
+class main {
+    public static void main(String[] args) {
+        int i;
+        int[] a;
+        int[] a2;
+
+        a = new int[i];
+        i = (new int[15+i])[0];
+        i = a2[2];
+        i = (new int[0])[0] + i;
+        i = 15 + ((((new int[0]))[0]) + i) + (new int[i])[0];
+    }
+}

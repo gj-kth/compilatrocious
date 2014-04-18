@@ -126,6 +126,26 @@ public abstract class VisitorAdapter implements MiniJavaVisitor{
 	public Object visit(ASTLessThan node, Object data){
 		return shouldNotBeVisited(node, data);
 	}
+
+	public Object visit(ASTLessEqual node, Object data){
+		return shouldNotBeVisited(node, data);
+	}
+
+	public Object visit(ASTGreaterThan node, Object data){
+		return shouldNotBeVisited(node, data);
+	}
+
+	public Object visit(ASTGreaterEqual node, Object data){
+		return shouldNotBeVisited(node, data);
+	}
+
+	public Object visit(ASTEqual node, Object data){
+		return shouldNotBeVisited(node, data);
+	}
+
+	public Object visit(ASTNotEqual node, Object data){
+		return shouldNotBeVisited(node, data);
+	}
 	
 	public Object visit(ASTAnd node, Object data){
 		return shouldNotBeVisited(node, data);

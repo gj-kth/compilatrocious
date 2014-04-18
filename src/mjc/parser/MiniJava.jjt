@@ -102,6 +102,11 @@ TOKEN :
   <ASSIGN: "=">
 | <AND: "&&">
 | <LT: "<">
+| <LE: "<=">
+| <GT: ">">
+| <GE: ">=">
+| <EQ: "==">
+| <NE: "!=">
 | <PLUS: "+">
 | <MINUS: "-">
 | <STAR: "*">
@@ -335,7 +340,14 @@ void BooleanOp() #void :
 void Comparison() #void :
 {}
 {
-  Sum() (<LT> Sum() #LessThan(2))*
+  Sum() (
+    <LT> Sum() #LessThan(2)
+|   <LE> Sum() #LessEqual(2)
+|   <GT> Sum() #GreaterThan(2)
+|   <GE> Sum() #GreaterEqual(2)
+|   <EQ> Sum() #Equal(2)
+|   <NE> Sum() #NotEqual(2)
+    )?
 }
 
 void Sum() #void :
