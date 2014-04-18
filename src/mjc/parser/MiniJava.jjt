@@ -408,13 +408,3 @@ void ExprListTail() #void :
 {
   <COMMA> Expr()
 }
-
-void Op() #void :
-{}
-{
-  "&&" #And
-| "<"  #LessThan
-| "+"  #Plus
-| "-"  #Minus
-| "*"  #Mult
-}
