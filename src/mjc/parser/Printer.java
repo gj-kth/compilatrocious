@@ -33,6 +33,7 @@ public class Printer {
         PrintWriter pw = new PrintWriter(sw);
         e.printStackTrace(pw);
         System.out.println("--------------------------------------------------------");
+        System.out.println("error message: " + e.getMessage());
         System.out.println(sw.toString());
         System.out.println("--------------------------------------------------------");
     }
