@@ -260,6 +260,14 @@ public class TypeCheckVisitor extends VisitorAdapter{
 	}
 	
 	public Object visit(ASTAnd node, Object data){
+		return visitAndOr(node, data);
+	}
+
+	public Object visit(ASTOr node, Object data){
+		return visitAndOr(node, data);
+	}
+
+	public String visitAndOr(SimpleNode node, Object data){
 		ExprInput input = new ExprInput(assertExprInput(data));
 		checkExpectedType(input, "boolean", node);
 		input.expectedType = "boolean";

@@ -150,6 +150,10 @@ public abstract class VisitorAdapter implements MiniJavaVisitor{
 	public Object visit(ASTAnd node, Object data){
 		return shouldNotBeVisited(node, data);
 	}
+
+	public Object visit(ASTOr node, Object data){
+		return shouldNotBeVisited(node, data);
+	}
 	
 	public Object visit(ASTPlus node, Object data){
 		return shouldNotBeVisited(node, data);
@@ -205,7 +209,9 @@ public abstract class VisitorAdapter implements MiniJavaVisitor{
 	}
 
 	protected Object shouldNotBeVisited(SimpleNode node, Object data){
-		new Exception("visit should not be called with this class(?)  node: " + node.getClass() + ", data: " + data).printStackTrace();
+		Exception e = new Exception("visit should not be called with this class(?)  node: " + node.getClass() + ", data: " + data);
+		System.out.println(e.getMessage());
+		e.printStackTrace();
 		System.exit(0);
 		return null;
 	}

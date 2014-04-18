@@ -101,6 +101,7 @@ TOKEN :
 {
   <ASSIGN: "=">
 | <AND: "&&">
+| <OR: "||">
 | <LT: "<">
 | <LE: "<=">
 | <GT: ">">
@@ -327,11 +328,17 @@ void While() :
 void Expr() :
 {}
 {
-  BooleanOp()
+  OrOp()
 //| ExprPrefix() (ExprSuffix())?
 }
 
-void BooleanOp() #void :
+void OrOp() #void :
+{}
+{
+  AndOp() (<OR> AndOp() #Or(2))*
+}
+
+void AndOp() #void :
 {}
 {
   Comparison() (<AND> Comparison() #And(2))*

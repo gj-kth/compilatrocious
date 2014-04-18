@@ -1,0 +1,21 @@
+class main {
+    public static void main(String[] args) {
+        boolean b;
+        boolean b2;
+        int i;
+        i = 5;
+        b = i < 10;
+        b2 = false;
+        if(b && b2) System.out.println(i);
+        if(b && b2 || i + 5 < 10) i = 0;
+        if(b || (b2 && i < 10 && i > 1) && (b || b2)){
+            i = 1;
+        }else{
+            i = 0;
+        }
+    }
+
+
+}
+
+ 
