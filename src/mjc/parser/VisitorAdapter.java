@@ -30,6 +30,10 @@ public abstract class VisitorAdapter implements MiniJavaVisitor{
 	public Object visit(ASTClassDecl node, Object data){
 		return shouldNotBeVisited(node, data);
 	}
+
+	public Object visit(ASTSubClassDecl node, Object data){
+		return shouldNotBeVisited(node, data);
+	}	
 	
 	public Object visit(ASTMethodBody node, Object data){
 		return shouldNotBeVisited(node, data);

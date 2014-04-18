@@ -1,0 +1,30 @@
+class main {
+    public static void main(String[] args) {
+        C c;
+        c = new C();
+        System.out.println(c.f());
+        System.out.println(c.h());
+    }
+}
+
+class A{
+	public int f(){
+		return 1;
+	}
+
+	public int g(){
+		return 2;
+	}
+}
+
+class B extends A{
+	public int h(){
+		return 3;
+	}
+}
+
+class C extends A{
+	public int i(){
+		return 4;
+	}
+}

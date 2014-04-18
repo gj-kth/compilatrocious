@@ -76,6 +76,18 @@ public class SymbolTableVisitor extends VisitorAdapter{
 		String className = (String) classNameId.jjtAccept(this, null);
 		return new Pair<String, ClassData>(className, new ClassData(fieldsTable, methodsTable));
 	}
+
+	public Object visit(ASTSubClassDecl node, Object data){
+		Node classNameId = node.children[0];
+		Node superClassNameId = node.children[1];
+		Node varDecls = node.children[2];
+		Node methodDecls = node.children[3];
+		SymbolTable fieldsTable = (SymbolTable) varDecls.jjtAccept(this, null);
+		SymbolTable methodsTable = (SymbolTable) methodDecls.jjtAccept(this, null);
+		String className = (String) classNameId.jjtAccept(this, null);
+		String superClassName = (String) superClassNameId.jjtAccept(this,null);
+		return new Pair<String, ClassData>(className, new ClassData(superClassName, fieldsTable, methodsTable));
+	}
 	
 	public Object visit(ASTMethodBody node, Object data){
 		Node varDecls = node.jjtGetChild(0);

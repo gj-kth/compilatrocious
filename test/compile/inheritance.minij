@@ -1,0 +1,29 @@
+class main {
+    public static void main(String[] args) {
+       
+    }
+
+
+}
+
+class Vehicle{
+    int speed;
+    boolean isMoving;
+    public boolean move(int amount){
+        speed = speed + amount;
+        isMoving = speed != 0;
+        return isMoving;
+    }
+}
+ 
+class Car extends Vehicle{
+    int honkCode;
+    public boolean setHonkCode(int code){
+        honkCode = code;
+        return honkCode != 0;
+    }
+    public boolean honk(){
+        System.out.println(honkCode);
+        return true;
+    }
+}

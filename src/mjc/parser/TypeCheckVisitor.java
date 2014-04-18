@@ -46,6 +46,15 @@ public class TypeCheckVisitor extends VisitorAdapter{
 		return methodDecls.jjtAccept(this, new Context(className));
 	}
 
+	public Object visit(ASTSubClassDecl node, Object data){
+		Node classId = node.jjtGetChild(0);
+		String className = getVal(classId);
+		Node methodDecls = node.jjtGetChild(3); 
+		return methodDecls.jjtAccept(this, new Context(className));
+	}
+	
+
+
 	//data == class context
 	public Object visit(ASTMethodDecls node, Object data){
 		return visitChildren(node, data);
@@ -191,7 +200,7 @@ public class TypeCheckVisitor extends VisitorAdapter{
 	//		expectedType tells what type the expression is expected to evaluate to.
 
 	// output:
-	// type of evaluated expression (?) //TODO
+	// String: type of evaluated expression (with a few exceptions)
 
 
 	public Object visit(ASTExpr node, Object data){
@@ -334,7 +343,7 @@ public class TypeCheckVisitor extends VisitorAdapter{
 		return type;
 	}
 	
-	public Object visit(ASTCall node, Object data){
+	public Object visit(ASTCall node, Object data){ 
 		ExprInput input = assertExprInput(data);
 		ExprInput childInput = new ExprInput(input);
 		childInput.expectedType = null;
@@ -377,7 +386,11 @@ public class TypeCheckVisitor extends VisitorAdapter{
 		}
 		MethodData methodData = (MethodData) classData.methodsTable.lookup(methodName);
 		if(methodData == null){
-			throw new ReferencedMissingMethod(null, methodName);
+			if(classData.hasSuperClass){
+				return checkCall(classData.superClass, methodName, expectedReturnType, foundParamTypes, node);
+			}else{
+				throw new ReferencedMissingMethod(null, methodName);	
+			}
 		}
 		if(expectedReturnType != null && !(methodData.returnType.equals(expectedReturnType))){
 			throw new WrongType(new Context(className, methodName), methodData.returnType, expectedReturnType, node, WrongType.Kind.RETURN);
@@ -395,11 +408,6 @@ public class TypeCheckVisitor extends VisitorAdapter{
 			if(!(foundType.equals(correctType))){
 				throw new WrongType(new Context(className, methodName), correctType, foundType, node, WrongType.Kind.ARG);
 			}
-			//TODO
-			//Vi vill kolla att de funna argumenten (x,y,z i "a.getB(x,y,z)") 
-			// stämmer överens med de deklarerade (public int getB(int x, int y, int z))
-			// Men i symboltable (paramsTable) ligger de ju huller om buller, hashade. Kan in tekolla ordning!
-			//TODO
 		}
 		return methodData.returnType;
 	}
@@ -416,10 +424,6 @@ public class TypeCheckVisitor extends VisitorAdapter{
 		ExprInput input = assertExprInput(data);
 		String currentClass = input.context.className;
 		checkExpectedType(input, currentClass, node);
-		//hur hantera detta?
-		//Om det står this.getB()  vill vi kontrollera att getB finns, osv
-		//TODO
-		//TODO
 		return currentClass;
 	}
 	
@@ -513,7 +517,13 @@ public class TypeCheckVisitor extends VisitorAdapter{
 		if((varType = (String)methodData.localsTable.lookup(context.varName)) == null){
 			if((varType = (String)methodData.paramsTable.lookup(context.varName)) == null){
 				if((varType = (String)classData.fieldsTable.lookup(context.varName)) == null){
-					throw new ReferencedMissingVariable(context, node);
+					if(classData.hasSuperClass){
+						Context superClassContext = new Context(context);
+						superClassContext.className = classData.superClass;
+						return getVarType(superClassContext, node);
+					}else{
+						throw new ReferencedMissingVariable(context, node);							
+					}
 				}
 			}
 		}
@@ -525,6 +535,7 @@ public class TypeCheckVisitor extends VisitorAdapter{
 			throw new NullPointerException("context == " + context);
 		}
 		ClassData classData = (ClassData) symbolTable.lookup(context.className);
+
 		MethodData methodData = (MethodData) classData.methodsTable.lookup(context.methodName);
 		return methodData.returnType;
 	}

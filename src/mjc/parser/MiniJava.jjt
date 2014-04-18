@@ -80,6 +80,7 @@ TOKEN :
 {
   <BOOL: "boolean">
 | <CLASS: "class">
+| <EXTENDS: "extends">
 | <ELSE: "else">
 | <FOR: "for">
 | <IF: "if">
@@ -143,19 +144,25 @@ void MainClass() :
   <RBRACE>
 }
 
+
+
+void ClassDecl() #void:
+{}
+{
+  LOOKAHEAD(3)
+  ("class" Identifier() <LBRACE>
+    ClassBody()
+  <RBRACE>) #ClassDecl
+| ("class" Identifier() "extends" Identifier() <LBRACE>
+    ClassBody()
+  <RBRACE>) #SubClassDecl
+}
+
 void ClassBody() #void:
 {}
 {
   ( VarDecl() )* #VarDecls(true)
   ( MethodDecl() )* #MethodDecls(true)
-}
-
-void ClassDecl() :
-{}
-{
-  "class" Identifier() <LBRACE>
-    ClassBody()
-  <RBRACE>
 }
 
 /* Method Productions */

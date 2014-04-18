@@ -3,21 +3,32 @@ package mjc.parser;
 import java.util.*;
 
 public class VisitorUtil{
+
 	public static class ClassData implements HasPrefixedToString{
+		boolean hasSuperClass;
+		String superClass;
 		SymbolTable fieldsTable;
 		SymbolTable methodsTable;
+
+		public ClassData(String superClass, SymbolTable f, SymbolTable m){
+			this(f,m);
+			hasSuperClass = true;
+			this.superClass = superClass;
+		}
+
 		public ClassData(SymbolTable f, SymbolTable m){
 			fieldsTable = f;
 			methodsTable = m;
 		}
 
 		public String toString(String prefix){
-			return prefix + "fields:\n" + fieldsTable.toString(prefix + "\t") + "\n" + prefix + "methods:\n" + methodsTable.toString(prefix + "\t");
+			String inheritance = hasSuperClass? ("(extends " + superClass + ")\n") : "";
+			return prefix + inheritance + "fields:\n" + fieldsTable.toString(prefix + "\t") + "\n" + prefix + "methods:\n" + methodsTable.toString(prefix + "\t");
 		}
 
-                public String toString() {
-                    return toString("");
-                }
+        public String toString() {
+            return toString("");
+        }
 	}
 
 	public static class MethodData implements HasPrefixedToString{
@@ -45,9 +56,9 @@ public class VisitorUtil{
 			return prefix + returnType + "\n" + prefix + "params:\n" + paramsTable.toString(prefix + "\t") + "\n" + prefix + "locals:\n" + localsTable.toString(prefix + "\t");
 		}
 
-                public String toString() {
-                    return toString("");
-                }
+	    public String toString() {
+	        return toString("");
+	    }
 	}
 
 	public static class Pair<T1,T2>{

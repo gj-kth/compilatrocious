@@ -1,0 +1,19 @@
+class main {
+    public static void main(String[] args) {
+        
+    }
+
+
+}
+
+class A{
+
+} 
+
+class C{
+
+}
+
+class B extends A extends C{
+
+}
