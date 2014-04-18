@@ -4,12 +4,8 @@ class main {
        Vehicle v2;
        Car c;
        Car c2;
-       v = new Vehicle();
-       c = new Vehicle();
-       c = new Car();
+       v = new Car(); //Wrong
     }
-
-
 }
 
 class Vehicle{

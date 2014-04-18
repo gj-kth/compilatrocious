@@ -485,10 +485,18 @@ public class TypeCheckVisitor extends VisitorAdapter{
 	//then compare it to the actual type, and throw exception if they don't match
 	private void checkExpectedType(ExprInput input, String actualExprType, SimpleNode node){
 		if(input.expectedType != null && !(input.expectedType.equals(actualExprType))){
-			throw new WrongType(input.context, input.expectedType, actualExprType, node);
+			ClassData expectedClassData = (ClassData) symbolTable.lookup(input.expectedType);
+			if(expectedClassData != null && expectedClassData.hasSuperClass){
+				ExprInput superClassInput = new ExprInput(input);
+				superClassInput.expectedType = expectedClassData.superClass;
+				checkExpectedType(superClassInput, actualExprType, node);
+			}else{
+				throw new WrongType(input.context, input.expectedType, actualExprType, node);	
+			}
 		}
 	}
 
+	//Lets you specify that actual type is one of the two given.
 	private void checkExpectedType(ExprInput input, String actualExprType1, String actualExprType2, SimpleNode node){
 		if(input.expectedType != null && !(input.expectedType.equals(actualExprType1)) && !(input.expectedType.equals(actualExprType2))) {
 			throw new WrongType(input.context, input.expectedType, actualExprType1 + "||" + actualExprType2, node);
