@@ -1,0 +1,43 @@
+class main {
+    public static void main(String[] args) {
+       Vehicle v;
+       Vehicle v2;
+       Car c;
+       Car c2;
+       SportsCar s;
+       v = new Vehicle();
+       c = new Car();
+       s = new SportsCar();
+    }
+
+
+}
+
+class Vehicle{
+    int speed;
+    boolean isMoving;
+    public boolean move(int amount){
+        speed = speed + amount;
+        isMoving = speed != 0;
+        honkCode = 10; // WRONG. Cannot access honkCode from here
+        return isMoving;
+    }
+}
+ 
+class Car extends Vehicle{
+    int honkCode;
+    public boolean setHonkCode(int code){
+        honkCode = code;
+        return honkCode != 0;
+    }
+    public boolean honk(){
+        System.out.println(honkCode);
+        return true;
+    }
+}
+
+class SportsCar extends Car{
+    public boolean setup(){
+        return this.setHonkCode(10110100);
+    }
+}

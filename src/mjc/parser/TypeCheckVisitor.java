@@ -524,13 +524,30 @@ public class TypeCheckVisitor extends VisitorAdapter{
 			if((varType = (String)methodData.paramsTable.lookup(context.varName)) == null){
 				if((varType = (String)classData.fieldsTable.lookup(context.varName)) == null){
 					if(classData.hasSuperClass){
-						Context superClassContext = new Context(context);
-						superClassContext.className = classData.superClass;
-						return getVarType(superClassContext, node);
+						Context superClassContext = new Context(classData.superClass, "", context.varName);
+						return getClassFieldVarType(superClassContext, node);
 					}else{
 						throw new ReferencedMissingVariable(context, node);							
 					}
 				}
+			}
+		}
+		return varType;
+	}
+
+	//unlike in getVarType() this method checks only instance-variables (not parameters or locals)
+	private String getClassFieldVarType(Context context, SimpleNode node){
+		if(context == null || context.className == null || context.varName == null){
+			throw new NullPointerException("context == " + context);
+		}
+		ClassData classData = (ClassData) symbolTable.lookup(context.className);
+		String varType;
+		if((varType = (String)classData.fieldsTable.lookup(context.varName)) == null){
+			if(classData.hasSuperClass){
+				Context superClassContext = new Context(classData.superClass, "", context.varName);
+				return getClassFieldVarType(superClassContext, node);
+			}else{
+				throw new ReferencedMissingVariable(context, node);							
 			}
 		}
 		return varType;
