@@ -86,7 +86,22 @@ public class SymbolTableVisitor extends VisitorAdapter{
 		SymbolTable methodsTable = (SymbolTable) methodDecls.jjtAccept(this, null);
 		String className = (String) classNameId.jjtAccept(this, null);
 		String superClassName = (String) superClassNameId.jjtAccept(this,null);
+		assertNotCyclic(className, superClassName);
 		return new Pair<String, ClassData>(className, new ClassData(superClassName, fieldsTable, methodsTable));
+	}
+
+	private void assertNotCyclic(String className, String superClassName){
+		if(className.equals(superClassName)){
+			throw new CyclicInheritance(className, superClassName);
+		}
+		ClassData superClassData = (ClassData) symbolTable.lookup(superClassName);
+		while(superClassData != null && superClassData.hasSuperClass){
+			superClassName = superClassData.superClass;
+			if(className.equals(superClassName)){
+				throw new CyclicInheritance(className, superClassName);
+			}
+			superClassData = (ClassData) symbolTable.lookup(superClassName);
+		}
 	}
 	
 	public Object visit(ASTMethodBody node, Object data){

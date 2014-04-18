@@ -28,6 +28,7 @@ public class Test {
             dirToException.put("refMissingVar", Class.forName(s + "ReferencedMissingVariable"));
             dirToException.put("wrongNumArgs", Class.forName(s + "WrongNumberArgs"));
             dirToException.put("wrongType", Class.forName(s + "WrongType"));        
+            dirToException.put("cyclicInheritance", Class.forName(s + "CyclicInheritance"));        
 
 
             Map<String,TestResult> results = new HashMap<String,TestResult>();
