@@ -4,8 +4,14 @@ class main {
        Vehicle v2;
        Car c;
        Car c2;
-       v = new Car(); //Wrong
+       SportsCar s;
+       v = new Vehicle();
+       c = new Car();
+       s = new SportsCar();
+       s = new Car();
     }
+
+
 }
 
 class Vehicle{
@@ -27,5 +33,11 @@ class Car extends Vehicle{
     public boolean honk(){
         System.out.println(honkCode);
         return true;
+    }
+}
+
+class SportsCar extends Car{
+    public boolean setup(){
+        return this.setHonkCode(10110100);
     }
 }
