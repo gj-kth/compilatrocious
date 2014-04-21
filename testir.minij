@@ -7,5 +7,11 @@ class Main {
 		b = 2;
 		c = a + b;
 		c = c * b;
+
+		if(a < b) {
+			a = 2;
+		}else{
+			b = 1;
+		}
 	}
 }

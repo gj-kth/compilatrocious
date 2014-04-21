@@ -55,8 +55,8 @@ public class IRVisitor extends VisitorAdapter{
 		Node stmts = node.jjtGetChild(1);
 
 		Frame frame = (Frame) data;
-		mjc.tree.Stm tree = (mjc.tree.Stm) stmts.jjtAccept(this, data);
-		return tree;
+		Expr tree = (Expr) stmts.jjtAccept(this, data);
+		return tree.unNx();
 	}
 	
 	public Object visit(ASTStmts node, Object data){
@@ -65,11 +65,11 @@ public class IRVisitor extends VisitorAdapter{
 
 		// Chain stmts using SEQs beginning from the innermost stmt
 		for(int i = node.jjtGetNumChildren()-1; i >= 0; i--){
-			mjc.tree.Stm stm = (mjc.tree.Stm) node.jjtGetChild(i).jjtAccept(this, data);
-			stmts = new SEQ(stm, stmts);
+			Expr stm = (Expr) node.jjtGetChild(i).jjtAccept(this, data);
+			stmts = new SEQ(stm.unNx(), stmts);
 		}
 
-		return stmts;
+		return new Nx(stmts);
 	}
 	
 	public Object visit(ASTStmt node, Object data){
@@ -77,17 +77,31 @@ public class IRVisitor extends VisitorAdapter{
 
 		// Generate subtree and convert to a statement
 		Expr stmt = (Expr) child.jjtAccept(this,data);
-		return stmt.unNx();
+		return new Nx(stmt.unNx());
+	}
+
+	public Object visit(ASTBlock node, Object data){
+		// COPY OF STMTS NOW, MAYBE MERGE CODE!??
+		// Generate a dummy stmt as last statement, change.
+		mjc.tree.Stm stmts = (new Ex(new CONST(0))).unNx();
+
+		// Chain stmts using SEQs beginning from the innermost stmt
+		for(int i = node.jjtGetNumChildren()-1; i >= 0; i--){
+			Expr stm = (Expr) node.jjtGetChild(i).jjtAccept(this, data);
+			stmts = new SEQ(stm.unNx(), stmts);
+		}
+
+		return new Nx(stmts);
 	}
 	
 	public Object visit(ASTSingleAssignment node, Object data){
 		Node ident = node.jjtGetChild(0);
 		Node value = node.jjtGetChild(1); //Expr
-		mjc.tree.Exp access = (mjc.tree.Exp) ident.jjtAccept(this,data);
-		mjc.tree.Exp expr = (mjc.tree.Exp) value.jjtAccept(this,data);
+		Expr access = (Expr) ident.jjtAccept(this,data);
+		Expr expr = (Expr) value.jjtAccept(this,data);
 
 		// This is a statement which does not return a value
-		return new Nx(new MOVE(access, expr));
+		return new Nx(new MOVE(access.unEx(), expr.unEx()));
 	}
 
 	public Object visit(ASTExpr node, Object data){
@@ -95,7 +109,11 @@ public class IRVisitor extends VisitorAdapter{
 	}
 	
 	public Object visit(ASTLessThan node, Object data){
-		return shouldNotBeVisited(node, data);
+		Node left = node.jjtGetChild(0);
+		Node right = node.jjtGetChild(1);
+		Expr expr1 = (Expr) left.jjtAccept(this,data);
+		Expr expr2 = (Expr) right.jjtAccept(this,data);
+		return new Cx(CJUMP.LT, expr1.unEx(), expr2.unEx());
 	}
 
 	public Object visit(ASTLessEqual node, Object data){
@@ -139,31 +157,55 @@ public class IRVisitor extends VisitorAdapter{
 	}
 
 	public Object visit(ASTIntLiteral node, Object data){
-		return new CONST(Integer.parseInt(((Token)node.value).image));
+		return new Ex(new CONST(Integer.parseInt(((Token)node.value).image)));
 	}
 
 	public Object visit(ASTIdentifier node, Object data){
 		// Access the temp variable within the frame
 		String id = ((Token)node.value).image;
 		Frame frame = (Frame) data;
-		return new TEMP(frame.getTemp(id));
+		return new Ex(new TEMP(frame.getTemp(id)));
 	}
 
 	public Object visit(ASTBoolLiteral node, Object data){
 		String lit = ((Token) node.value).image;
 		if(lit.equals("true")) {
-			return new CONST(1);
+			return new Ex(new CONST(1));
 		}else{
-			return new CONST(0);
+			return new Ex(new CONST(0));
 		}
 	}
 
-	public mjc.tree.Exp visitBinop(int op, SimpleNode node, Object data) {
+	public Object visit(ASTIfElse node, Object data){
+		Node bn = node.jjtGetChild(0);
+		Node in = node.jjtGetChild(1);
+		Node en = node.jjtGetChild(2);
+
+		Label t = new Label();
+		Label f = new Label();
+
+		Expr boolExp = (Expr) bn.jjtAccept(this,data);
+		Expr ifstmt = (Expr) in.jjtAccept(this,data);
+		Expr elstmt = (Expr) en.jjtAccept(this,data);
+
+		return new Nx(new SEQ(boolExp.unCx(t,f),
+				new SEQ(new LABEL(t),
+					new SEQ(ifstmt.unNx(),
+						new SEQ(new LABEL(f), elstmt.unNx())))));
+	}
+	
+	public Object visit(ASTIf node, Object data){
+		Node boolExp = node.jjtGetChild(0);
+		Node ifstmt = node.jjtGetChild(1);
+		return null;
+	}
+
+	public Ex visitBinop(int op, SimpleNode node, Object data) {
 		Node left = node.jjtGetChild(0);
 		Node right = node.jjtGetChild(1);
-		mjc.tree.Exp expr1 = (mjc.tree.Exp) left.jjtAccept(this, data);
-		mjc.tree.Exp expr2 = (mjc.tree.Exp) right.jjtAccept(this, data);
-		return new BINOP(op, expr1, expr2);
+		Expr expr1 = (Expr) left.jjtAccept(this, data);
+		Expr expr2 = (Expr) right.jjtAccept(this, data);
+		return new Ex(new BINOP(op, expr1.unEx(), expr2.unEx()));
 	}
 
 	/*
@@ -223,10 +265,14 @@ public class IRVisitor extends VisitorAdapter{
 	}
 
 	public class Cx extends Expr {
-		mjc.tree.Stm stm;
+		mjc.tree.Exp exp1;
+		mjc.tree.Exp exp2;
+		int type;
 
-		Cx(mjc.tree.Stm s) {
-			stm = s;
+		Cx(int type, mjc.tree.Exp exp1, mjc.tree.Exp exp2) {
+			this.type = type;
+			this.exp1 = exp1;
+			this.exp2 = exp2;
 		}
 
 		public mjc.tree.Exp unEx() {
@@ -234,11 +280,13 @@ public class IRVisitor extends VisitorAdapter{
 		}
 
 		public mjc.tree.Stm unNx() {
-			return stm;
+			return null; //TODO
 		}
 
 		public mjc.tree.Stm unCx(mjc.temp.Label t, mjc.temp.Label f) {
-			return null; //TODO
+
+			// if cjump is true, jump to t, else to f
+			return new CJUMP(type, exp1, exp2, t, f);
 		}
 	}
 }
