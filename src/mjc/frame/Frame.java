@@ -17,20 +17,29 @@ import java.util.List;
    designed for real processors. For virtual machines, use the @see
    VMFrame interface.
 */
-public interface Frame
+public abstract class Frame
 {
+	private Label name;
+	private int size;
+	private int wordSize;
+
+	abstract public Frame newFrame(Label name);
 
     /**
        The label corresponding to the assembler entry point
        for the function using the frame.
        @return A Label object that contains the label.
     */
-    public Label name();
+    public Label name(){
+		return name;
+	}
 
     /**
        @return The size of the frame in bytes.
     */
-    public int size();
+    public int size(){
+		return size;
+	}
 
     /**
        Returns a list of Access objects, one for each formal 
@@ -39,7 +48,7 @@ public interface Frame
 
        @return A List of Access objects.
     */
-    public java.util.List<Access> formals();
+    abstract public java.util.List<Access> formals();
 
     /**
        Allocates an Access object corresponding to a local
@@ -55,7 +64,7 @@ public interface Frame
        @return An Access object that describes how the corresponding
        local variable is accessed from within the function.
     */
-    public Access allocLocal(boolean escape);
+    abstract public Access allocLocal(boolean escape);
 
     /**
        Returns an Access object that can be used to access
@@ -64,7 +73,7 @@ public interface Frame
 
        @param index The index (starting from zero) of the parameter.
     */
-    public Access accessOutgoing(int index);
+    abstract public Access accessOutgoing(int index);
 
     /**
        Encapsulates naming conventions for external functions,
@@ -77,7 +86,7 @@ public interface Frame
 
        @return Tree code that calls the external function.
     */
-    public Exp externalCall(String func, ExpList args);
+    abstract public Exp externalCall(String func, ExpList args);
 
     /**
        Appends tree code to move incoming arguments into the
@@ -90,7 +99,7 @@ public interface Frame
        to their correct places and then executes the function
        body.
     */
-    public Stm procEntryExit1(Stm body);
+    abstract public Stm procEntryExit1(Stm body);
 
     /**
        Appends a "sink" Assem instruction that "uses" special registers
@@ -101,7 +110,7 @@ public interface Frame
 
        @return The modified List with the sink instruction.
     */
-    public List<mjc.assem.Instr> procEntryExit2(List<mjc.assem.Instr> inst);
+    abstract public List<mjc.assem.Instr> procEntryExit2(List<mjc.assem.Instr> inst);
 
     /**
        Produces first part of prologue:
@@ -119,34 +128,36 @@ public interface Frame
 
        @return a Proc object
     */
-    public mjc.frame.Proc procEntryExit3(List<mjc.assem.Instr> body);
+    abstract public mjc.frame.Proc procEntryExit3(List<mjc.assem.Instr> body);
     
 
     /**
        @return The return value register register.
     */
-    public Temp RV();
+    abstract public Temp RV();
 
     /**
        @return The frame pointer register.
     */
-    public Temp FP();
+    abstract public Temp FP();
 
     /**
        @return The machine's natural word size.
     */
-    public int wordSize();
+    public int wordSize() {
+		return wordSize;
+	}
 
     /**
        @return The translation of a tree.Stm into a list of assem.Instr.
     */
-    public abstract List<mjc.assem.Instr> codegen(mjc.tree.Stm stm);
+    abstract public List<mjc.assem.Instr> codegen(mjc.tree.Stm stm);
 
     /**
        @return A TempMap mapping Temp:s corresponding to hardware 
        registers to their names, represented as String:s.
     */
-    public TempMap initial();
+    abstract public TempMap initial();
     
     /**
        @return A TempList corresponding to the registers of the 
@@ -154,6 +165,6 @@ public interface Frame
        used at register allocation are returned. This normally excludes 
        the frame pointer and the stack pointer, for instance.
     */
-    public TempList registers();
+    abstract public TempList registers();
     
 };

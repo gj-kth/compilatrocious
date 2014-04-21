@@ -6,6 +6,11 @@ import mjc.frame.*;
 public class IRVisitor extends VisitorAdapter{
 
 	Print p;
+	Frame ft;
+
+	public IRVisitor(Frame frametype) {
+		ft = frametype;
+	}
 
 	public Object visit(ASTProgram node, Object data){
 		p = new Print(System.out);
@@ -15,7 +20,7 @@ public class IRVisitor extends VisitorAdapter{
 
 	public Object visit(ASTMainClass node, Object data) {
 		Node method = node.jjtGetChild(1); // Ignore child 0???
-		mjc.tree.Exp exp = (mjc.tree.Exp) method.jjtAccept(this, data);
+		mjc.tree.Stm tree = (mjc.tree.Stm) method.jjtAccept(this, data);
 		return null;
 	}
 
@@ -31,26 +36,35 @@ public class IRVisitor extends VisitorAdapter{
 
 	public Object visit(ASTMainMethod node, Object data) {
 		Node body = node.jjtGetChild(1); // Ignore child 0???
-		mjc.tree.Exp exp = (mjc.tree.Exp) body.jjtAccept(this, data);
-		return exp;
+
+		Frame frame = ft.newFrame(new Label("main$main"));
+
+		mjc.tree.Stm tree = (mjc.tree.Stm) body.jjtAccept(this, frame);
+		return tree;
 	}
 
 	public Object visit(ASTMethodBody node, Object data){
 		Node stmts = node.jjtGetChild(1); // Ignore child 0???
-		mjc.tree.Exp exp = (mjc.tree.Exp) stmts.jjtAccept(this, data);
-		return exp;
+		Frame frame = (Frame) data;
+		mjc.tree.Stm tree = (mjc.tree.Stm) stmts.jjtAccept(this, data);
+		p.prStm(tree);
+		return tree;
 	}
 	
 	public Object visit(ASTStmts node, Object data){
-		visitChildren(node, data); //Chain together SEQs
-		return null;
+		mjc.tree.Stm stmts = (new Ex(new CONST(0))).unNx();
+
+		for(int i = node.jjtGetNumChildren()-1; i >= 0; i--){
+			mjc.tree.Stm stm = (mjc.tree.Stm) node.jjtGetChild(i).jjtAccept(this, data);
+			stmts = new SEQ(stm, stmts);
+		}
+		return stmts;
 	}
 	
 	public Object visit(ASTStmt node, Object data){
 		Node child = node.jjtGetChild(0);
-		mjc.tree.Stm stmt = (mjc.tree.Stm) child.jjtAccept(this,data);
-		p.prStm(stmt);
-		return stmt;
+		Expr stmt = (Expr) child.jjtAccept(this,data);
+		return stmt.unNx();
 	}
 	
 	public Object visit(ASTSingleAssignment node, Object data){
@@ -58,7 +72,7 @@ public class IRVisitor extends VisitorAdapter{
 		Node value = node.jjtGetChild(1); //Expr
 		mjc.tree.Exp access = (mjc.tree.Exp) ident.jjtAccept(this,data);
 		mjc.tree.Exp expr = (mjc.tree.Exp) value.jjtAccept(this,data);
-		return new MOVE(access, expr);
+		return new Nx(new MOVE(access, expr));
 	}
 
 	public Object visit(ASTExpr node, Object data){

@@ -1,6 +1,7 @@
 package mjc;
 
 import mjc.parser.*;
+import mjc.frame.*;
 import java.io.*;
 import java.util.ArrayList;
 
@@ -29,7 +30,7 @@ class X86Main {
                 TypeCheckVisitor visitor2 = new TypeCheckVisitor(symbolTable);
                 tree.jjtAccept(visitor2, null);
 
-				IRVisitor visitor3 = new IRVisitor();
+				IRVisitor visitor3 = new IRVisitor(new X86Frame());
 				tree.jjtAccept(visitor3, null);
 
             }catch(TypecheckError | ParseException | TokenMgrError | IOException e) {
