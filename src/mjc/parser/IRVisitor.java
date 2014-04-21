@@ -37,34 +37,45 @@ public class IRVisitor extends VisitorAdapter{
 	public Object visit(ASTMainMethod node, Object data) {
 		Node body = node.jjtGetChild(1); // Ignore child 0???
 
+		// Create a new frame for the method
 		Frame frame = ft.newFrame(new Label("main$main"));
 		System.out.println(frame.name());
 
+		// Generate the IR tree representing the method body
 		mjc.tree.Stm tree = (mjc.tree.Stm) body.jjtAccept(this, frame);
+
+		// Print the tree
+		p.prStm(tree);
+
 		return tree;
 	}
 
 	public Object visit(ASTMethodBody node, Object data){
 		Node decls = node.jjtGetChild(0);
 		Node stmts = node.jjtGetChild(1);
+
 		Frame frame = (Frame) data;
 		mjc.tree.Stm tree = (mjc.tree.Stm) stmts.jjtAccept(this, data);
-		p.prStm(tree);
 		return tree;
 	}
 	
 	public Object visit(ASTStmts node, Object data){
+		// Generate a dummy stmt as last statement, change.
 		mjc.tree.Stm stmts = (new Ex(new CONST(0))).unNx();
 
+		// Chain stmts using SEQs beginning from the innermost stmt
 		for(int i = node.jjtGetNumChildren()-1; i >= 0; i--){
 			mjc.tree.Stm stm = (mjc.tree.Stm) node.jjtGetChild(i).jjtAccept(this, data);
 			stmts = new SEQ(stm, stmts);
 		}
+
 		return stmts;
 	}
 	
 	public Object visit(ASTStmt node, Object data){
 		Node child = node.jjtGetChild(0);
+
+		// Generate subtree and convert to a statement
 		Expr stmt = (Expr) child.jjtAccept(this,data);
 		return stmt.unNx();
 	}
@@ -74,6 +85,8 @@ public class IRVisitor extends VisitorAdapter{
 		Node value = node.jjtGetChild(1); //Expr
 		mjc.tree.Exp access = (mjc.tree.Exp) ident.jjtAccept(this,data);
 		mjc.tree.Exp expr = (mjc.tree.Exp) value.jjtAccept(this,data);
+
+		// This is a statement which does not return a value
 		return new Nx(new MOVE(access, expr));
 	}
 
@@ -130,7 +143,7 @@ public class IRVisitor extends VisitorAdapter{
 	}
 
 	public Object visit(ASTIdentifier node, Object data){
-		// Temp access
+		// Access the temp variable within the frame
 		String id = ((Token)node.value).image;
 		Frame frame = (Frame) data;
 		return new TEMP(frame.getTemp(id));
@@ -155,6 +168,9 @@ public class IRVisitor extends VisitorAdapter{
 
 	/*
  	 * INTERNAL EXPR CLASSES
+ 	 *
+ 	 * Used to convert different kinds of statements and expressions to
+ 	 * the kind that is wanted in a parent expression
  	 *
  	 */
 	public abstract class Expr {
