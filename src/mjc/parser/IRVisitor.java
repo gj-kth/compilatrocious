@@ -38,13 +38,15 @@ public class IRVisitor extends VisitorAdapter{
 		Node body = node.jjtGetChild(1); // Ignore child 0???
 
 		Frame frame = ft.newFrame(new Label("main$main"));
+		System.out.println(frame.name());
 
 		mjc.tree.Stm tree = (mjc.tree.Stm) body.jjtAccept(this, frame);
 		return tree;
 	}
 
 	public Object visit(ASTMethodBody node, Object data){
-		Node stmts = node.jjtGetChild(1); // Ignore child 0???
+		Node decls = node.jjtGetChild(0);
+		Node stmts = node.jjtGetChild(1);
 		Frame frame = (Frame) data;
 		mjc.tree.Stm tree = (mjc.tree.Stm) stmts.jjtAccept(this, data);
 		p.prStm(tree);
@@ -130,7 +132,8 @@ public class IRVisitor extends VisitorAdapter{
 	public Object visit(ASTIdentifier node, Object data){
 		// Temp access
 		String id = ((Token)node.value).image;
-		return new TEMP(new Temp());
+		Frame frame = (Frame) data;
+		return new TEMP(frame.getTemp(id));
 	}
 
 	public Object visit(ASTBoolLiteral node, Object data){

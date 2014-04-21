@@ -9,11 +9,14 @@ import mjc.tree.ExpList;
 import mjc.tree.Stm;
 
 import java.util.List;
+import java.util.HashMap;
 
 public class X86Frame extends Frame {
 	private Label name;
 	private int size;
 	private static final int wordSize = 64;
+
+	private HashMap<String,Temp> tempMap;
 
 	public Label name(){
 		return name;
@@ -22,9 +25,20 @@ public class X86Frame extends Frame {
 		return size;
 	}
 
+	public Temp getTemp(String s) {
+		if(tempMap.containsKey(s)) {
+			return tempMap.get(s);
+		}else{
+			Temp t = new Temp();
+			tempMap.put(s,t);
+			return t;
+		}
+	}
+
 	public X86Frame newFrame(Label name) {
 		X86Frame frame = new X86Frame();
 		frame.name = name;
+		frame.tempMap = new HashMap<String,Temp>();
 		return frame;
 	}
 

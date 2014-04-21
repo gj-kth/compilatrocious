@@ -4,11 +4,13 @@ import mjc.temp.Label;
 import mjc.temp.Temp;
 import mjc.temp.TempList;
 import mjc.temp.TempMap;
+import mjc.temp.DefaultMap;
 import mjc.tree.Exp;
 import mjc.tree.ExpList;
 import mjc.tree.Stm;
 
 import java.util.List;
+import java.util.HashMap;
 
 
 /**
@@ -22,6 +24,13 @@ public abstract class Frame
 	private Label name;
 	private int size;
 	private int wordSize;
+
+	private HashMap<String,Temp> tempMap;
+
+	/*
+ 	 * Return Temp if s exists in tempMap, otherwise return new Temp
+ 	 */
+	abstract public Temp getTemp(String s);
 
 	abstract public Frame newFrame(Label name);
 
