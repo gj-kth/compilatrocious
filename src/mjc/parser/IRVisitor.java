@@ -133,13 +133,11 @@ public class IRVisitor extends VisitorAdapter{
 	}
 	
 	public Object visit(ASTAnd node, Object data){
-		//TODO Special case
-		return shouldNotBeVisited(node, data);
+		return visitIntBinop(BINOP.AND, node, data);
 	}
 
 	public Object visit(ASTOr node, Object data){
-		//TODO Special case
-		return shouldNotBeVisited(node, data);
+		return visitIntBinop(BINOP.OR, node, data);
 	}
 	
 	public Object visit(ASTPlus node, Object data){
@@ -246,7 +244,7 @@ public class IRVisitor extends VisitorAdapter{
 		}
 
 		public mjc.tree.Stm unCx(mjc.temp.Label t, mjc.temp.Label f) {
-			return null; //TODO
+			return new CJUMP(CJUMP.NE,exp,new CONST(0), t, f); //TODO
 		}
 	}
 

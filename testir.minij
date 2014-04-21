@@ -3,15 +3,26 @@ class Main {
 		int a;
 		int b;
 		int c;
+		boolean d;
+		boolean e;
 		a = 1;
 		b = 2;
 		c = a + b;
 		c = c * b;
 
+		d = true;
+		e = false;
+
 		if(a < b) {
 			a = 2;
 		}else{
 			b = 1;
+		}
+
+		if(d && e) {
+			a = 3;
+		}else{
+			c = 5;
 		}
 	}
 }
