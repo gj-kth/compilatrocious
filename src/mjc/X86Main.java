@@ -29,6 +29,9 @@ class X86Main {
                 TypeCheckVisitor visitor2 = new TypeCheckVisitor(symbolTable);
                 tree.jjtAccept(visitor2, null);
 
+				IRVisitor visitor3 = new IRVisitor();
+				tree.jjtAccept(visitor3, null);
+
             }catch(TypecheckError | ParseException | TokenMgrError | IOException e) {
                 //e.printStackTrace();
                 printError(e);
@@ -40,25 +43,33 @@ class X86Main {
             System.exit(1);
         }
 
-        // Dummy program
-        String program = "    .text\n    .globl      main\n    .type       main, @function\nmain:\n    movl $0, %eax\n    ret\n";
+		boolean genAsm = false;
+		for(String arg : args) {
+			if(arg.equals("-S"))
+				genAsm = true;
+		}
 
-        // Get filename
-        String[] path = in_file.split("[/\\.]");
-        String out_file = path[path.length-2]+".s";
+		if(genAsm) {
+        	// Dummy program
+        	String program = "    .text\n    .globl      main\n    .type       main, @function\nmain:\n    movl $0, %eax\n    ret\n";
 
-        PrintWriter destination;
+        	// Get filename
+        	String[] path = in_file.split("[/\\.]");
+        	String out_file = path[path.length-2]+".s";
 
-        try{
-            destination = new PrintWriter("./" + out_file);
+        	PrintWriter destination;
 
-            destination.print(program);
-            destination.close();
+        	try{
+            	destination = new PrintWriter("./" + out_file);
 
-        }catch(Exception e){
-            e.printStackTrace();
-            System.exit(1);
-        }
+            	destination.print(program);
+            	destination.close();
+
+        	}catch(Exception e){
+            	e.printStackTrace();
+            	System.exit(1);
+        	}
+		}
 
         System.exit(0);
     }
