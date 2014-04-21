@@ -109,51 +109,49 @@ public class IRVisitor extends VisitorAdapter{
 	}
 	
 	public Object visit(ASTLessThan node, Object data){
-		Node left = node.jjtGetChild(0);
-		Node right = node.jjtGetChild(1);
-		Expr expr1 = (Expr) left.jjtAccept(this,data);
-		Expr expr2 = (Expr) right.jjtAccept(this,data);
-		return new Cx(CJUMP.LT, expr1.unEx(), expr2.unEx());
+		return visitBoolBinop(CJUMP.LT, node, data);
 	}
 
 	public Object visit(ASTLessEqual node, Object data){
-		return shouldNotBeVisited(node, data);
+		return visitBoolBinop(CJUMP.LE, node, data);
 	}
 
 	public Object visit(ASTGreaterThan node, Object data){
-		return shouldNotBeVisited(node, data);
+		return visitBoolBinop(CJUMP.GT, node, data);
 	}
 
 	public Object visit(ASTGreaterEqual node, Object data){
-		return shouldNotBeVisited(node, data);
+		return visitBoolBinop(CJUMP.GE, node, data);
 	}
 
 	public Object visit(ASTEqual node, Object data){
-		return shouldNotBeVisited(node, data);
+		return visitBoolBinop(CJUMP.EQ, node, data);
 	}
 
 	public Object visit(ASTNotEqual node, Object data){
-		return shouldNotBeVisited(node, data);
+		return visitBoolBinop(CJUMP.NE, node, data);
 	}
 	
 	public Object visit(ASTAnd node, Object data){
+		//TODO Special case
 		return shouldNotBeVisited(node, data);
 	}
 
 	public Object visit(ASTOr node, Object data){
+		//TODO Special case
 		return shouldNotBeVisited(node, data);
 	}
 	
 	public Object visit(ASTPlus node, Object data){
-		return visitBinop(BINOP.PLUS, node, data);
+		return visitIntBinop(BINOP.PLUS, node, data);
 	}
 	
 	public Object visit(ASTMinus node, Object data){
-		return visitBinop(BINOP.MINUS, node, data);
+		return visitIntBinop(BINOP.MINUS, node, data);
 	}
 	
 	public Object visit(ASTMult node, Object data){
-		return visitBinop(BINOP.MUL, node, data);
+		return visitIntBinop(BINOP.MUL, node, data);
 	}
 
 	public Object visit(ASTIntLiteral node, Object data){
@@ -200,12 +198,20 @@ public class IRVisitor extends VisitorAdapter{
 		return null;
 	}
 
-	public Ex visitBinop(int op, SimpleNode node, Object data) {
+	public Ex visitIntBinop(int op, SimpleNode node, Object data) {
 		Node left = node.jjtGetChild(0);
 		Node right = node.jjtGetChild(1);
 		Expr expr1 = (Expr) left.jjtAccept(this, data);
 		Expr expr2 = (Expr) right.jjtAccept(this, data);
 		return new Ex(new BINOP(op, expr1.unEx(), expr2.unEx()));
+	}
+
+	public Cx visitBoolBinop(int op, SimpleNode node, Object data) {
+		Node left = node.jjtGetChild(0);
+		Node right = node.jjtGetChild(1);
+		Expr expr1 = (Expr) left.jjtAccept(this,data);
+		Expr expr2 = (Expr) right.jjtAccept(this,data);
+		return new Cx(CJUMP.LT, expr1.unEx(), expr2.unEx());
 	}
 
 	/*
