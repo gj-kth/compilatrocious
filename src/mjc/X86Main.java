@@ -12,6 +12,13 @@ class X86Main {
             System.out.println("Not enough args...");
             System.exit(1);
         }
+
+		boolean genAsm = false;
+		for(String arg : args) {
+			if(arg.equals("-S"))
+				genAsm = true;
+		}
+
         
         String in_file = args[0];
         FileInputStream source;
@@ -30,8 +37,10 @@ class X86Main {
                 TypeCheckVisitor visitor2 = new TypeCheckVisitor(symbolTable);
                 tree.jjtAccept(visitor2, null);
 
-				IRVisitor visitor3 = new IRVisitor(new X86Frame());
-				tree.jjtAccept(visitor3, null);
+				if(!genAsm) {
+					IRVisitor visitor3 = new IRVisitor(new X86Frame());
+					tree.jjtAccept(visitor3, null);
+				}
 
             }catch(TypecheckError | ParseException | TokenMgrError | IOException e) {
                 //e.printStackTrace();
@@ -43,12 +52,6 @@ class X86Main {
             e.printStackTrace();
             System.exit(1);
         }
-
-		boolean genAsm = false;
-		for(String arg : args) {
-			if(arg.equals("-S"))
-				genAsm = true;
-		}
 
 		if(genAsm) {
         	// Dummy program
