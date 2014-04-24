@@ -237,6 +237,7 @@ public class IRVisitor extends VisitorAdapter{
 
 	public Object visit(ASTIdentifier node, Object data){
 		// Access the temp variable within the frame
+
 		String id = ((Token)node.value).image;
 		Frame frame = (Frame) data;
 		return new Ex(new TEMP(frame.getTemp(id)));
@@ -256,13 +257,17 @@ public class IRVisitor extends VisitorAdapter{
 		Node in = node.jjtGetChild(1);
 		Node en = node.jjtGetChild(2);
 
-		Label t = new Label();
-		Label f = new Label();
-		Label afterFalse = new Label();
-
 		Expr boolExp = (Expr) bn.jjtAccept(this,data);
 		Expr ifstmt = (Expr) in.jjtAccept(this,data);
 		Expr elstmt = (Expr) en.jjtAccept(this,data);
+
+		return createIfElse(boolExp, ifstmt, elstmt);
+	}
+
+	private Nx createIfElse(Expr boolExp, Expr ifstmt, Expr elstmt){
+		Label t = new Label();
+		Label f = new Label();
+		Label afterFalse = new Label();
 
 		return new Nx(new SEQ(boolExp.unCx(t,f),
 				new SEQ(new LABEL(t),
@@ -270,7 +275,7 @@ public class IRVisitor extends VisitorAdapter{
 						new SEQ(new JUMP(afterFalse),
 							new SEQ(new LABEL(f), 
 								new SEQ(elstmt.unNx(),
-									new LABEL(afterFalse))))))));
+									new LABEL(afterFalse))))))));	
 	}
 	
 	public Object visit(ASTIf node, Object data){
@@ -388,7 +393,12 @@ public class IRVisitor extends VisitorAdapter{
 		}
 
 		public mjc.tree.Exp unEx() {
-			return null; //TODO
+			Expr boolExp = new Cx(type, exp1, exp2);
+			Temp temp = new Temp();
+			Expr ifStmt = new Nx(new MOVE(new TEMP(temp), new CONST(1)));
+			Expr elStmt = new Nx(new MOVE(new TEMP(temp), new CONST(0)));
+			Stm storeInTemp = createIfElse(boolExp, ifStmt, elStmt).unNx();
+			return new ESEQ(storeInTemp, new TEMP(temp));
 		}
 
 		public mjc.tree.Stm unNx() {
@@ -401,4 +411,7 @@ public class IRVisitor extends VisitorAdapter{
 			return new CJUMP(type, exp1, exp2, t, f);
 		}
 	}
+
+
+
 }
