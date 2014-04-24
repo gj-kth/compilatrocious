@@ -191,9 +191,18 @@ public class IRVisitor extends VisitorAdapter{
 	}
 	
 	public Object visit(ASTIf node, Object data){
-		Node boolExp = node.jjtGetChild(0);
-		Node ifstmt = node.jjtGetChild(1);
-		return null;
+		Node bn = node.jjtGetChild(0);
+		Node in = node.jjtGetChild(1);
+
+		Label t = new Label();
+		Label f = new Label();
+
+		Expr boolExp = (Expr) bn.jjtAccept(this,data);
+		Expr ifstmt = (Expr) in.jjtAccept(this,data);
+
+		return new Nx(new SEQ(boolExp.unCx(t,f),
+				new SEQ(new LABEL(t),
+					new SEQ(ifstmt.unNx(), new LABEL(f)))));
 	}
 
 	public Ex visitIntBinop(int op, SimpleNode node, Object data) {

@@ -24,5 +24,9 @@ class Main {
 		}else{
 			c = 5;
 		}
+
+		if(d) {
+			c = 10;
+		}
 	}
 }
