@@ -17,6 +17,8 @@ import java.util.HashMap;
 public class X86Frame extends Frame {
 	private Label name;
 	private int size;
+	private Temp retReg;
+	private Temp fpReg;
 	private static final int wordSize = 64;
 
 	private HashMap<String,Temp> tempMap;
@@ -25,7 +27,7 @@ public class X86Frame extends Frame {
 	private mjc.tree.Stm tree;
 
 	public void print() {
-		System.out.println(name);
+		System.out.println(name + " RV: " + retReg + " FP: " + fpReg);
 		Print p = new Print(System.out);
 		if(tree!=null)
 			p.prStm(tree);
@@ -65,6 +67,8 @@ public class X86Frame extends Frame {
 		X86Frame frame = new X86Frame();
 		frame.name = name;
 		frame.tempMap = new HashMap<String,Temp>();
+		frame.retReg = new Temp();
+		frame.fpReg = new Temp();
 		return frame;
 	}
 
@@ -97,11 +101,11 @@ public class X86Frame extends Frame {
 	}
 
     public Temp RV() {
-		return null;
+		return retReg;
 	}
 
     public Temp FP() {
-		return null;
+		return fpReg;
 	}
 
     public int wordSize() {

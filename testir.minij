@@ -38,3 +38,9 @@ class Main {
 
 	}
 }
+
+class Test {
+	public int bogus() {
+		return 0;
+	}
+}

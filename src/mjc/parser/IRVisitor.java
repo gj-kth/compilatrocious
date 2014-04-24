@@ -3,6 +3,8 @@ import mjc.tree.*;
 import mjc.temp.*;
 import mjc.frame.*;
 
+import mjc.parser.VisitorUtil.*;
+
 import java.util.ArrayList;
 
 public class IRVisitor extends VisitorAdapter{
@@ -45,47 +47,98 @@ public class IRVisitor extends VisitorAdapter{
 	}
 
 	public Object visit(ASTClassDecls node, Object data) {
-		visitChildren(node, null);
-		return null;
+		ArrayList<Frame> frames = new ArrayList<Frame>();
+		for(int i = 0; i < node.jjtGetNumChildren(); i++) {
+			frames.addAll((ArrayList<Frame>)node.jjtGetChild(i).jjtAccept(this,data));
+		}
+		return frames;
 	}
 
 	public Object visit(ASTClassDecl node, Object data) {
-		visitChildren(node, null);
-		return null;
+		ArrayList<Frame> frames;
+
+		// Extract classname
+		String name = ((Token)((SimpleNode)node.jjtGetChild(0)).jjtGetValue()).image;
+
+		Node methods = node.jjtGetChild(2);
+		frames = (ArrayList<Frame>) methods.jjtAccept(this, name);
+
+		return frames;
+	}
+
+	/*
+ 	 * Recieves (String)classname as data
+ 	 */
+	public Object visit(ASTMethodDecls node, Object data){
+		ArrayList<Frame> frames = new ArrayList<Frame>();
+
+		for(int i = 0; i < node.jjtGetNumChildren(); i++) {
+			frames.add((Frame)node.jjtGetChild(i).jjtAccept(this,data));
+		}
+
+		return frames;
+	}
+
+	/*
+ 	 * Recieves (String)classname as data
+ 	 */
+	public Object visit(ASTMethodDecl node, Object data){
+
+		String name = ((Token)((SimpleNode)node.jjtGetChild(1)).jjtGetValue()).image;
+		Node body = node.jjtGetChild(3);
+		Node ret = node.jjtGetChild(4);
+
+		// Create a new frame for the method
+		Frame frame = ft.newFrame(new Label((String) data + "$" + name));
+
+		// Generate the IR tree representing the method body
+		Expr retexpr = (Expr) ret.jjtAccept(this, frame);
+		mjc.tree.Stm tree = (mjc.tree.Stm) body.jjtAccept(this, frame);
+
+		mjc.tree.Stm retstmt = new MOVE(new TEMP(frame.RV()),retexpr.unEx());
+		frame.setTree(new SEQ(tree,retstmt));
+
+		// Set the context of the frame
+		frame.setContext(new Context((String) data, name));
+
+		return frame;
 	}
 
 	/*
  	 * Recieves (String)classname as data
  	 */
 	public Object visit(ASTMainMethod node, Object data) {
-		Node body = node.jjtGetChild(1); // Ignore child 0???
+		Node body = node.jjtGetChild(1);
 
 		// Create a new frame for the method
 		Frame frame = ft.newFrame(new Label((String) data + "$main"));
-		//System.out.println(frame.name());
 
 		// Generate the IR tree representing the method body
 		mjc.tree.Stm tree = (mjc.tree.Stm) body.jjtAccept(this, frame);
-		frame.setTree(tree);
+		mjc.tree.Stm retstmt = new MOVE(new TEMP(frame.RV()),new CONST(0));
+		frame.setTree(new SEQ(tree,retstmt));
 
-		// Print the tree
-		//p.prStm(frame.getTree());
-		//frame.print();
+		// Set the context of the frame
+		frame.setContext(new Context((String) data, "main"));
 
 		return frame;
 	}
 
 	public Object visit(ASTMethodBody node, Object data){
-		Node decls = node.jjtGetChild(0);
 		Node stmts = node.jjtGetChild(1);
 
-		Frame frame = (Frame) data;
 		Expr tree = (Expr) stmts.jjtAccept(this, data);
+
 		return tree.unNx();
 	}
 	
 	public Object visit(ASTStmts node, Object data){
 		// Get last stmt
+
+		// If body is empty, return nop
+		if(node.jjtGetNumChildren() == 0)
+			return new Nx(new EXP(new CONST(0)));
+
 		mjc.tree.Stm stmts = ((Expr) node.jjtGetChild(
 					node.jjtGetNumChildren()-1).jjtAccept(this,data)).unNx();
 
