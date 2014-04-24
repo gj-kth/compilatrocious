@@ -262,7 +262,14 @@ public class TypeCheckVisitor extends VisitorAdapter{
 		checkExpectedType(input, "boolean", node);
 		Node expr1 = node.jjtGetChild(0);
 		Node expr2 = node.jjtGetChild(1);
-		input.expectedType = "int";
+
+		if( node instanceof ASTEqual ||
+			node instanceof ASTNotEqual) {
+			input.expectedType = null;
+		}else{
+			input.expectedType = "int";
+		}
+
 		expr1.jjtAccept(this, input);
 		expr2.jjtAccept(this, input);
 		return "boolean";
