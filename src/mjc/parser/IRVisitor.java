@@ -3,6 +3,8 @@ import mjc.tree.*;
 import mjc.temp.*;
 import mjc.frame.*;
 
+import java.util.ArrayList;
+
 public class IRVisitor extends VisitorAdapter{
 
 	Print p;
@@ -12,18 +14,34 @@ public class IRVisitor extends VisitorAdapter{
 	public IRVisitor(Frame frametype, SymbolTable symbols) {
 		ft = frametype;
 		st = symbols;
+		p = new Print(System.out);
 	}
 
 	public Object visit(ASTProgram node, Object data){
-		p = new Print(System.out);
-		visitChildren(node, null);
-		return null;
+		ArrayList<Frame> program = new ArrayList<Frame>();
+		ArrayList<Frame> classMethods;
+		Frame mainMethod;
+
+		mainMethod = (Frame)node.jjtGetChild(0).jjtAccept(this,data);
+		program.add(mainMethod);
+
+		classMethods = (ArrayList<Frame>)node.jjtGetChild(1).jjtAccept(this,data);
+		if(classMethods!=null) {
+			program.addAll(classMethods);
+		}
+
+		return program;
 	}
 
 	public Object visit(ASTMainClass node, Object data) {
+		Frame mainMethod;
+
+		// Extract classname
+		String name = ((Token)((SimpleNode)node.jjtGetChild(0)).jjtGetValue()).image;
+
 		Node method = node.jjtGetChild(1); // Ignore child 0???
-		mjc.tree.Stm tree = (mjc.tree.Stm) method.jjtAccept(this, data);
-		return null;
+		mainMethod = (Frame) method.jjtAccept(this, name);
+		return mainMethod;
 	}
 
 	public Object visit(ASTClassDecls node, Object data) {
@@ -36,20 +54,25 @@ public class IRVisitor extends VisitorAdapter{
 		return null;
 	}
 
+	/*
+ 	 * Recieves (String)classname as data
+ 	 */
 	public Object visit(ASTMainMethod node, Object data) {
 		Node body = node.jjtGetChild(1); // Ignore child 0???
 
 		// Create a new frame for the method
-		Frame frame = ft.newFrame(new Label("main$main"));
-		System.out.println(frame.name());
+		Frame frame = ft.newFrame(new Label((String) data + "$main"));
+		//System.out.println(frame.name());
 
 		// Generate the IR tree representing the method body
 		mjc.tree.Stm tree = (mjc.tree.Stm) body.jjtAccept(this, frame);
+		frame.setTree(tree);
 
 		// Print the tree
-		p.prStm(tree);
+		//p.prStm(frame.getTree());
+		//frame.print();
 
-		return tree;
+		return frame;
 	}
 
 	public Object visit(ASTMethodBody node, Object data){

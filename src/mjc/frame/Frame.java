@@ -27,6 +27,10 @@ public abstract class Frame
 
 	private HashMap<String,Temp> tempMap;
 
+	private mjc.tree.Stm tree;
+
+	abstract public void print();
+
 	/*
  	 * Return Temp if s exists in tempMap, otherwise return new Temp
  	 */
@@ -48,6 +52,13 @@ public abstract class Frame
     */
     public int size(){
 		return size;
+	}
+
+	public mjc.tree.Stm getTree() {
+		return tree;
+	}
+	public void setTree(mjc.tree.Stm tree) {
+		this.tree = tree;
 	}
 
     /**

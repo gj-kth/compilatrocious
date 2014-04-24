@@ -39,7 +39,10 @@ class X86Main {
 
 				if(!genAsm) {
 					IRVisitor visitor3 = new IRVisitor(new X86Frame(), symbolTable);
-					tree.jjtAccept(visitor3, null);
+					ArrayList<Frame> program = (ArrayList<Frame>) tree.jjtAccept(visitor3, null);
+					for(Frame f : program) {
+						f.print();
+					}
 				}
 
             }catch(TypecheckError | ParseException | TokenMgrError | IOException e) {

@@ -7,6 +7,7 @@ import mjc.temp.TempMap;
 import mjc.tree.Exp;
 import mjc.tree.ExpList;
 import mjc.tree.Stm;
+import mjc.tree.Print;
 
 import java.util.List;
 import java.util.HashMap;
@@ -18,11 +19,29 @@ public class X86Frame extends Frame {
 
 	private HashMap<String,Temp> tempMap;
 
+	private mjc.tree.Stm tree;
+
+	public void print() {
+		System.out.println(name);
+		Print p = new Print(System.out);
+		if(tree!=null)
+			p.prStm(tree);
+		else
+			System.out.println("No tree");
+	}
+
 	public Label name(){
 		return name;
 	}
 	public int size(){
 		return size;
+	}
+
+	public mjc.tree.Stm getTree() {
+		return tree;
+	}
+	public void setTree(mjc.tree.Stm tree) {
+		this.tree = tree;
 	}
 
 	public Temp getTemp(String s) {
