@@ -258,6 +258,7 @@ public class IRVisitor extends VisitorAdapter{
 
 		Label t = new Label();
 		Label f = new Label();
+		Label afterFalse = new Label();
 
 		Expr boolExp = (Expr) bn.jjtAccept(this,data);
 		Expr ifstmt = (Expr) in.jjtAccept(this,data);
@@ -266,7 +267,10 @@ public class IRVisitor extends VisitorAdapter{
 		return new Nx(new SEQ(boolExp.unCx(t,f),
 				new SEQ(new LABEL(t),
 					new SEQ(ifstmt.unNx(),
-						new SEQ(new LABEL(f), elstmt.unNx())))));
+						new SEQ(new JUMP(afterFalse),
+							new SEQ(new LABEL(f), 
+								new SEQ(elstmt.unNx(),
+									new LABEL(afterFalse))))))));
 	}
 	
 	public Object visit(ASTIf node, Object data){
