@@ -61,10 +61,11 @@ public class IRVisitor extends VisitorAdapter{
 	
 	public Object visit(ASTStmts node, Object data){
 		// Generate a dummy stmt as last statement, change.
-		mjc.tree.Stm stmts = (new Ex(new CONST(0))).unNx();
+		mjc.tree.Stm stmts = ((Expr) node.jjtGetChild(
+					node.jjtGetNumChildren()-1).jjtAccept(this,data)).unNx();
 
 		// Chain stmts using SEQs beginning from the innermost stmt
-		for(int i = node.jjtGetNumChildren()-1; i >= 0; i--){
+		for(int i = node.jjtGetNumChildren()-2; i >= 0; i--){
 			Expr stm = (Expr) node.jjtGetChild(i).jjtAccept(this, data);
 			stmts = new SEQ(stm.unNx(), stmts);
 		}
@@ -203,6 +204,22 @@ public class IRVisitor extends VisitorAdapter{
 		return new Nx(new SEQ(boolExp.unCx(t,f),
 				new SEQ(new LABEL(t),
 					new SEQ(ifstmt.unNx(), new LABEL(f)))));
+	}
+
+	public Object visit(ASTWhile node, Object data){
+		Node bn = node.jjtGetChild(0);
+		Node lb = node.jjtGetChild(1);
+
+		Label t = new Label();
+		Label f = new Label();
+
+		Expr boolExp = (Expr) bn.jjtAccept(this,data);
+		Expr loopBody = (Expr) lb.jjtAccept(this,data);
+
+		return new Nx(new SEQ(boolExp.unCx(t,f),
+				new SEQ(new LABEL(t),
+					new SEQ(loopBody.unNx(),
+						new SEQ(boolExp.unCx(t,f),new LABEL(f))))));
 	}
 
 	public Ex visitIntBinop(int op, SimpleNode node, Object data) {

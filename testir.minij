@@ -28,5 +28,9 @@ class Main {
 		if(d) {
 			c = 10;
 		}
+
+		while(0 < a) {
+			a = a - 1;
+		}
 	}
 }
