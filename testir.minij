@@ -6,6 +6,7 @@ class Main {
 		boolean d;
 		boolean e;
 		int[] array;
+		boolean f;
 
 		a = 1;
 		b = 2;
@@ -36,6 +37,9 @@ class Main {
 		}
 
 		array = new int[5];
+
+		//f = 1 < 2;
+
 	}
 }
 
