@@ -4,8 +4,12 @@ import mjc.temp.*;
 import mjc.frame.*;
 
 import mjc.parser.VisitorUtil.*;
+import mjc.parser.Symbol;
 
 import java.util.ArrayList;
+import java.util.Set;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class IRVisitor extends VisitorAdapter{
 
@@ -249,6 +253,35 @@ public class IRVisitor extends VisitorAdapter{
 		}else{
 			return new Ex(new CONST(0));
 		}
+	}
+
+	public Object visit(ASTNewObject node, Object data){
+		String className = ((Token)((SimpleNode)node.jjtGetChild(0)).jjtGetValue()).image;
+
+		ClassData classData = (ClassData) st.lookup(className);
+		Set<Map.Entry<Symbol,Object>> set = classData.fieldsTable.getHashMap().entrySet();
+
+		for(Map.Entry<Symbol,Object> entry : set) {
+			System.out.println(entry.getKey() + " " + entry.getValue());
+		}
+
+		return new Nx(new EXP(new CONST(0)));
+	}
+	public Object visit(ASTNewIntArray node, Object data){
+		Node s = node.jjtGetChild(0);
+
+		Expr size = (Expr) s.jjtAccept(this,data);
+
+		Temp tmp = new Temp();
+		// LABEL WHICH LEADS TO WHERE?!??!?!
+		Label initArray = new Label("initArray");
+
+		return new Ex(new ESEQ(
+				new MOVE(new TEMP(tmp),
+					size.unEx()),
+				new CALL(new NAME(initArray),new ExpList(
+					new BINOP(BINOP.MUL,new TEMP(tmp),
+						new CONST(ft.wordSize())), new TEMP(tmp)))));
 	}
 
 	public Object visit(ASTIfElse node, Object data){

@@ -5,6 +5,8 @@ class Main {
 		int c;
 		boolean d;
 		boolean e;
+		int[] array;
+
 		a = 1;
 		b = 2;
 		c = a + b;
@@ -32,10 +34,14 @@ class Main {
 		while(0 < a) {
 			a = a - 1;
 		}
+
+		array = new int[5];
 	}
 }
 
 class Test {
+	int a;
+
 	public int bogus() {
 		return 0;
 	}
