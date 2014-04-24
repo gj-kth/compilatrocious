@@ -5,7 +5,9 @@ class Main {
 		int c;
 		boolean d;
 		boolean e;
+		int[] array;
 		boolean f;
+
 		a = 1;
 		b = 2;
 		c = a + b;
@@ -34,12 +36,16 @@ class Main {
 			a = a - 1;
 		}
 
-		f = 1 < 2;
+		array = new int[5];
+
+		//f = 1 < 2;
 
 	}
 }
 
 class Test {
+	int a;
+
 	public int bogus() {
 		return 0;
 	}
