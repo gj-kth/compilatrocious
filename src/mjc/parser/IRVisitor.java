@@ -7,9 +7,11 @@ public class IRVisitor extends VisitorAdapter{
 
 	Print p;
 	Frame ft;
+	SymbolTable st;
 
-	public IRVisitor(Frame frametype) {
+	public IRVisitor(Frame frametype, SymbolTable symbols) {
 		ft = frametype;
+		st = symbols;
 	}
 
 	public Object visit(ASTProgram node, Object data){

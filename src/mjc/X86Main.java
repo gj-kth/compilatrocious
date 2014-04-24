@@ -38,7 +38,7 @@ class X86Main {
                 tree.jjtAccept(visitor2, null);
 
 				if(!genAsm) {
-					IRVisitor visitor3 = new IRVisitor(new X86Frame());
+					IRVisitor visitor3 = new IRVisitor(new X86Frame(), symbolTable);
 					tree.jjtAccept(visitor3, null);
 				}
 
