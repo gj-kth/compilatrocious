@@ -85,7 +85,7 @@ public class IRVisitor extends VisitorAdapter{
 	}
 	
 	public Object visit(ASTStmts node, Object data){
-		// Generate a dummy stmt as last statement, change.
+		// Get last stmt
 		mjc.tree.Stm stmts = ((Expr) node.jjtGetChild(
 					node.jjtGetNumChildren()-1).jjtAccept(this,data)).unNx();
 
@@ -260,7 +260,7 @@ public class IRVisitor extends VisitorAdapter{
 		Node right = node.jjtGetChild(1);
 		Expr expr1 = (Expr) left.jjtAccept(this,data);
 		Expr expr2 = (Expr) right.jjtAccept(this,data);
-		return new Cx(CJUMP.LT, expr1.unEx(), expr2.unEx());
+		return new Cx(op, expr1.unEx(), expr2.unEx());
 	}
 
 	/*

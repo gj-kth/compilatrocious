@@ -9,6 +9,8 @@ import mjc.tree.ExpList;
 import mjc.tree.Stm;
 import mjc.tree.Print;
 
+import mjc.parser.VisitorUtil.*;
+
 import java.util.List;
 import java.util.HashMap;
 
@@ -19,6 +21,7 @@ public class X86Frame extends Frame {
 
 	private HashMap<String,Temp> tempMap;
 
+	private Context context;
 	private mjc.tree.Stm tree;
 
 	public void print() {
@@ -42,6 +45,10 @@ public class X86Frame extends Frame {
 	}
 	public void setTree(mjc.tree.Stm tree) {
 		this.tree = tree;
+	}
+
+	public void setContext(Context c) {
+		this.context = c;
 	}
 
 	public Temp getTemp(String s) {
