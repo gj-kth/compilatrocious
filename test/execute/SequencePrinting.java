@@ -11,15 +11,16 @@ class SequencePrinting {
 		SequencePrinter sp;
 		FibonacciGenerator fg;
 		LinearGenerator lg;
+		boolean tmp;
 		sp = new SequencePrinter();
 		fg = new FibonacciGenerator();
 		lg = new LinearGenerator();
-		sp.printFibonacci(fg, 2); // 0 1
-		sp.printFibonacci(fg, 0); // 
-		sp.printFibonacci(fg, 6); // 0 1 1 2 3 5
-		sp.printLinear(lg);		  // 1 2 3 4 5 6 7 8 9 10
-		sp.printFibonacci(fg, 1); // 0
-		sp.printFibonacci(fg, 1); // 0
+		tmp = sp.printFibonacci(fg, 2); // 0 1
+		tmp = sp.printFibonacci(fg, 0); // 
+		tmp = sp.printFibonacci(fg, 6); // 0 1 1 2 3 5
+		tmp = sp.printLinear(lg);		  // 1 2 3 4 5 6 7 8 9 10
+		tmp = sp.printFibonacci(fg, 1); // 0
+		tmp = sp.printFibonacci(fg, 1); // 0
 	}
 }
 
@@ -46,8 +47,8 @@ class ArrayPrinter{
 class SequencePrinter extends ArrayPrinter{
 	public boolean printFibonacci(FibonacciGenerator fg, int seqLength){
 		boolean dummy;
-		dummy = setArray(fg.getArray(seqLength));
-		return printArray();
+		dummy = this.setArray(fg.getArray(seqLength));
+		return this.printArray();
 	}
 
 	public boolean printLinear(LinearGenerator lg){
@@ -61,8 +62,8 @@ class SequencePrinter extends ArrayPrinter{
 			result = true;
 		}
 
-		dummy = setArray(lg.getArray(seqLength));
-		dummy = printArray();
+		dummy = this.setArray(lg.getArray(seqLength));
+		dummy = this.printArray();
 		if(dummy != true || result == false){
 			result = false;
 		}
