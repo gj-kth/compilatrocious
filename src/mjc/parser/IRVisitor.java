@@ -417,7 +417,7 @@ public class IRVisitor extends VisitorAdapter{
 	public class Cx extends Expr {
 		mjc.tree.Exp exp1;
 		mjc.tree.Exp exp2;
-		int type;
+		int type; // one of: EQ, NE, LT, GT, LE, GE, ULT, ULE, UGT, UGE, (NOT AND, OR, ...)
 
 		Cx(int type, mjc.tree.Exp exp1, mjc.tree.Exp exp2) {
 			this.type = type;
