@@ -33,6 +33,7 @@ public class Test {
 
             Map<String,TestResult> results = new HashMap<String,TestResult>();
             results.put("compile", testCompile());
+            results.put("execute", testExecute());
             results.put("noncompile", testNonCompile());
             results.put("noncompile oneliners", testNonCompileOneliners());
             results.put("programs", testPrograms());
@@ -64,6 +65,11 @@ public class Test {
         System.out.println("Testing compile ...");
         return testFilesInDir(new File(System.getenv("COMPILATROCIOUS_ROOT") + "/test/compile"), true);
     }
+
+    public static TestResult testExecute(){
+        System.out.println("Testing execute ...");
+        return testFilesInDir(new File(System.getenv("COMPILATROCIOUS_ROOT") + "/test/execute"), true);
+    }    
 
     public static TestResult testPrograms(){
         System.out.println("Testing programs ...");
