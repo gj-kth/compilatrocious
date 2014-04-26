@@ -1,0 +1,1 @@
+class Bacon public static void(String[ ] args) { int 1 = t; } 
