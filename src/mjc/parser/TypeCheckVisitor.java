@@ -270,13 +270,20 @@ public class TypeCheckVisitor extends VisitorAdapter{
 		
 		String type1 = (String) expr1.jjtAccept(this, input);
 		String type2 = (String) expr2.jjtAccept(this, input);
-		if(!intCompare && !typesAreCompatible(type1,type2, input.context, node)){
+		if(!intCompare && !typesAreCompatible(type1, true, type2, true, input.context, node)){
 			throw new WrongType(input.context, "", type1 + " and " + type2, node);
 		}
 		return "boolean";
 	}
 
+	//No superclasses are checked
 	private boolean typesAreCompatible(String type1, String type2, Context context, SimpleNode node){
+		return typesAreCompatible(type1, false, type2, false, context, node);
+	}
+
+	//super1 == true means that if a superclass of type1 equals type2, true will be returned.
+	//If both super == false, types must be equal for true to be returned.
+	private boolean typesAreCompatible(String type1, boolean super1, String type2, boolean super2, Context context, SimpleNode node){
 		if(type1.equals(type2)){
 			return true;
 		}
@@ -286,27 +293,29 @@ public class TypeCheckVisitor extends VisitorAdapter{
 			return false;
 		}
 
-
-
-		//Compare type1's superclasses with type2 
-		String type = type1;
-		ClassData className	 = getClass(type, context, node);
-		while(className.hasSuperClass){
-			type = className.superClass;
-			className = getClass(type, context, node);
-			if(type.equals(type2)){
-				return true;
-			}
+		//Compare type1's superclasses with type2 f
+		if(super1){
+			String type = type1;
+			ClassData className	 = getClass(type, context, node);
+			while(className.hasSuperClass){
+				type = className.superClass;
+				className = getClass(type, context, node);
+				if(type.equals(type2)){
+					return true;
+				}
+			}	
 		}
 
 		//Compare type2's superclasses with type1 
-		type = type2;
-		className = getClass(type, context, node);
-		while(className.hasSuperClass){
-			type = className.superClass;
-			className = getClass(type, context, node);
-			if(type.equals(type1)){
-				return true;
+		if(super2){
+			String type = type2;
+			ClassData className = getClass(type, context, node);
+			while(className.hasSuperClass){
+				type = className.superClass;
+				className = getClass(type, context, node);
+				if(type.equals(type1)){
+					return true;
+				}
 			}
 		}
 
@@ -445,10 +454,16 @@ public class TypeCheckVisitor extends VisitorAdapter{
 				throw new ReferencedMissingMethod(null, methodName);	
 			}
 		}
-		if(expectedReturnType != null && !(methodData.returnType.equals(expectedReturnType))){
-			throw new WrongType(new Context(className, methodName), methodData.returnType, expectedReturnType, node, WrongType.Kind.RETURN);
+
+		String returnType = methodData.returnType;
+		if(expectedReturnType != null && !typesAreCompatible(expectedReturnType, false, returnType, true, new Context(className, methodName), node)){
+			throw new WrongType(new Context(className, methodName), expectedReturnType, returnType, node, WrongType.Kind.RETURN);
 		}
-		SymbolTable paramsTable = methodData.paramsTable;
+		checkCallArgs(className, methodName, foundParamTypes, methodData, node);
+		return methodData.returnType;
+	}
+
+	private void checkCallArgs(String className, String methodName, List<String> foundParamTypes, MethodData methodData, SimpleNode node){
 		if(foundParamTypes.size() != methodData.paramTypes.size()){
 			throw new WrongNumberArgs(new Context(className, methodName), methodData.paramTypes.size(), foundParamTypes.size(), node);
 		}
@@ -458,11 +473,11 @@ public class TypeCheckVisitor extends VisitorAdapter{
 			String foundType = foundParamTypes.get(paramNum);
 			if(foundType.equals("new int[]")) // Special case!!!
 				foundType = "int[]";
-			if(!(foundType.equals(correctType))){
+
+			if(!typesAreCompatible(correctType, false, foundType, true, new Context(className, methodName), node)){
 				throw new WrongType(new Context(className, methodName), correctType, foundType, node, WrongType.Kind.ARG);
-			}
+			}	
 		}
-		return methodData.returnType;
 	}
 	
 	public Object visit(ASTArrayLength node, Object data){
@@ -537,13 +552,8 @@ public class TypeCheckVisitor extends VisitorAdapter{
 	//If input specifies which type an expression is expected to evaluate to,
 	//then compare it to the actual type, and throw exception if they don't match
 	private void checkExpectedType(ExprInput input, String actualExprType, SimpleNode node){
-		if(input.expectedType != null && !(input.expectedType.equals(actualExprType))){
-			ClassData actualClassData = (ClassData) symbolTable.lookup(actualExprType);
-			if(actualClassData != null && actualClassData.hasSuperClass){
-				checkExpectedType(input, actualClassData.superClass, node);
-			}else{
-				throw new WrongType(input.context, input.expectedType, actualExprType, node);	
-			}
+		if(input.expectedType != null && !typesAreCompatible(input.expectedType, false, actualExprType, true, input.context, node)){
+			throw new WrongType(input.context, input.expectedType, actualExprType, node);	
 		}
 	}
 
@@ -559,7 +569,7 @@ public class TypeCheckVisitor extends VisitorAdapter{
 	//If they don't match, throw exception
 	private void checkVarType(Context context, String expectedType, SimpleNode node){
 		String varType = getVarType(context, node);
-		if(!(varType.equals(expectedType))){
+		if(!typesAreCompatible(expectedType, false, varType, true, context, node)){
 			throw new WrongType(context, expectedType, varType, node);
 		}
 	}
