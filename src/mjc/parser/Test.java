@@ -5,7 +5,19 @@ import java.util.*;
 
 public class Test {
 
-    public static final boolean PRINT_FILENAMES = true;
+    public static List<String> EXTENSIONS = Arrays.asList(new String[]{
+        "IWE",
+        "CLE",
+        "CGT",
+        "CGE",
+        "CEQ",
+        "CNE",
+        "BDJ",
+        "ISC",
+        "ICG"
+    });
+
+    public static final boolean PRINT_FILENAMES = false;
     public static final boolean PRINT_PARSETREE = false;
     public static final boolean PRINT_SYMBOL_TABLE = false;
     public static final boolean PRINT_FAILED_TESTS = true;
@@ -181,12 +193,37 @@ public class Test {
         Printer.conditionalPrintln("File: " + testFile.getPath(), PRINT_FILENAMES);
         try {
             InputStream is = new FileInputStream(testFile);
+            if(!hasCompatibleExtensions(is)){
+                return true;
+            }
+            is = new FileInputStream(testFile);
             return testProgram(is, positiveTest, expectedException, testFile.getPath());
         } catch(Exception e){
             e.printStackTrace();
             System.exit(0);
         }
         return false; //Will never be reached?
+    }
+
+    static boolean hasCompatibleExtensions(InputStream programText) throws IOException{
+        BufferedReader reader = new BufferedReader(new InputStreamReader(programText));
+        String line;
+        while((line = reader.readLine()) != null){
+            if(line.startsWith("// EXT:")){
+                String rest = line.split("// EXT:")[1];
+                if(rest.charAt(0) == '!'){
+                    String notExt = rest.substring(1).trim();
+                    if(EXTENSIONS.contains(notExt)){
+                        return false;
+                    }
+                }else{
+                    if(!EXTENSIONS.contains(rest.trim())){
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     //Boolean determines success of test.
