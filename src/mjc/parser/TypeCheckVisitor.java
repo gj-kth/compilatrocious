@@ -71,6 +71,8 @@ public class TypeCheckVisitor extends VisitorAdapter{
 		String methodName = getVal(methodId);
 		Context context = new Context(data);
 		context.methodName = methodName;
+		Node argList = node.jjtGetChild(2);
+		argList.jjtAccept(this, context);
 		Node methodBody = node.jjtGetChild(3);
 		methodBody.jjtAccept(this, context);
 		Node returnExp = node.jjtGetChild(4);
@@ -78,7 +80,22 @@ public class TypeCheckVisitor extends VisitorAdapter{
 		returnExp.jjtAccept(this, new ExprInput(context, expectedReturnType));
 		return null;
 	}
+
+	public Object visit(ASTArgList node, Object data){
+		return visitChildren(node, data);
+	}
 	
+	public Object visit(ASTArg node, Object data){
+		Node typeChild = node.jjtGetChild(0).jjtGetChild(0);
+		if(typeChild instanceof ASTIdentifier){
+			String className = getVal(typeChild);
+			if(symbolTable.lookup(className) == null){
+				throw new ReferencedMissingType((Context)data, className, node);
+			}
+		}
+		return null;
+	}
+
 	//data == class.method() context
 	public Object visit(ASTMethodBody node, Object data){
 		Node varDecls = node.jjtGetChild(0);
