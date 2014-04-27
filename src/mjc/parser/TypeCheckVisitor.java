@@ -49,6 +49,11 @@ public class TypeCheckVisitor extends VisitorAdapter{
 	public Object visit(ASTSubClassDecl node, Object data){
 		Node classId = node.jjtGetChild(0);
 		String className = getVal(classId);
+		Node superClassId = node.jjtGetChild(1);
+		String superClassName = getVal(superClassId);
+		if(symbolTable.lookup(superClassName) == null){
+			throw new ReferencedMissingType(new Context(className), superClassName, node);
+		}
 		Node methodDecls = node.jjtGetChild(3); 
 		return methodDecls.jjtAccept(this, new Context(className));
 	}
