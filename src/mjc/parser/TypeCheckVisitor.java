@@ -137,6 +137,8 @@ public class TypeCheckVisitor extends VisitorAdapter{
 		Context context = new Context(assertDataContext(data));
 		String varName = (String) node.jjtGetChild(0).jjtAccept(this, null);
 		//No bound checking takes place. This could be done using child1
+		Node index = node.jjtGetChild(1);
+		index.jjtAccept(this, new ExprInput(context, "int"));
 		Node expr = node.jjtGetChild(2); //2, not 1
 		context.varName = varName;
 		String varType = getVarType(context, node);
