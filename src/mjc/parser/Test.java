@@ -44,8 +44,9 @@ public class Test {
 
 
             Map<String,TestResult> results = new HashMap<String,TestResult>();
-            results.put("compile", testCompile());
             results.put("execute", testExecute());
+            results.put("compile", testCompile());
+            
             results.put("noncompile", testNonCompile());
             results.put("noncompile oneliners", testNonCompileOneliners());
             results.put("programs", testPrograms());
@@ -209,8 +210,8 @@ public class Test {
         BufferedReader reader = new BufferedReader(new InputStreamReader(programText));
         String line;
         while((line = reader.readLine()) != null){
-            if(line.startsWith("// EXT:")){
-                String rest = line.split("// EXT:")[1];
+            if(line.split("// *EXT: *").length > 1){
+                String rest = line.split("// *EXT: *")[1];
                 if(rest.charAt(0) == '!'){
                     String notExt = rest.substring(1).trim();
                     if(EXTENSIONS.contains(notExt)){
