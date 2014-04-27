@@ -76,9 +76,27 @@ public class TypeCheckVisitor extends VisitorAdapter{
 	
 	//data == class.method() context
 	public Object visit(ASTMethodBody node, Object data){
+		Node varDecls = node.jjtGetChild(0);
+		varDecls.jjtAccept(this, data);
 		Node stmts = node.jjtGetChild(1);
 		return stmts.jjtAccept(this, data);
 	}
+
+	public Object visit(ASTVarDecls node, Object data){
+		return visitChildren(node, data);
+	}
+
+	public Object visit(ASTVarDecl node, Object data){
+		Node type = node.jjtGetChild(0);
+		if(type.jjtGetChild(0) instanceof ASTIdentifier){
+			String className = getVal(type.jjtGetChild(0));
+			if(symbolTable.lookup(className) == null){
+				throw new ReferencedMissingType((Context)data, className, node);
+			}
+		}
+		return null;
+	}
+
 	
 	//data == class.method() context
 	public Object visit(ASTStmts node, Object data){
@@ -281,6 +299,11 @@ public class TypeCheckVisitor extends VisitorAdapter{
 		return typesAreCompatible(type1, false, type2, false, context, node);
 	}
 
+	private boolean isNotClass(String type){
+		List<String> nonClass = Arrays.asList(new String[]{"int", "boolean", "int[]", "new int[]"});
+		return nonClass.contains(type);
+	}
+
 	//super1 == true means that if a superclass of type1 equals type2, true will be returned.
 	//If both super == false, types must be equal for true to be returned.
 	private boolean typesAreCompatible(String type1, boolean super1, String type2, boolean super2, Context context, SimpleNode node){
@@ -288,8 +311,7 @@ public class TypeCheckVisitor extends VisitorAdapter{
 			return true;
 		}
 
-		List<String> nonClass = Arrays.asList(new String[]{"int", "boolean", "int[]", "new int[]"});
-		if(nonClass.contains(type1) || nonClass.contains(type2)){
+		if(isNotClass(type1) || isNotClass(type2)){
 			return false;
 		}
 
