@@ -263,16 +263,60 @@ public class TypeCheckVisitor extends VisitorAdapter{
 		Node expr1 = node.jjtGetChild(0);
 		Node expr2 = node.jjtGetChild(1);
 
-		if( node instanceof ASTEqual ||
-			node instanceof ASTNotEqual) {
-			input.expectedType = null;
-		}else{
-			input.expectedType = "int";
+		boolean intCompare = !(node instanceof ASTEqual) && !(node instanceof ASTNotEqual);
+		input.expectedType = intCompare? "int" : null;
+		
+		String type1 = (String) expr1.jjtAccept(this, input);
+		String type2 = (String) expr2.jjtAccept(this, input);
+		if(!intCompare && !typesAreCompatible(type1,type2, input.context, node)){
+			throw new WrongType(input.context, "", type1 + " and " + type2, node);
+		}
+		return "boolean";
+	}
+
+	private boolean typesAreCompatible(String type1, String type2, Context context, SimpleNode node){
+		if(type1.equals(type2)){
+			return true;
 		}
 
-		expr1.jjtAccept(this, input);
-		expr2.jjtAccept(this, input);
-		return "boolean";
+		List<String> nonClass = Arrays.asList(new String[]{"int", "boolean", "int[]", "new int[]"});
+		if(nonClass.contains(type1) || nonClass.contains(type2)){
+			return false;
+		}
+
+
+
+		//Compare type1's superclasses with type2 
+		String type = type1;
+		ClassData className	 = getClass(type, context, node);
+		while(className.hasSuperClass){
+			type = className.superClass;
+			className = getClass(type, context, node);
+			if(type.equals(type2)){
+				return true;
+			}
+		}
+
+		//Compare type2's superclasses with type1 
+		type = type2;
+		className = getClass(type, context, node);
+		while(className.hasSuperClass){
+			type = className.superClass;
+			className = getClass(type, context, node);
+			if(type.equals(type1)){
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private ClassData getClass(String type, Context context, SimpleNode node){
+		ClassData className = (ClassData) symbolTable.lookup(type);
+		if(className == null){
+			throw new ReferencedMissingType(context, type, node);
+		}
+		return className;
 	}
 	
 	public Object visit(ASTAnd node, Object data){
