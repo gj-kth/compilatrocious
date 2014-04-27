@@ -132,6 +132,7 @@ SimpleNode Program() :
 {
   MainClass()
   ( ClassDecl() )* #ClassDecls(true)
+  <EOF>
   {return jjtThis;}
 }
 
