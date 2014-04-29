@@ -252,6 +252,7 @@ public class TypeCheckVisitor extends VisitorAdapter{
 
 	public Object visit(ASTNegExpr node, Object data){
 		ExprInput input = new ExprInput(assertExprInput(data));
+		checkExpectedType(input, "boolean", node);
 		input.expectedType = "boolean";
 		return node.jjtGetChild(0).jjtAccept(this, input);
 	}
