@@ -360,7 +360,7 @@ void Comparison() #void :
 |   <LE> Sum() #LessEqual(2)
 |   <GT> Sum() #GreaterThan(2)
 |   <GE> Sum() #GreaterEqual(2)
-|   <EQ> Sum() #Equal(2)
+|   (<EQ> Sum() #Equal(2))+
 |   <NE> Sum() #NotEqual(2)
     )?
 }
