@@ -2,6 +2,8 @@
 // EXT:CLE
 // EXT:CGT
 // EXT:CGE
+// EXT:CEQ
+// EXT:CNE
 // EXT:BDJ
 // EXT:ISC
 // EXT:ICG
