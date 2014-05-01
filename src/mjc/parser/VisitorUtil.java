@@ -71,9 +71,9 @@ public class VisitorUtil{
 	}
 
 	public static class Context{
-		String className;
-		String methodName;
-		String varName;
+		public String className;
+		public String methodName;
+		public String varName;
 
 		Context(String c){
 			this(c, null,null);

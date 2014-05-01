@@ -4,19 +4,19 @@ import java.util.*;
 
 public class SymbolTable implements HasPrefixedToString{
 
-    private HashMap<Symbol,Object> map = new HashMap<Symbol,Object>();
+    private LinkedHashMap<Symbol,Object> map = new LinkedHashMap<Symbol,Object>();
 	
 	public SymbolTable(){
 
 	}
 
-	public SymbolTable(HashMap<String,String> map){
+	public SymbolTable(LinkedHashMap<String,String> map){
 		for(String key : map.keySet()){
 			insert(key, map.get(key));
 		}
 	}
 
-    public HashMap<Symbol,Object> getHashMap(){
+    public LinkedHashMap<Symbol,Object> getHashMap(){
         return map;
     }
 

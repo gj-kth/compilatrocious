@@ -112,7 +112,7 @@ public class SymbolTableVisitor extends VisitorAdapter{
 	public Object visit(ASTMainMethod node, Object data){
 		Node argNameId = node.jjtGetChild(0);
 		Node methodBody = node.jjtGetChild(1);
-		HashMap<String,String> paramsTable = new HashMap<String,String>();
+		LinkedHashMap<String,String> paramsTable = new LinkedHashMap<String,String>();
 		String argNameString = getVal(argNameId);
 		paramsTable.put(argNameString, "String[]");
 		SymbolTable localsTable = (SymbolTable)methodBody.jjtAccept(this,paramsTable);
@@ -126,7 +126,7 @@ public class SymbolTableVisitor extends VisitorAdapter{
 		Node methodNameId = node.jjtGetChild(1);
 		Node argList = node.jjtGetChild(2);
 		Node methodBody = node.jjtGetChild(3);
-		HashMap<String,String> paramsTable = (HashMap<String,String>) argList.jjtAccept(this,data);
+		LinkedHashMap<String,String> paramsTable = (LinkedHashMap<String,String>) argList.jjtAccept(this,data);
 		SymbolTable localsTable = (SymbolTable) methodBody.jjtAccept(this, paramsTable);
 		String returnTypeString = (String) returnType.jjtAccept(this, null);
 		String methodNameString = (String) methodNameId.jjtAccept(this, null);

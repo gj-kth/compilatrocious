@@ -12,3 +12,5 @@ DESC
 *.jar
 *.war
 *.ear
+
+*.j

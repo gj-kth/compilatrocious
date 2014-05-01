@@ -22,10 +22,17 @@ class JVMMain {
 
         
         String in_file = args[0];
+        System.out.println(in_file);
+
+
         FileInputStream source;
+        StringBuilder sb = null;
+
+
 
         try{
             source = new FileInputStream(in_file);
+
 
             try{
                 SimpleNode tree = ParseTree.parse(source);
@@ -38,9 +45,10 @@ class JVMMain {
                 TypeCheckVisitor visitor2 = new TypeCheckVisitor(symbolTable);
                 tree.jjtAccept(visitor2, null);
 
-				if(!genAsm) {
+				if(genAsm) {
+                    System.out.println("visiting");
 					JVMVisitor visitor3 = new JVMVisitor(symbolTable);
-					StringBuilder sb = (StringBuilder) tree.jjtAccept(visitor3, null);
+					sb = (StringBuilder) tree.jjtAccept(visitor3, null);
 					System.out.println(sb.toString());
 				}
 
@@ -55,27 +63,28 @@ class JVMMain {
             System.exit(1);
         }
 
-		// if(genAsm) {
-  //       	// Dummy program
-  //       	String program = "    .text\n    .globl      main\n    .type       main, @function\nmain:\n    movl $0, %eax\n    ret\n";
+		if(genAsm) {
+        	// Dummy program
+        	String program = sb.toString();
 
-  //       	// Get filename
-  //       	String[] path = in_file.split("[/\\.]");
-  //       	String out_file = path[path.length-2]+".s";
+        	// Get filename
+        	String[] path = in_file.split("[/\\.]");
+        	String out_file = path[path.length-2]+".j";
 
-  //       	PrintWriter destination;
+            System.out.println(out_file);
+        	PrintWriter destination;
 
-  //       	try{
-  //           	destination = new PrintWriter("./" + out_file);
+        	try{
+            	destination = new PrintWriter("./" + out_file);
 
-  //           	destination.print(program);
-  //           	destination.close();
+            	destination.print(program);
+            	destination.close();
 
-  //       	}catch(Exception e){
-  //           	e.printStackTrace();
-  //           	System.exit(1);
-  //       	}
-		// }
+        	}catch(Exception e){
+            	e.printStackTrace();
+            	System.exit(1);
+        	}
+		}
 
         System.exit(0);
     }

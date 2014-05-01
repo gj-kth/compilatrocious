@@ -622,6 +622,20 @@ public class TypeCheckVisitor extends VisitorAdapter{
 	//Get the type of the variable specified by context
 	//Throw exception if variable is not found
 	private String getVarType(Context context, SimpleNode node){
+		return getVarType(context, node, symbolTable);
+	}
+
+	//unlike in getVarType() this method checks only instance-variables (not parameters or locals)
+	private String getClassFieldVarType(Context context, SimpleNode node){
+		return getClassFieldVarType(context, node, symbolTable);
+	}
+
+	private String getFunctionReturnType(Context context){
+		return getFunctionReturnType(context, symbolTable);
+	}
+
+	
+	public static String getVarType(Context context, SimpleNode node, SymbolTable symbolTable){
 		if(context == null || context.className == null || context.methodName == null || context.varName == null){
 			throw new NullPointerException("context == " + context);
 		}
@@ -633,7 +647,7 @@ public class TypeCheckVisitor extends VisitorAdapter{
 				if((varType = (String)classData.fieldsTable.lookup(context.varName)) == null){
 					if(classData.hasSuperClass){
 						Context superClassContext = new Context(classData.superClass, "", context.varName);
-						return getClassFieldVarType(superClassContext, node);
+						return getClassFieldVarType(superClassContext, node, symbolTable);
 					}else{
 						throw new ReferencedMissingVariable(context, node);							
 					}
@@ -643,8 +657,7 @@ public class TypeCheckVisitor extends VisitorAdapter{
 		return varType;
 	}
 
-	//unlike in getVarType() this method checks only instance-variables (not parameters or locals)
-	private String getClassFieldVarType(Context context, SimpleNode node){
+	public static String getClassFieldVarType(Context context, SimpleNode node, SymbolTable symbolTable){
 		if(context == null || context.className == null || context.varName == null){
 			throw new NullPointerException("context == " + context);
 		}
@@ -653,7 +666,7 @@ public class TypeCheckVisitor extends VisitorAdapter{
 		if((varType = (String)classData.fieldsTable.lookup(context.varName)) == null){
 			if(classData.hasSuperClass){
 				Context superClassContext = new Context(classData.superClass, "", context.varName);
-				return getClassFieldVarType(superClassContext, node);
+				return getClassFieldVarType(superClassContext, node, symbolTable);
 			}else{
 				throw new ReferencedMissingVariable(context, node);							
 			}
@@ -661,7 +674,7 @@ public class TypeCheckVisitor extends VisitorAdapter{
 		return varType;
 	}
 
-	private String getFunctionReturnType(Context context){
+	public static String getFunctionReturnType(Context context, SymbolTable symbolTable){
 		if(context == null || context.className == null || context.methodName == null || context.varName != null){
 			throw new NullPointerException("context == " + context);
 		}
