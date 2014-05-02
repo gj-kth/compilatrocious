@@ -73,7 +73,7 @@ public class JVMVisitor extends VisitorAdapter{
 		context.addLocal(argName);
 
 		int stackSize = 100;
-		int numLocals = 5;
+		int numLocals = 10;
 		code.append("\n   .limit stack " + stackSize + "\n");
 		code.append("   .limit locals " + numLocals + "\n\n");
 		StringBuilder bodyCode = (StringBuilder) body.jjtAccept(this, context);
@@ -178,6 +178,93 @@ public class JVMVisitor extends VisitorAdapter{
 		return code;
 	}
 
+	public Object visit(ASTAnd node, Object data){
+		return visitAndOr(node, data, "iand");
+	}
+
+	public Object visit(ASTOr node, Object data){
+		return visitAndOr(node, data, "ior");
+	}
+
+	private StringBuilder visitAndOr(SimpleNode node, Object data, String instruction){
+		StringBuilder code = new StringBuilder();
+		code.append(node.jjtGetChild(0).jjtAccept(this, data));
+		code.append(node.jjtGetChild(1).jjtAccept(this, data));
+		code.append("   " + instruction + "\n");
+		return code;
+	}
+
+	public Object visit(ASTParenExp node, Object data){
+		return node.jjtGetChild(0).jjtGetChild(0).jjtAccept(this, data); //parenExp -> Exp -> SpecificExp
+	}
+
+	public Object visit(ASTPlus node, Object data){
+		return visitIntBinOp(node, data, "iadd");
+	}
+
+	public Object visit(ASTMinus node, Object data){
+		return visitIntBinOp(node, data, "isub");
+	}
+
+	public Object visit(ASTMult node, Object data){
+		return visitIntBinOp(node, data, "imul");	
+	}
+
+	private StringBuilder visitIntBinOp(SimpleNode node, Object data, String opInstruction){
+		SimpleNode leftExp = (SimpleNode) node.jjtGetChild(0);
+		SimpleNode rightExp = (SimpleNode) node.jjtGetChild(1);
+		StringBuilder code = new StringBuilder();
+		code.append((StringBuilder) leftExp.jjtAccept(this, data));
+		code.append((StringBuilder) rightExp.jjtAccept(this, data));
+		code.append("   " + opInstruction + "\n");
+		return code;
+	}
+
+	public Object visit(ASTLessThan node, Object data){
+		return visitComparison(node, data, "if_icmplt");
+	}
+
+	public Object visit(ASTLessEqual node, Object data){
+		return visitComparison(node, data, "if_icmple");
+	}
+
+	public Object visit(ASTGreaterThan node, Object data){
+		return visitComparison(node, data, "if_icmpgt");
+	}
+
+	public Object visit(ASTGreaterEqual node, Object data){
+		return visitComparison(node, data, "if_icmpge");
+	}
+
+	public Object visit(ASTEqual node, Object data){
+		return visitComparison(node, data, "if_icmpeq");
+	}
+
+	public Object visit(ASTNotEqual node, Object data){
+		return visitComparison(node, data, "if_icmpne");
+	}
+
+	private StringBuilder visitComparison(SimpleNode node, Object data, String comparison){
+		StringBuilder code = new StringBuilder();
+
+		int branchNum = globalNumBranches;
+		globalNumBranches ++;
+
+		SimpleNode leftExp = (SimpleNode) node.jjtGetChild(0);
+		SimpleNode rightExp = (SimpleNode) node.jjtGetChild(1);
+
+		code.append((StringBuilder) leftExp.jjtAccept(this,data)); 
+		code.append((StringBuilder) rightExp.jjtAccept(this,data));
+
+		code.append("   " + comparison + " trueCmp_" + branchNum + "\n");
+		code.append("   iconst_0\n");
+		code.append("   goto doneCmp_" + branchNum + "\n");
+		code.append("trueCmp_" + branchNum + ":\n");
+		code.append("   iconst_1\n");
+		code.append("doneCmp_" + branchNum + ":\n");
+		return code;
+	}
+
 	public Object visit(ASTIfElse node, Object data){
 		SimpleNode exp = (SimpleNode) node.jjtGetChild(0).jjtGetChild(0);
 		SimpleNode ifStmt = (SimpleNode) node.jjtGetChild(1).jjtGetChild(0);
@@ -185,7 +272,6 @@ public class JVMVisitor extends VisitorAdapter{
 		StringBuilder expCode = (StringBuilder) exp.jjtAccept(this, data);
 
 		int branchNum = globalNumBranches;
-
 		globalNumBranches ++;
 		
 		StringBuilder code = new StringBuilder();
@@ -200,6 +286,41 @@ public class JVMVisitor extends VisitorAdapter{
 		code.append(elseCode);
 		code.append("done_" + branchNum + ":\n");
 
+		return code;
+	}
+
+	public Object visit(ASTIf node, Object data){
+		SimpleNode exp = (SimpleNode) node.jjtGetChild(0).jjtGetChild(0);
+		SimpleNode ifStmt = (SimpleNode) node.jjtGetChild(1).jjtGetChild(0);
+		StringBuilder expCode = (StringBuilder) exp.jjtAccept(this, data);
+		int branchNum = globalNumBranches;
+		globalNumBranches ++;
+		StringBuilder code = new StringBuilder();
+		code.append(expCode);
+		code.append("   ldc 1 ; push 1 (true) on stack\n");
+		code.append("   if_icmpne done_" + branchNum + "\n");
+		StringBuilder ifCode = (StringBuilder) ifStmt.jjtAccept(this, data);
+		code.append(ifCode);
+		code.append("done_" + branchNum + ":\n");
+		return code;
+	}
+
+	public Object visit(ASTWhile node, Object data){
+		SimpleNode exp = (SimpleNode) node.jjtGetChild(0).jjtGetChild(0);
+		SimpleNode whileStmt = (SimpleNode) node.jjtGetChild(1).jjtGetChild(0);
+		int branchNum = globalNumBranches;
+		globalNumBranches ++;
+
+		StringBuilder expCode = (StringBuilder) exp.jjtAccept(this, data);
+		StringBuilder code = new StringBuilder();
+		code.append("while_" + branchNum + ":\n");
+		code.append(expCode);
+		code.append("   ldc 1 ; push 1 (true) on stack\n");
+		code.append("   if_icmpne done_" + branchNum + "\n");
+		StringBuilder whileCode = (StringBuilder) whileStmt.jjtAccept(this, data);
+		code.append(whileCode);
+		code.append("   goto while_" + branchNum + "\n");
+		code.append("done_" + branchNum + ":\n");
 		return code;
 	}
 
