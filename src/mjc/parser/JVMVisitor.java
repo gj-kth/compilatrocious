@@ -7,6 +7,10 @@ import mjc.parser.VisitorUtil.*;
 public class JVMVisitor extends VisitorAdapter{
 	
 	private SymbolTable symbolTable;
+
+	//Keeps track of how many branches there are so that every branch gets
+	//unique labels, like [else_0 and done_0], [else_1 and done_1]
+	private int globalNumBranches = 0; 
 	
 
 	public JVMVisitor(SymbolTable symbolTable){
@@ -69,7 +73,9 @@ public class JVMVisitor extends VisitorAdapter{
 		context.addLocal(argName);
 
 		int stackSize = 100;
-		code.append("   .limit stack " + stackSize + "\n");
+		int numLocals = 5;
+		code.append("\n   .limit stack " + stackSize + "\n");
+		code.append("   .limit locals " + numLocals + "\n\n");
 		StringBuilder bodyCode = (StringBuilder) body.jjtAccept(this, context);
 		code.append(bodyCode);
 		code.append("   return\n");
@@ -157,6 +163,62 @@ public class JVMVisitor extends VisitorAdapter{
 			code.append("   iconst_m1" + " ; push -1 on stack\n");
 		}else{
 			code.append("   ldc " + value + "\n");
+		}
+		return code;
+	}
+
+	public Object visit(ASTBoolLiteral node, Object data){
+		String lit = ((Token) node.value).image;
+		StringBuilder code = new StringBuilder();
+		if(lit.equals("true")) {
+			code.append("   iconst_1 ; push 1 (true) on stack\n");
+		}else{
+			code.append("   iconst_0 ; push 0 (false) on stack\n");
+		}
+		return code;
+	}
+
+	public Object visit(ASTIfElse node, Object data){
+		SimpleNode exp = (SimpleNode) node.jjtGetChild(0).jjtGetChild(0);
+		SimpleNode ifStmt = (SimpleNode) node.jjtGetChild(1).jjtGetChild(0);
+		SimpleNode elseStmt = (SimpleNode) node.jjtGetChild(2).jjtGetChild(0);
+		StringBuilder expCode = (StringBuilder) exp.jjtAccept(this, data);
+
+		int branchNum = globalNumBranches;
+
+		globalNumBranches ++;
+		
+		StringBuilder code = new StringBuilder();
+		code.append(expCode);
+		code.append("   ldc 1 ; push 1 (true) on stack\n");
+		code.append("   if_icmpne else_" + branchNum + "\n");
+		StringBuilder ifCode = (StringBuilder) ifStmt.jjtAccept(this, data);
+		code.append(ifCode);
+		code.append("   goto done_" + branchNum + "\n");
+		code.append("else_" + branchNum + ":\n");
+		StringBuilder elseCode = (StringBuilder) elseStmt.jjtAccept(this, data);
+		code.append(elseCode);
+		code.append("done_" + branchNum + ":\n");
+
+		return code;
+	}
+
+	public Object visit(ASTPrint node, Object data){
+		StringBuilder code = new StringBuilder();
+		SimpleNode exp = (SimpleNode) node.jjtGetChild(0).jjtGetChild(0);
+		StringBuilder expCode = (StringBuilder) exp.jjtAccept(this, data);
+		code.append(expCode);
+		code.append("   getstatic java/lang/System/out Ljava/io/PrintStream;\n");
+		code.append("   swap ; value, objectref -> objectref, value\n"); //"System.out" and value are in wrong order on stack
+	   	code.append("   invokevirtual java/io/PrintStream/println(I)V\n");
+	   	return code;
+	}
+
+	public Object visit(ASTBlock node, Object data){
+		StringBuilder code = new StringBuilder();
+		for(Node stmt : node.children){
+			StringBuilder stmtCode = (StringBuilder) stmt.jjtAccept(this, data);
+			code.append(stmtCode);
 		}
 		return code;
 	}
