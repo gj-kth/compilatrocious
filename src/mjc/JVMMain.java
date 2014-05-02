@@ -26,8 +26,8 @@ class JVMMain {
 
 
         FileInputStream source;
-        StringBuilder sb = null;
-
+        //StringBuilder sb = null;
+        List<ClassFile> classFiles = null;
 
 
         try{
@@ -48,8 +48,9 @@ class JVMMain {
 				if(genAsm) {
                     System.out.println("visiting");
 					JVMVisitor visitor3 = new JVMVisitor(symbolTable);
-					sb = (StringBuilder) tree.jjtAccept(visitor3, null);
-					System.out.println(sb.toString());
+					//sb = (StringBuilder) tree.jjtAccept(visitor3, null);
+                    //System.out.println(sb.toString());
+                    classFiles = (List<ClassFile>) tree.jjtAccept(visitor3, null);
 				}
 
             }catch(TypecheckError | ParseException | TokenMgrError | IOException e) {
@@ -65,25 +66,38 @@ class JVMMain {
 
 		if(genAsm) {
         	// Dummy program
-        	String program = sb.toString();
+        	//String program = sb.toString();
+
+            PrintWriter destination;
 
         	// Get filename
-        	String[] path = in_file.split("[/\\.]");
-        	String out_file = path[path.length-2]+".j";
+            for(ClassFile classFile : classFiles){
+                try{
+                    destination = new PrintWriter("./" + classFile.fileName + ".j");
+                    destination.print(classFile.content);
+                    destination.close();
+                }catch(Exception e){
+                    e.printStackTrace();
+                    System.exit(1);
+                }
+            }
 
-            System.out.println(out_file);
-        	PrintWriter destination;
+        	// String[] path = in_file.split("[/\\.]");
+        	// String out_file = path[path.length-2]+".j";
 
-        	try{
-            	destination = new PrintWriter("./" + out_file);
+         //    System.out.println(out_file);
+        	// PrintWriter destination;
 
-            	destination.print(program);
-            	destination.close();
+        	// try{
+         //    	destination = new PrintWriter("./" + out_file);
 
-        	}catch(Exception e){
-            	e.printStackTrace();
-            	System.exit(1);
-        	}
+         //    	//destination.print(program);
+         //    	destination.close();
+
+        	// }catch(Exception e){
+         //    	e.printStackTrace();
+         //    	System.exit(1);
+        	// }
 		}
 
         System.exit(0);

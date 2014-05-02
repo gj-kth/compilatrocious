@@ -34,12 +34,14 @@ public class JVMVisitor extends VisitorAdapter{
 		
 	}
 
-	//
+	// returns List<ClassFile> where each string is contents of a .j-file
 	public Object visit(ASTProgram node, Object data){
 		SimpleNode mainClass = (SimpleNode) node.jjtGetChild(0);
 		SimpleNode classDecls = (SimpleNode) node.jjtGetChild(1);
-		StringBuilder mainCode = (StringBuilder) mainClass.jjtAccept(this, data);
-		return mainCode;
+		ClassFile mainFile = (ClassFile) mainClass.jjtAccept(this, data);
+		List<ClassFile> files = (List<ClassFile>)classDecls.jjtAccept(this, data);
+		files.add(mainFile);
+		return files;
 	}
 
 	public Object visit(ASTMainClass node, Object data){
@@ -58,7 +60,8 @@ public class JVMVisitor extends VisitorAdapter{
 		code.append("   return\n");
 		code.append(".end method\n");
 		code.append(mainMethodCode);
-		return code;
+		return new ClassFile(className, code.toString());
+		//return code.toString();
 	}
 
 	public Object visit(ASTMainMethod node, Object data){
@@ -81,6 +84,147 @@ public class JVMVisitor extends VisitorAdapter{
 		code.append("   return\n");
 		code.append(".end method\n");
 		return code;
+	}
+
+	public Object visit(ASTMethodDecls node, Object data){
+		StringBuilder code = new StringBuilder();
+		for(int i = 0; i < node.jjtGetNumChildren(); i++){
+			SimpleNode decl = (SimpleNode) node.jjtGetChild(i);
+			code.append(decl.jjtAccept(this, data));
+		}
+		return code;
+	}
+
+	public Object visit(ASTMethodDecl node, Object data){
+
+		StringBuilder code = new StringBuilder();
+		SimpleNode methodNameId = (SimpleNode) node.jjtGetChild(1);
+		SimpleNode body = (SimpleNode) node.jjtGetChild(3);
+		SimpleNode returnStmt = (SimpleNode) node.jjtGetChild(4);
+		IdentifierInput input = new IdentifierInput(null, IdentifierInput.GET_NAME);
+		String methodName = (String) methodNameId.jjtAccept(this, input);
+
+		JVMContext context = new JVMContext((Context) data);
+		context.methodName = methodName;
+		
+		String typeString = "I"; //TODO
+
+		String argsString = ""; //TODO
+
+
+		
+		code.append(".method public " + methodName + "(" + argsString + ")" + typeString);
+		int stackSize = 100;
+		int numLocals = 20;
+		code.append("\n   .limit stack " + stackSize + "\n");
+		code.append("   .limit locals " + numLocals + "\n\n");
+		StringBuilder bodyCode = (StringBuilder) body.jjtAccept(this, context);
+		code.append(bodyCode);
+		StringBuilder returnStmtCode = (StringBuilder) returnStmt.jjtAccept(this, context);
+		code.append(returnStmtCode);
+		code.append("   ireturn\n"); //TODO currently assumes return is int
+		code.append(".end method\n");
+
+
+		return code;
+	}
+
+
+	public Object visit(ASTClassDecls node, Object data){
+		List<ClassFile> classFiles = new ArrayList<ClassFile>();
+		for(int i = 0; i < node.jjtGetNumChildren(); i++){
+			Node classDecl = node.jjtGetChild(i);
+			classFiles.add((ClassFile)classDecl.jjtAccept(this,data));
+		}
+		return classFiles;
+	}
+
+	public Object visit(ASTClassDecl node, Object data){
+		
+
+		Node classNameId = node.children[0];
+		IdentifierInput input = new IdentifierInput(null, IdentifierInput.GET_NAME);
+		String className = (String) classNameId.jjtAccept(this, input);
+
+		Context context = new Context(className);
+	
+	
+		StringBuilder code = new StringBuilder();
+		code.append(".class " + className + "\n");
+		code.append(".super java/lang/Object\n");
+
+		SimpleNode varDecls = (SimpleNode) node.jjtGetChild(1); 
+		SimpleNode methodDecls = (SimpleNode) node.jjtGetChild(2);
+
+		StringBuilder methodsCode = (StringBuilder) methodDecls.jjtAccept(this, context);
+		StringBuilder varsCode = (StringBuilder) varDecls.jjtAccept(this, context);
+
+		code.append(varsCode);
+
+		code.append("\n; default constructor\n");
+
+		code.append(".method public <init>()V\n");
+		code.append("   aload_0\n");
+		code.append("   invokespecial java/lang/Object/<init>()V\n");
+		code.append("   return\n");
+		code.append(".end method\n");
+		code.append(methodsCode);
+		return new ClassFile(className, code.toString());
+		//return code.toString();
+
+	}
+
+	public Object visit(ASTNewObject node, Object data){
+		StringBuilder code = new StringBuilder();
+		SimpleNode classNameId = (SimpleNode) node.jjtGetChild(0);
+		String className = getVal(classNameId);
+
+		code.append("   ; create an " + className + " object on top of stack\n");
+		code.append("   new " + className + "\n");
+		code.append("   dup\n");
+		code.append("   invokespecial " + className + "/<init>()V ; call constructor\n");
+		return code;
+	}
+
+	public Object visit(ASTCall node, Object data){
+		StringBuilder code = new StringBuilder();
+		SimpleNode obj = (SimpleNode) node.jjtGetChild(0);
+		SimpleNode methodNameId = (SimpleNode) node.jjtGetChild(1);
+		StringBuilder loadObjCode = (StringBuilder) obj.jjtAccept(this, data);
+		code.append(loadObjCode);
+		String methodName = getVal(methodNameId);
+		String className = "Other"; //TODO Have to get classname here somehow, problematic since obj comes from an Expression
+		String argsString = ""; //TODO Have to get arg types
+		String returnTypeString = "I"; //TODO Have to get return type
+		code.append("   invokevirtual " + className + "/" + methodName + "(" + argsString + ")" + returnTypeString + "\n");
+		return code;
+	}
+
+	public Object visit(ASTVarDecls node, Object data){
+		StringBuilder code = new StringBuilder();
+		for(int i = 0; i < node.jjtGetNumChildren(); i++){
+			SimpleNode decl = (SimpleNode)node.jjtGetChild(i);
+			code.append(decl.jjtAccept(this, data));
+		}
+		return code;
+	}
+
+	public Object visit(ASTVarDecl node, Object data){
+		SimpleNode id = (SimpleNode)node.jjtGetChild(1);
+		String varName = getVal(id);
+		Context context = (Context) data;
+		context.varName = varName;
+		String varType = getVarType(context, node);
+		if(varType.equals("int[]")){
+			varType = "[I";
+		}else if(varType.equals("int") || varType.equals("boolean")){
+			varType = "I";
+		}
+		return ".field private " + varName + " " + varType + " = 0";
+	}
+
+	public Object visit(ASTSubClassDecl node, Object data){
+		return new StringBuilder();
 	}
 
 	private Set<Symbol> getArgNames(String className, String methodName){
@@ -131,7 +275,8 @@ public class JVMVisitor extends VisitorAdapter{
 
 	public Object visit(ASTStmts node, Object data){
 		StringBuilder code = new StringBuilder();
-		for(Node stmt : node.children){
+		for(int i = 0; i < node.jjtGetNumChildren(); i++){
+			Node stmt = node.jjtGetChild(i);
 			code.append((StringBuilder) stmt.jjtGetChild(0).jjtAccept(this,data));
 		}
 		return code;
@@ -344,23 +489,13 @@ public class JVMVisitor extends VisitorAdapter{
 		return code;
 	}
 
+	public Object visit(ASTExpr node, Object data){
+		return node.jjtGetChild(0).jjtAccept(this, data);
+	}
+
 	
 
-	private class JVMContext extends Context{
-		private int nextVarNumber = 1;
-		HashMap<String, Integer> locals = new HashMap<String,Integer>();
-		boolean store = false;
-
-		public JVMContext(Context context){
-			super(context);
-		}
-
-		void addLocal(String varName){
-			locals.put(varName, nextVarNumber);
-			nextVarNumber ++;
-		}
-
-	}
+	
 
 	private boolean isField(JVMContext context, String varName){
 		ClassData classData = (ClassData) symbolTable.lookup(context.className);
@@ -443,6 +578,22 @@ public class JVMVisitor extends VisitorAdapter{
 				return new StringBuilder("   astore" + (varNumber < 4 ? "_" : " ") + varNumber + " ; " + varName + "\n");
 			}
 		}
+	}
+
+	private class JVMContext extends Context{
+		private int nextVarNumber = 1;
+		HashMap<String, Integer> locals = new HashMap<String,Integer>();
+		boolean store = false;
+
+		public JVMContext(Context context){
+			super(context);
+		}
+
+		void addLocal(String varName){
+			locals.put(varName, nextVarNumber);
+			nextVarNumber ++;
+		}
+
 	}
 
 }

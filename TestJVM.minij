@@ -2,26 +2,17 @@ class TestJVM {
 	public static void main(String[] args) {
 		
 		int a;
-		int b;
-		int i;
-		int tmp;
-		i = 0;
-		a = 0;
-		b = 1;
+		Other obj;
 
-		System.out.println(41330); //Fibbo
+		obj = new Other();
+		a = obj.func();
+		
+	}
+}
 
-		System.out.println(a);
-		System.out.println(b);
-
-
-
-		while(i < 20){
-			tmp = b;
-			b = a + b;
-			a = tmp;
-			System.out.println(b);
-			i = i + 1;
-		}
+class Other {
+	public int func(){
+		System.out.println(100);
+		return 100;
 	}
 }
