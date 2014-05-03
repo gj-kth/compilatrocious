@@ -690,7 +690,7 @@ public class TypeCheckVisitor extends VisitorAdapter{
 	//Example variable context:
 	//a = 1;
 	//When evaluating expression "1", the context will be "class.method().a"
-	private class ExprInput{
+	public static class ExprInput{
 		Context context;
 		String expectedType;
 		ExprInput(Context s, String t){

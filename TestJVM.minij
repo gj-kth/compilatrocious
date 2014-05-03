@@ -2,16 +2,16 @@ class TestJVM {
 	public static void main(String[] args) {
 		
 		int a;
-		Other obj;
+		Baaa obj;
 
-		obj = new Other();
+		obj = new Baaa();
 		a = obj.func(5,12, true);
 		a = obj.func(17,18, false);
 		System.out.println(a);
 	}
 }
 
-class Other {
+class Baaa {
 	public int func(int x, int y, boolean b){
 		if(b){
 			System.out.println(x);	

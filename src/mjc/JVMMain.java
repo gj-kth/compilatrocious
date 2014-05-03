@@ -47,9 +47,7 @@ class JVMMain {
 
 				if(genAsm) {
                     System.out.println("visiting");
-					JVMVisitor visitor3 = new JVMVisitor(symbolTable);
-					//sb = (StringBuilder) tree.jjtAccept(visitor3, null);
-                    //System.out.println(sb.toString());
+					JVMVisitor visitor3 = new JVMVisitor(symbolTable); 
                     classFiles = (List<ClassFile>) tree.jjtAccept(visitor3, null);
 				}
 

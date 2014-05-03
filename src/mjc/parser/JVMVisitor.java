@@ -8,6 +8,11 @@ public class JVMVisitor extends VisitorAdapter{
 	
 	private SymbolTable symbolTable;
 
+
+	//TODO Hack warning. Using a typecheckvisitor to determine the class of expr in expr.callMethod()
+	private TypeCheckVisitor typeCheckVisitor;
+
+
 	//Keeps track of how many branches there are so that every branch gets
 	//unique labels, like [else_0 and done_0], [else_1 and done_1]
 	private int globalNumBranches = 0; 
@@ -15,6 +20,7 @@ public class JVMVisitor extends VisitorAdapter{
 
 	public JVMVisitor(SymbolTable symbolTable){
 		this.symbolTable = symbolTable;	
+		typeCheckVisitor = new TypeCheckVisitor(symbolTable);
 	}
 
 	public Object visit(ASTIdentifier node, Object data){
@@ -118,7 +124,7 @@ public class JVMVisitor extends VisitorAdapter{
 		}
 
 		
-		code.append(".method public " + methodName + "(" + argsCode.toString() + ")" + typeString.toString());
+		code.append(".method public " + methodName + "(" + argsCode.toString() + ")" + typeString);
 		int stackSize = 100;
 		int numLocals = 20;
 		code.append("\n   .limit stack " + stackSize + "\n");
@@ -127,6 +133,13 @@ public class JVMVisitor extends VisitorAdapter{
 		code.append(bodyCode);
 		StringBuilder returnStmtCode = (StringBuilder) returnStmt.jjtAccept(this, context);
 		code.append(returnStmtCode);
+
+		if(typeString.equals("I")){
+			code.append("   ireturn\n");
+		}else{
+			code.append("   areturn\n"); //TODO only 2 cases, int and reference ?
+		}
+		code.append(".end method\n");
 
 		return code;
 	}
@@ -215,7 +228,9 @@ public class JVMVisitor extends VisitorAdapter{
 		code.append(loadObjCode);
 		code.append(expsCode);
 		String methodName = getVal(methodNameId);
-		String className = "Other"; //TODO Have to get classname here somehow, problematic since obj comes from an Expression
+		String className = (String) obj.jjtAccept(typeCheckVisitor, new TypeCheckVisitor.ExprInput((Context)data, null));
+		System.out.println("className = " + className); //TODO
+		//String className = "Other"; //TODO Have to get classname here somehow, problematic since obj comes from an Expression
 		StringBuilder argsCode = new StringBuilder();
 		JVMContext context = new JVMContext(new Context(className, methodName));
 		for(String argType : getMethodParamTypes(context)){
@@ -313,8 +328,6 @@ public class JVMVisitor extends VisitorAdapter{
 		Node varDecls = node.children[0];
 		Node stmts = node.children[1];
 		JVMContext context = (JVMContext) data;
-		System.out.println("ASTMEthodBody, context = " + context);
-		System.out.println(context.locals);
 		Set<Symbol> localNames = getLocalNames(context.className, context.methodName);
 		for(Symbol name : localNames){
 			context.addLocal(name.toString());
