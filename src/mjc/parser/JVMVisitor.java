@@ -107,13 +107,18 @@ public class JVMVisitor extends VisitorAdapter{
 		JVMContext context = new JVMContext((Context) data);
 		context.methodName = methodName;
 		
-		String typeString = "I"; //TODO
+		String typeString = typeToJasminType(getMethodType(context));
+		StringBuilder argsCode = new StringBuilder();
+		for(String argType : getMethodParamTypes(context)){
+			argsCode.append(typeToJasminType(argType));
+		}
 
-		String argsString = ""; //TODO
-
+		for(Symbol argName : getArgNames(context.className, context.methodName)){
+			context.addLocal(argName.toString());
+		}
 
 		
-		code.append(".method public " + methodName + "(" + argsString + ")" + typeString);
+		code.append(".method public " + methodName + "(" + argsCode.toString() + ")" + typeString.toString());
 		int stackSize = 100;
 		int numLocals = 20;
 		code.append("\n   .limit stack " + stackSize + "\n");
@@ -122,12 +127,26 @@ public class JVMVisitor extends VisitorAdapter{
 		code.append(bodyCode);
 		StringBuilder returnStmtCode = (StringBuilder) returnStmt.jjtAccept(this, context);
 		code.append(returnStmtCode);
-		code.append("   ireturn\n"); //TODO currently assumes return is int
-		code.append(".end method\n");
-
 
 		return code;
 	}
+
+
+
+	private String typeToJasminType(String type){
+		if(type.equals("int")){
+			return "I";
+		}
+		if(type.equals("boolean")){
+			return "I";
+		}
+		if(type.equals("int[]")){
+			throw new IllegalArgumentException("Not implemented int[]");
+		}
+		return type;
+	}
+
+
 
 
 	public Object visit(ASTClassDecls node, Object data){
@@ -190,13 +209,29 @@ public class JVMVisitor extends VisitorAdapter{
 		StringBuilder code = new StringBuilder();
 		SimpleNode obj = (SimpleNode) node.jjtGetChild(0);
 		SimpleNode methodNameId = (SimpleNode) node.jjtGetChild(1);
+		SimpleNode expList = (SimpleNode) node.jjtGetChild(2);
+		StringBuilder expsCode = (StringBuilder) expList.jjtAccept(this, data);
 		StringBuilder loadObjCode = (StringBuilder) obj.jjtAccept(this, data);
 		code.append(loadObjCode);
+		code.append(expsCode);
 		String methodName = getVal(methodNameId);
 		String className = "Other"; //TODO Have to get classname here somehow, problematic since obj comes from an Expression
-		String argsString = ""; //TODO Have to get arg types
-		String returnTypeString = "I"; //TODO Have to get return type
-		code.append("   invokevirtual " + className + "/" + methodName + "(" + argsString + ")" + returnTypeString + "\n");
+		StringBuilder argsCode = new StringBuilder();
+		JVMContext context = new JVMContext(new Context(className, methodName));
+		for(String argType : getMethodParamTypes(context)){
+			argsCode.append(typeToJasminType(argType));
+		}
+		String returnTypeString = typeToJasminType(getMethodType(context));
+		code.append("   invokevirtual " + className + "/" + methodName + "(" + argsCode + ")" + returnTypeString + "\n");
+		return code;
+	}
+
+	public Object visit(ASTExprList node, Object data){
+		StringBuilder code = new StringBuilder();
+		for(int i = 0; i < node.jjtGetNumChildren(); i++){
+			SimpleNode exp = (SimpleNode) node.jjtGetChild(i);
+			code.append((StringBuilder) exp.jjtAccept(this, data));
+		}
 		return code;
 	}
 
@@ -258,11 +293,28 @@ public class JVMVisitor extends VisitorAdapter{
 		return varType;
 	}
 
+	private String getMethodType(Context context){
+		ClassData classData = (ClassData) symbolTable.lookup(context.className);
+		MethodData methodData = (MethodData) classData.methodsTable.lookup(context.methodName);
+		return methodData.returnType;
+	}
+
+	private List<String> getMethodParamTypes(Context context){
+		
+
+		ClassData classData = (ClassData) symbolTable.lookup(context.className);
+		MethodData methodData = (MethodData) classData.methodsTable.lookup(context.methodName);
+		return methodData.paramTypes;
+
+	}
+
 
 	public Object visit(ASTMethodBody node, Object data){
 		Node varDecls = node.children[0];
 		Node stmts = node.children[1];
 		JVMContext context = (JVMContext) data;
+		System.out.println("ASTMEthodBody, context = " + context);
+		System.out.println(context.locals);
 		Set<Symbol> localNames = getLocalNames(context.className, context.methodName);
 		for(Symbol name : localNames){
 			context.addLocal(name.toString());

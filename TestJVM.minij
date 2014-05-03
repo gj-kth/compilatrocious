@@ -5,14 +5,19 @@ class TestJVM {
 		Other obj;
 
 		obj = new Other();
-		a = obj.func();
-		
+		a = obj.func(5,12, true);
+		a = obj.func(17,18, false);
+		System.out.println(a);
 	}
 }
 
 class Other {
-	public int func(){
-		System.out.println(100);
+	public int func(int x, int y, boolean b){
+		if(b){
+			System.out.println(x);	
+		}else{
+			System.out.println(y);	
+		}
 		return 100;
 	}
 }
