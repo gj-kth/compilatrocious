@@ -249,6 +249,9 @@ public class Test {
             TypeCheckVisitor visitor2 = new TypeCheckVisitor(symbolTable);
             parsed.jjtAccept(visitor2, null);
 
+            JVMVisitor visitor3 = new JVMVisitor(symbolTable);
+            parsed.jjtAccept(visitor3, null);
+
             programText.close(); 
             if(!positiveTest){ //It's a negative test. But no exception was thrown!
                 if(PRINT_FAILED_TESTS){

@@ -154,7 +154,7 @@ public class JVMVisitor extends VisitorAdapter{
 			return "I";
 		}
 		if(type.equals("int[]")){
-			throw new IllegalArgumentException("Not implemented int[]");
+			return "[I"; //TODO Correct ?
 		}
 		return type;
 	}
@@ -171,30 +171,32 @@ public class JVMVisitor extends VisitorAdapter{
 		return classFiles;
 	}
 
-	public Object visit(ASTClassDecl node, Object data){
-		
 
+
+	public Object visit(ASTClassDecl node, Object data){
+		return visitClassDecl(node, data, "java/lang/Object", false);
+	}
+
+	public Object visit(ASTSubClassDecl node, Object data){
+		SimpleNode superClassId = (SimpleNode) node.jjtGetChild(1);
+		String superClassName = getVal(superClassId);
+		return visitClassDecl(node, data, superClassName, true);
+	}
+
+	private ClassFile visitClassDecl(SimpleNode node, Object data, String superClass, boolean isSubClass){
 		Node classNameId = node.children[0];
 		IdentifierInput input = new IdentifierInput(null, IdentifierInput.GET_NAME);
-		String className = (String) classNameId.jjtAccept(this, input);
-
+		String className = getVal(classNameId);
 		Context context = new Context(className);
-	
-	
 		StringBuilder code = new StringBuilder();
 		code.append(".class " + className + "\n");
-		code.append(".super java/lang/Object\n");
-
-		SimpleNode varDecls = (SimpleNode) node.jjtGetChild(1); 
-		SimpleNode methodDecls = (SimpleNode) node.jjtGetChild(2);
-
+		code.append(".super " + superClass + "\n");
+		SimpleNode varDecls = (SimpleNode) node.jjtGetChild(1 + (isSubClass? 1 : 0)); 
+		SimpleNode methodDecls = (SimpleNode) node.jjtGetChild(2 + (isSubClass? 1 : 0));
 		StringBuilder methodsCode = (StringBuilder) methodDecls.jjtAccept(this, context);
 		StringBuilder varsCode = (StringBuilder) varDecls.jjtAccept(this, context);
-
 		code.append(varsCode);
-
 		code.append("\n; default constructor\n");
-
 		code.append(".method public <init>()V\n");
 		code.append("   aload_0\n");
 		code.append("   invokespecial java/lang/Object/<init>()V\n");
@@ -202,8 +204,6 @@ public class JVMVisitor extends VisitorAdapter{
 		code.append(".end method\n");
 		code.append(methodsCode);
 		return new ClassFile(className, code.toString());
-		//return code.toString();
-
 	}
 
 	public Object visit(ASTNewObject node, Object data){
@@ -273,9 +273,7 @@ public class JVMVisitor extends VisitorAdapter{
 		return ".field private " + varName + " " + varType + " = 0";
 	}
 
-	public Object visit(ASTSubClassDecl node, Object data){
-		return new StringBuilder();
-	}
+	
 
 	private Set<Symbol> getArgNames(String className, String methodName){
 		SymbolTable methodsTable = ((ClassData)symbolTable.lookup(className)).methodsTable;
@@ -290,11 +288,16 @@ public class JVMVisitor extends VisitorAdapter{
 	}	
 
 	private String getVarType(Context context, SimpleNode node){
+		System.out.println(context);
 		ClassData classData = (ClassData) symbolTable.lookup(context.className);
-		MethodData methodData = (MethodData) classData.methodsTable.lookup(context.methodName);
+		MethodData methodData = null;
+		if(context.methodName != null){
+			methodData = (MethodData) classData.methodsTable.lookup(context.methodName);
+		} 
 		String varType;
-		if((varType = (String)methodData.localsTable.lookup(context.varName)) == null){
-			if((varType = (String)methodData.paramsTable.lookup(context.varName)) == null){
+		if(methodData == null || (varType = (String)methodData.localsTable.lookup(context.varName)) == null){
+			//methodData == null if this is called from a classfield varDecl
+			if(methodData == null || (varType = (String)methodData.paramsTable.lookup(context.varName)) == null){
 				if((varType = (String)classData.fieldsTable.lookup(context.varName)) == null){
 					if(classData.hasSuperClass){
 						Context superClassContext = new Context(classData.superClass, "", context.varName);
@@ -309,18 +312,24 @@ public class JVMVisitor extends VisitorAdapter{
 	}
 
 	private String getMethodType(Context context){
-		ClassData classData = (ClassData) symbolTable.lookup(context.className);
-		MethodData methodData = (MethodData) classData.methodsTable.lookup(context.methodName);
-		return methodData.returnType;
+		return getMethodData(context).returnType;
 	}
 
 	private List<String> getMethodParamTypes(Context context){
-		
+		return getMethodData(context).paramTypes;	
+	}
 
+	private MethodData getMethodData(Context context){
 		ClassData classData = (ClassData) symbolTable.lookup(context.className);
-		MethodData methodData = (MethodData) classData.methodsTable.lookup(context.methodName);
-		return methodData.paramTypes;
+		MethodData methodData = (MethodData) classData.methodsTable.lookup(context.methodName);	
+		while(methodData == null && classData.hasSuperClass){
+			System.out.println("superclassname: " + classData.superClass); //TODO
+			classData = (ClassData) symbolTable.lookup(classData.superClass);
+			System.out.println("superclassname2: " + classData.superClass); //TODO
+			methodData = (MethodData) classData.methodsTable.lookup(context.methodName);	
 
+		}
+		return methodData;
 	}
 
 
@@ -361,6 +370,52 @@ public class JVMVisitor extends VisitorAdapter{
 		StringBuilder code = new StringBuilder();
 		code.append(exprCode);
 		code.append(varAccess);
+		return code;
+	}
+
+	public Object visit(ASTNewIntArray node, Object data){
+		StringBuilder code = new StringBuilder();
+		SimpleNode arrayLen = (SimpleNode) node.jjtGetChild(0);
+		code.append((StringBuilder) arrayLen.jjtAccept(this, data));
+		code.append("newarray I\n");
+		return code;
+	}
+
+	public Object visit(ASTArrayAssignment node, Object data){
+		SimpleNode varNameId = (SimpleNode) node.jjtGetChild(0);
+		SimpleNode index = (SimpleNode) node.jjtGetChild(1);
+		SimpleNode value = (SimpleNode) node.jjtGetChild(2);
+
+		StringBuilder code = new StringBuilder();
+		code.append((StringBuilder)varNameId.jjtAccept(this,data));
+		code.append((StringBuilder)index.jjtAccept(this,data));
+		code.append((StringBuilder)value.jjtAccept(this,data));
+		code.append("iastore");
+		return code;
+	}
+
+	public Object visit(ASTArrayAccess node, Object data){
+		StringBuilder code = new StringBuilder();
+		code.append((StringBuilder)node.jjtGetChild(0).jjtAccept(this,data));//arrayref
+		code.append((StringBuilder)node.jjtGetChild(1).jjtAccept(this,data));//index
+		code.append("iaload");
+		return code;		
+	}
+
+	public Object visit(ASTThis node, Object data){
+		return new StringBuilder("aload_0 ; put 'this' on stack\n"); //TODO 'this' is stored in var0, right?
+	}
+
+	public Object visit(ASTNegExpr node, Object data){
+		StringBuilder code = new StringBuilder("iconst_m1 ; put -1 on stack\n");
+		code.append("imul\n");
+		return code;
+	}
+
+	public Object visit(ASTArrayLength node, Object data){
+		StringBuilder code = new StringBuilder();
+		code.append((StringBuilder)node.jjtGetChild(0).jjtAccept(this,data)); //Expr
+		code.append("arraylength\n");
 		return code;
 	}
 
