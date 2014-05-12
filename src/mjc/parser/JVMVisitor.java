@@ -287,7 +287,7 @@ public class JVMVisitor extends VisitorAdapter{
 		context.addLocal(argName);
 
 		int stackSize = 100;
-		int numLocals = 10;
+		int numLocals = 20;
 		code.append("\n   .limit stack " + stackSize + "\n");
 		code.append("   .limit locals " + numLocals + "\n\n");
 		StringBuilder bodyCode = (StringBuilder) body.jjtAccept(this, context);
