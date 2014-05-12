@@ -119,7 +119,7 @@ public class JVMVisitor extends VisitorAdapter{
 			context.addLocal(argName.toString());
 		}
 
-		code.append("\n.method public " + methodName + "(" + argsCode.toString() + ")" + typeString);
+		code.append("\n.method public " + cleanVarName(methodName) + "(" + argsCode.toString() + ")" + typeString);
 		int stackSize = 100;
 		int numLocals = 20;
 		code.append("\n   .limit stack " + stackSize + "\n");
@@ -230,7 +230,7 @@ public class JVMVisitor extends VisitorAdapter{
 			argsCode.append(typeToJasminType(argType));
 		}
 		String returnTypeString = typeToJasminType(getMethodType(context));
-		code.append("   invokevirtual " + className + "/" + methodName + "(" + argsCode + ")" + returnTypeString + "\n");
+		code.append("   invokevirtual " + className + "/" + cleanVarName(methodName) + "(" + argsCode + ")" + returnTypeString + "\n");
 		return code;
 	}
 
