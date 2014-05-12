@@ -17,7 +17,7 @@ public class ParseTree {
         return parseTree;
     }
 
-    static void dumpTree(SimpleNode root){
+    public static void dumpTree(SimpleNode root){
         dump(root, "");
     }
 
@@ -28,7 +28,7 @@ public class ParseTree {
           for (int i = 0; i < root.children.length; ++i) {
             SimpleNode n = (SimpleNode)root.children[i];
             if (n != null) {
-              dump(n, prefix + "     ");
+              dump(n, prefix + "  ");
             }
           }
         }
