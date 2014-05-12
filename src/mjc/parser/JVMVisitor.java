@@ -67,7 +67,6 @@ public class JVMVisitor extends VisitorAdapter{
 		code.append(".end method\n");
 		code.append(mainMethodCode);
 		return new ClassFile(className, code.toString());
-		//return code.toString();
 	}
 
 
@@ -75,7 +74,6 @@ public class JVMVisitor extends VisitorAdapter{
 	public Object visit(ASTMainMethod node, Object data){
 		StringBuilder code = new StringBuilder();
 		code.append("\n.method public static main([Ljava/lang/String;)V\n");
-		//visit children
 		SimpleNode body = (SimpleNode) node.jjtGetChild(1);
 		JVMContext context = new JVMContext((Context) data);
 		context.methodName = "main";
@@ -146,8 +144,6 @@ public class JVMVisitor extends VisitorAdapter{
 		return code;
 	}
 
-
-
 	private String typeToJasminType(String type){
 		if(type.equals("int")){
 			return "I";
@@ -161,9 +157,6 @@ public class JVMVisitor extends VisitorAdapter{
 		return "L" + type + ";"; //TODO
 	}
 
-
-
-
 	public Object visit(ASTClassDecls node, Object data){
 		List<ClassFile> classFiles = new ArrayList<ClassFile>();
 		for(int i = 0; i < node.jjtGetNumChildren(); i++){
@@ -172,8 +165,6 @@ public class JVMVisitor extends VisitorAdapter{
 		}
 		return classFiles;
 	}
-
-
 
 	public Object visit(ASTClassDecl node, Object data){
 		return visitClassDecl(node, data, "java/lang/Object", false);
@@ -211,7 +202,6 @@ public class JVMVisitor extends VisitorAdapter{
 		code.append("   return\n");
 		code.append(".end method\n");
 		code.append(methodsCode);	
-	
 		
 		return new ClassFile(className, code.toString());
 	}
@@ -239,8 +229,6 @@ public class JVMVisitor extends VisitorAdapter{
 		code.append(expsCode);
 		String methodName = getVal(methodNameId);
 		String className = (String) obj.jjtAccept(typeCheckVisitor, new TypeCheckVisitor.ExprInput((Context)data, null));
-		//System.out.println("className = " + className); //TODO
-		//String className = "Other"; //TODO Have to get classname here somehow, problematic since obj comes from an Expression
 		StringBuilder argsCode = new StringBuilder();
 		JVMContext context = new JVMContext(new Context(className, methodName));
 		for(String argType : getMethodParamTypes(context)){
@@ -279,8 +267,6 @@ public class JVMVisitor extends VisitorAdapter{
 		return ".field private " + varName + " " + varType + " = 0\n";
 	}
 
-	
-
 	private Set<Symbol> getArgNames(String className, String methodName){
 		SymbolTable methodsTable = ((ClassData)symbolTable.lookup(className)).methodsTable;
 		SymbolTable paramsTable = ((MethodData)methodsTable.lookup(methodName)).paramsTable;
@@ -294,7 +280,6 @@ public class JVMVisitor extends VisitorAdapter{
 	}	
 
 	private String getVarType(Context context, SimpleNode node){
-		//System.out.println(context);
 		ClassData classData = (ClassData) symbolTable.lookup(context.className);
 		MethodData methodData = null;
 		if(context.methodName != null){
@@ -347,7 +332,6 @@ public class JVMVisitor extends VisitorAdapter{
 		for(Symbol name : localNames){
 			context.addLocal(name.toString());
 		}
-		// HashMap<String, Integer> varMappings = (HashMap<String,Integer>)varDecls.jjtAccept(this, data);
 		StringBuilder code = (StringBuilder) stmts.jjtAccept(this, context);
 		return code;
 	}
@@ -641,10 +625,6 @@ public class JVMVisitor extends VisitorAdapter{
 		return node.jjtGetChild(0).jjtAccept(this, data);
 	}
 
-	
-
-	
-
 	private boolean isField(JVMContext context, String varName){
 		ClassData classData = (ClassData) symbolTable.lookup(context.className);
 		MethodData methodData = (MethodData) classData.methodsTable.lookup(context.methodName);
@@ -670,13 +650,6 @@ public class JVMVisitor extends VisitorAdapter{
 			StringBuilder code = new StringBuilder();
 			code.append("   aload_0 ; this\n");
 			code.append("   getfield " + context.className + "/" + varName + " ");
-			// if(varType.equals("int") || varType.equals("boolean")) {
-			// 	code.append("I");
-			// }else if(varType.equals("int[]")){
-			// 	code.append("[I");
-			// }else{
-			// 	code.append("L" + varType);
-			// }
 			code.append(typeToJasminType(varType));
 			code.append("\n");
 			return code;
@@ -710,13 +683,6 @@ public class JVMVisitor extends VisitorAdapter{
 			StringBuilder code = new StringBuilder("   aload_0 ; this\n");
 			code.append("   swap ; value, objectref -> objectref, value\n"); //"this" and value are in wrong order on stack
 			code.append("   putfield " + context.className + "/" + varName + " ");
-			// if(varType.equals("int") || varType.equals("boolean")) {
-			// 	code.append("I");
-			// }else if(varType.equals("int[]")){
-			// 	code.append("[I");
-			// }else{
-			// 	code.append("L" + varType);
-			// }
 			code.append(typeToJasminType(varType));
 			code.append("\n");
 			return code ;
