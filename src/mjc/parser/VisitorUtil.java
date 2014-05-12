@@ -74,6 +74,7 @@ public class VisitorUtil{
 		public String className;
 		public String methodName;
 		public String varName;
+		public boolean isStatic;
 
 		Context(String c){
 			this(c, null,null);

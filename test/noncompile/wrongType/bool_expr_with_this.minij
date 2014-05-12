@@ -1,10 +1,15 @@
 class Main {
 	public static void main(String[] args) {
+	}
+}
+
+class A{
+	public int func(){
 		int b;
 		b = 5;
-
 		if(b < this) {
 			b = 4;
 		}
+		return b;
 	}
 }

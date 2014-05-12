@@ -27,11 +27,14 @@ public class TypeCheckVisitor extends VisitorAdapter{
 	public Object visit(ASTMainClass node, Object data){
 		String className = getVal(node.jjtGetChild(0));
 		Node mainMethod = node.jjtGetChild(1);
-		return mainMethod.jjtAccept(this, new Context(className, "main"));
+		Context context =  new Context(className, "main");
+		context.isStatic = true;
+		return mainMethod.jjtAccept(this, context);
 	}
 
 	public Object visit(ASTMainMethod node, Object data){
 		Node body = node.jjtGetChild(1);
+
 		return body.jjtAccept(this, data);
 	}
 
@@ -535,6 +538,10 @@ public class TypeCheckVisitor extends VisitorAdapter{
 	
 	public Object visit(ASTThis node, Object data){
 		ExprInput input = assertExprInput(data);
+		if(input.context.isStatic){
+			input.context.varName = "this";
+			throw new ReferencedMissingVariable(input.context, node);
+		}
 		String currentClass = input.context.className;
 		checkExpectedType(input, currentClass, node);
 		return currentClass;
