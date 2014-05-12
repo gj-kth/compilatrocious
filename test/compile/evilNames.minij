@@ -1,0 +1,23 @@
+// EXT:ICG
+// EXT:ISC
+
+class Main {
+	public static void main(String[] args) {
+		ret ret;
+		putstatic getfield;
+		ret = new ret();
+		getfield = new putstatic();
+	}
+}
+
+class ret{
+	int newarray;
+}
+
+class putstatic extends ret {
+	public ret invokevirtual() {
+		ret a;
+		a = new ret();
+		return a;
+	}
+}

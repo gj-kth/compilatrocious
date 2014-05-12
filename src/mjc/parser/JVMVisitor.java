@@ -5,6 +5,214 @@ import java.lang.*;
 import mjc.parser.VisitorUtil.*;
 
 public class JVMVisitor extends VisitorAdapter{
+
+	private List<String> conflicingNames = Arrays.asList(
+		"aaload",
+		"aastore",
+		"aconst_null",
+		"aload",
+		"aload_0",
+		"aload_1",
+		"aload_2",
+		"aload_3",
+		"anewarray",
+		"areturn",
+		"arraylength",
+		"astore",
+		"astore_0",
+		"astore_1",
+		"astore_2",
+		"astore_3",
+		"athrow",
+		"baload",
+		"bastore",
+		"bipush",
+		"breakpoint",
+		"caload",
+		"castore",
+		"checkcast",
+		"d2f",
+		"d2i",
+		"d2l",
+		"dadd",
+		"daload",
+		"dastore",
+		"dcmpg",
+		"dcmpl",
+		"dconst_0",
+		"dconst_1",
+		"ddiv",
+		"dload",
+		"dload_0",
+		"dload_1",
+		"dload_2",
+		"dload_3",
+		"dmul",
+		"dneg",
+		"drem",
+		"dreturn",
+		"dstore",
+		"dstore_0",
+		"dstore_1",
+		"dstore_2",
+		"dstore_3",
+		"dsub",
+		"dup",
+		"dup_x1",
+		"dup_x2",
+		"dup2",
+		"dup2_x1",
+		"dup2_x2",
+		"f2d",
+		"f2i",
+		"f2l",
+		"fadd",
+		"faload",
+		"fastore",
+		"fcmpg",
+		"fcmpl",
+		"fconst_0",
+		"fconst_1",
+		"fconst_2",
+		"fdiv",
+		"fload",
+		"fload_0",
+		"fload_1",
+		"fload_2",
+		"fload_3",
+		"fmul",
+		"fneg",
+		"frem",
+		"freturn",
+		"fstore",
+		"fstore_0",
+		"fstore_1",
+		"fstore_2",
+		"fstore_3",
+		"fsub",
+		"getfield",
+		"getstatic",
+		"goto",
+		"goto_w",
+		"i2b",
+		"i2c",
+		"i2d",
+		"i2f",
+		"i2l",
+		"i2s",
+		"iadd",
+		"iaload",
+		"iand",
+		"iastore",
+		"iconst_m1",
+		"iconst_0",
+		"iconst_1",
+		"iconst_2",
+		"iconst_3",
+		"iconst_4",
+		"iconst_5",
+		"idiv",
+		"if_acmpeq",
+		"if_acmpne",
+		"if_icmpeq",
+		"if_icmpge",
+		"if_icmpgt",
+		"if_icmple",
+		"if_icmplt",
+		"if_icmpne",
+		"ifeq",
+		"ifge",
+		"ifgt",
+		"ifle",
+		"iflt",
+		"ifne",
+		"ifnonnull",
+		"ifnull",
+		"iinc",
+		"iload",
+		"iload_0",
+		"iload_1",
+		"iload_2",
+		"iload_3",
+		"impdep1",
+		"impdep2",
+		"imul",
+		"ineg",
+		"instanceof",
+		"invokedynamic",
+		"invokeinterface",
+		"invokespecial",
+		"invokestatic",
+		"invokevirtual",
+		"ior",
+		"irem",
+		"ireturn",
+		"ishl",
+		"ishr",
+		"istore",
+		"istore_0",
+		"istore_1",
+		"istore_2",
+		"istore_3",
+		"isub",
+		"iushr",
+		"ixor",
+		"jsr",
+		"jsr_w",
+		"l2d",
+		"l2f",
+		"l2i",
+		"ladd",
+		"laload",
+		"land",
+		"lastore",
+		"lcmp",
+		"lconst_0",
+		"lconst_1",
+		"ldc",
+		"ldc_w",
+		"ldc2_w",
+		"ldiv",
+		"lload",
+		"lload_0",
+		"lload_1",
+		"lload_2",
+		"lload_3",
+		"lmul",
+		"lneg",
+		"lookupswitch",
+		"lor",
+		"lrem",
+		"lreturn",
+		"lshl",
+		"lshr",
+		"lstore",
+		"lstore_0",
+		"lstore_1",
+		"lstore_2",
+		"lstore_3",
+		"lsub",
+		"lushr",
+		"lxor",
+		"monitorenter",
+		"monitorexit",
+		"multianewarray",
+		"new",
+		"newarray",
+		"nop",
+		"pop",
+		"pop2",
+		"putfield",
+		"putstatic",
+		"ret",
+		"return",
+		"saload",
+		"sastore",
+		"sipush",
+		"swap",
+		"tableswitch",
+		"wide"
+	);
 	
 	private SymbolTable symbolTable;
 
@@ -55,7 +263,7 @@ public class JVMVisitor extends VisitorAdapter{
 		Node mainMethod = node.children[1];
 		StringBuilder mainMethodCode = (StringBuilder) mainMethod.jjtAccept(this, new Context(className));
 		StringBuilder code = new StringBuilder();
-		code.append(".class " + className + "\n");
+		code.append(".class " + cleanName(className) + "\n");
 		code.append(".super java/lang/Object\n");
 		code.append("\n; default constructor\n");
 		code.append(".method public <init>()V\n");
@@ -119,7 +327,7 @@ public class JVMVisitor extends VisitorAdapter{
 			context.addLocal(argName.toString());
 		}
 
-		code.append("\n.method public " + cleanVarName(methodName) + "(" + argsCode.toString() + ")" + typeString);
+		code.append("\n.method public " + cleanName(methodName) + "(" + argsCode.toString() + ")" + typeString);
 		int stackSize = 100;
 		int numLocals = 20;
 		code.append("\n   .limit stack " + stackSize + "\n");
@@ -178,8 +386,8 @@ public class JVMVisitor extends VisitorAdapter{
 		String className = getVal(classNameId);
 		Context context = new Context(className);
 		StringBuilder code = new StringBuilder();
-		code.append(".class " + className + "\n");
-		code.append(".super " + superClass + "\n");
+		code.append(".class " + cleanName(className) + "\n");
+		code.append(".super " + cleanName(superClass) + "\n");
 		SimpleNode varDecls = (SimpleNode) node.jjtGetChild(1 + (isSubClass? 1 : 0)); 
 		SimpleNode methodDecls = (SimpleNode) node.jjtGetChild(2 + (isSubClass? 1 : 0));
 		StringBuilder methodsCode = (StringBuilder) methodDecls.jjtAccept(this, context);
@@ -207,9 +415,9 @@ public class JVMVisitor extends VisitorAdapter{
 		String className = getVal(classNameId);
 
 		code.append("   ; create an " + className + " object on top of stack\n");
-		code.append("   new " + className + "\n");
+		code.append("   new " + cleanName(className) + "\n");
 		code.append("   dup\n");
-		code.append("   invokespecial " + className + "/<init>()V ; call constructor\n");
+		code.append("   invokespecial " + cleanName(className) + "/<init>()V ; call constructor\n");
 		return code;
 	}
 
@@ -230,7 +438,7 @@ public class JVMVisitor extends VisitorAdapter{
 			argsCode.append(typeToJasminType(argType));
 		}
 		String returnTypeString = typeToJasminType(getMethodType(context));
-		code.append("   invokevirtual " + className + "/" + cleanVarName(methodName) + "(" + argsCode + ")" + returnTypeString + "\n");
+		code.append("   invokevirtual " + cleanName(className) + "/" + cleanName(methodName) + "(" + argsCode + ")" + returnTypeString + "\n");
 		return code;
 	}
 
@@ -259,11 +467,11 @@ public class JVMVisitor extends VisitorAdapter{
 		context.varName = varName;
 		String varType = getVarType(context, node);
 		varType = typeToJasminType(varType);
-		return ".field private " + cleanVarName(varName) + " " + varType + " = 0\n";
+		return ".field private " + cleanName(varName) + " " + varType + " = 0\n";
 	}
 
-	private String cleanVarName(String varName){
-		if(Arrays.asList("field","param").contains(varName)){
+	private String cleanName(String varName){
+		if(conflicingNames.contains(varName)){
 			return varName + "_CLEANED";
 		}
 		return varName;
@@ -651,16 +859,16 @@ public class JVMVisitor extends VisitorAdapter{
 		if(isField(context, varName)){
 			StringBuilder code = new StringBuilder();
 			code.append("   aload_0 ; this\n");
-			code.append("   getfield " + context.className + "/" + cleanVarName(varName) + " ");
+			code.append("   getfield " + cleanName(context.className) + "/" + cleanName(varName) + " ");
 			code.append(typeToJasminType(varType));
 			code.append("\n");
 			return code;
 		}else{
 			int varNumber = context.locals.get(varName);
 			if(varType.equals("int") || varType.equals("boolean")) {
-				return new StringBuilder("   iload" + (varNumber < 4 ? "_" : " ") + varNumber + " ; " + cleanVarName(varName) + "\n");
+				return new StringBuilder("   iload" + (varNumber < 4 ? "_" : " ") + varNumber + " ; " + cleanName(varName) + "\n");
 			}else{
-				return new StringBuilder("   aload" + (varNumber < 4 ? "_" : " ") + varNumber + " ; " + cleanVarName(varName) + "\n");
+				return new StringBuilder("   aload" + (varNumber < 4 ? "_" : " ") + varNumber + " ; " + cleanName(varName) + "\n");
 			}
 		}
 	}
@@ -684,16 +892,16 @@ public class JVMVisitor extends VisitorAdapter{
 		if(isField(context, varName)){
 			StringBuilder code = new StringBuilder("   aload_0 ; this\n");
 			code.append("   swap ; value, objectref -> objectref, value\n"); //"this" and value are in wrong order on stack
-			code.append("   putfield " + context.className + "/" + cleanVarName(varName) + " ");
+			code.append("   putfield " + cleanName(context.className) + "/" + cleanName(varName) + " ");
 			code.append(typeToJasminType(varType));
 			code.append("\n");
 			return code ;
 		}else{
 			int varNumber = context.locals.get(varName);
 			if(varType.equals("int") || varType.equals("boolean")) {
-				return new StringBuilder("   istore" + (varNumber < 4 ? "_" : " ") + varNumber + " ; " + cleanVarName(varName) + "\n");
+				return new StringBuilder("   istore" + (varNumber < 4 ? "_" : " ") + varNumber + " ; " + cleanName(varName) + "\n");
 			}else{
-				return new StringBuilder("   astore" + (varNumber < 4 ? "_" : " ") + varNumber + " ; " + cleanVarName(varName) + "\n");
+				return new StringBuilder("   astore" + (varNumber < 4 ? "_" : " ") + varNumber + " ; " + cleanName(varName) + "\n");
 			}
 		}
 	}
