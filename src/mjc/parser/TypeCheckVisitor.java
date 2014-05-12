@@ -219,7 +219,7 @@ public class TypeCheckVisitor extends VisitorAdapter{
 	
 	public Object visit(ASTPrint node, Object data){
 		Context context = assertDataContext(data);
-		return node.jjtGetChild(0).jjtAccept(this, new ExprInput(context, "int"));
+		return node.jjtGetChild(0).jjtAccept(this, new ExprInput(context, null));
 	}
 	
 	

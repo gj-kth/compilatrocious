@@ -6,7 +6,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.*;
 
-class JVMMain {
+public class JVMMain {
 
     public static void main(String[] args) {
         if(args.length < 1) {
@@ -14,14 +14,20 @@ class JVMMain {
             System.exit(1);
         }
 
-		boolean genAsm = false;
-		for(String arg : args) {
-			if(arg.equals("-S"))
-				genAsm = true;
-		}
+        boolean genAsm = false;
+        for(String arg : args) {
+            if(arg.equals("-S"))
+                genAsm = true;
+        }
 
         
         String in_file = args[0];
+        compile(in_file, genAsm);
+        System.exit(0);
+    }
+
+    public static void compile(String in_file, boolean genAsm){
+
         System.out.println(in_file);
 
 
@@ -36,6 +42,7 @@ class JVMMain {
 
             try{
                 SimpleNode tree = ParseTree.parse(source);
+                //ParseTree.dumpTree(tree);
                 source.close();
 
                 // Type check
@@ -45,14 +52,15 @@ class JVMMain {
                 TypeCheckVisitor visitor2 = new TypeCheckVisitor(symbolTable);
                 tree.jjtAccept(visitor2, null);
 
-				if(genAsm) {
+                if(genAsm) {
                     System.out.println("visiting");
-					JVMVisitor visitor3 = new JVMVisitor(symbolTable); 
+                    JVMVisitor visitor3 = new JVMVisitor(symbolTable); 
                     classFiles = (List<ClassFile>) tree.jjtAccept(visitor3, null);
-				}
+                }
 
             }catch(TypecheckError | ParseException | TokenMgrError | IOException e) {
                 //e.printStackTrace();
+
                 printError(e);
                 System.exit(1);
             }
@@ -62,13 +70,13 @@ class JVMMain {
             System.exit(1);
         }
 
-		if(genAsm) {
-        	// Dummy program
-        	//String program = sb.toString();
+        if(genAsm) {
+            // Dummy program
+            //String program = sb.toString();
 
             PrintWriter destination;
 
-        	// Get filename
+            // Get filename
             for(ClassFile classFile : classFiles){
                 try{
                     destination = new PrintWriter("./" + classFile.fileName + ".j");
@@ -80,25 +88,23 @@ class JVMMain {
                 }
             }
 
-        	// String[] path = in_file.split("[/\\.]");
-        	// String out_file = path[path.length-2]+".j";
+            // String[] path = in_file.split("[/\\.]");
+            // String out_file = path[path.length-2]+".j";
 
          //    System.out.println(out_file);
-        	// PrintWriter destination;
+            // PrintWriter destination;
 
-        	// try{
-         //    	destination = new PrintWriter("./" + out_file);
+            // try{
+         //     destination = new PrintWriter("./" + out_file);
 
-         //    	//destination.print(program);
-         //    	destination.close();
+         //     //destination.print(program);
+         //     destination.close();
 
-        	// }catch(Exception e){
-         //    	e.printStackTrace();
-         //    	System.exit(1);
-        	// }
-		}
-
-        System.exit(0);
+            // }catch(Exception e){
+         //     e.printStackTrace();
+         //     System.exit(1);
+            // }
+        }
     }
 
     private static void printError(Throwable e) {

@@ -70,9 +70,11 @@ public class JVMVisitor extends VisitorAdapter{
 		//return code.toString();
 	}
 
+
+
 	public Object visit(ASTMainMethod node, Object data){
 		StringBuilder code = new StringBuilder();
-		code.append(".method public static main([Ljava/lang/String;)V\n");
+		code.append("\n.method public static main([Ljava/lang/String;)V\n");
 		//visit children
 		SimpleNode body = (SimpleNode) node.jjtGetChild(1);
 		JVMContext context = new JVMContext((Context) data);
@@ -124,7 +126,7 @@ public class JVMVisitor extends VisitorAdapter{
 		}
 
 		
-		code.append(".method public " + methodName + "(" + argsCode.toString() + ")" + typeString);
+		code.append("\n.method public " + methodName + "(" + argsCode.toString() + ")" + typeString);
 		int stackSize = 100;
 		int numLocals = 20;
 		code.append("\n   .limit stack " + stackSize + "\n");
@@ -156,7 +158,7 @@ public class JVMVisitor extends VisitorAdapter{
 		if(type.equals("int[]")){
 			return "[I"; //TODO Correct ?
 		}
-		return type;
+		return "L" + type + ";"; //TODO
 	}
 
 
@@ -184,6 +186,7 @@ public class JVMVisitor extends VisitorAdapter{
 	}
 
 	private ClassFile visitClassDecl(SimpleNode node, Object data, String superClass, boolean isSubClass){
+
 		Node classNameId = node.children[0];
 		IdentifierInput input = new IdentifierInput(null, IdentifierInput.GET_NAME);
 		String className = getVal(classNameId);
@@ -195,14 +198,21 @@ public class JVMVisitor extends VisitorAdapter{
 		SimpleNode methodDecls = (SimpleNode) node.jjtGetChild(2 + (isSubClass? 1 : 0));
 		StringBuilder methodsCode = (StringBuilder) methodDecls.jjtAccept(this, context);
 		StringBuilder varsCode = (StringBuilder) varDecls.jjtAccept(this, context);
+		
 		code.append(varsCode);
 		code.append("\n; default constructor\n");
 		code.append(".method public <init>()V\n");
 		code.append("   aload_0\n");
-		code.append("   invokespecial java/lang/Object/<init>()V\n");
+		if(!isSubClass){			
+			code.append("   invokespecial java/lang/Object/<init>()V\n");
+		}else{
+			code.append("   invokespecial " + superClass + "/<init>()V\n");
+		}
 		code.append("   return\n");
 		code.append(".end method\n");
-		code.append(methodsCode);
+		code.append(methodsCode);	
+	
+		
 		return new ClassFile(className, code.toString());
 	}
 
@@ -229,7 +239,7 @@ public class JVMVisitor extends VisitorAdapter{
 		code.append(expsCode);
 		String methodName = getVal(methodNameId);
 		String className = (String) obj.jjtAccept(typeCheckVisitor, new TypeCheckVisitor.ExprInput((Context)data, null));
-		System.out.println("className = " + className); //TODO
+		//System.out.println("className = " + className); //TODO
 		//String className = "Other"; //TODO Have to get classname here somehow, problematic since obj comes from an Expression
 		StringBuilder argsCode = new StringBuilder();
 		JVMContext context = new JVMContext(new Context(className, methodName));
@@ -265,12 +275,8 @@ public class JVMVisitor extends VisitorAdapter{
 		Context context = (Context) data;
 		context.varName = varName;
 		String varType = getVarType(context, node);
-		if(varType.equals("int[]")){
-			varType = "[I";
-		}else if(varType.equals("int") || varType.equals("boolean")){
-			varType = "I";
-		}
-		return ".field private " + varName + " " + varType + " = 0";
+		varType = typeToJasminType(varType);
+		return ".field private " + varName + " " + varType + " = 0\n";
 	}
 
 	
@@ -288,7 +294,7 @@ public class JVMVisitor extends VisitorAdapter{
 	}	
 
 	private String getVarType(Context context, SimpleNode node){
-		System.out.println(context);
+		//System.out.println(context);
 		ClassData classData = (ClassData) symbolTable.lookup(context.className);
 		MethodData methodData = null;
 		if(context.methodName != null){
@@ -323,9 +329,9 @@ public class JVMVisitor extends VisitorAdapter{
 		ClassData classData = (ClassData) symbolTable.lookup(context.className);
 		MethodData methodData = (MethodData) classData.methodsTable.lookup(context.methodName);	
 		while(methodData == null && classData.hasSuperClass){
-			System.out.println("superclassname: " + classData.superClass); //TODO
+			//System.out.println("superclassname: " + classData.superClass); //TODO
 			classData = (ClassData) symbolTable.lookup(classData.superClass);
-			System.out.println("superclassname2: " + classData.superClass); //TODO
+			//System.out.println("superclassname2: " + classData.superClass); //TODO
 			methodData = (MethodData) classData.methodsTable.lookup(context.methodName);	
 
 		}
@@ -351,9 +357,20 @@ public class JVMVisitor extends VisitorAdapter{
 		StringBuilder code = new StringBuilder();
 		for(int i = 0; i < node.jjtGetNumChildren(); i++){
 			Node stmt = node.jjtGetChild(i);
+			inheritLineNumber(stmt, stmt.jjtGetChild(0));
 			code.append((StringBuilder) stmt.jjtGetChild(0).jjtAccept(this,data));
 		}
 		return code;
+	}
+
+	private void inheritLineNumber(Node parent, Node child){
+
+		if(((SimpleNode)parent).value != null){
+			// System.out.println(((Token)((SimpleNode)parent).value).beginLine);
+			((Token)((SimpleNode)child).value).beginLine = ((Token)((SimpleNode)parent).value).beginLine;	
+		}else{
+			// System.out.println("No line number for parent");
+		}
 	}
 
 	public Object visit(ASTSingleAssignment node, Object data){
@@ -377,7 +394,7 @@ public class JVMVisitor extends VisitorAdapter{
 		StringBuilder code = new StringBuilder();
 		SimpleNode arrayLen = (SimpleNode) node.jjtGetChild(0);
 		code.append((StringBuilder) arrayLen.jjtAccept(this, data));
-		code.append("newarray I\n");
+		code.append("   newarray int\n");
 		return code;
 	}
 
@@ -390,7 +407,7 @@ public class JVMVisitor extends VisitorAdapter{
 		code.append((StringBuilder)varNameId.jjtAccept(this,data));
 		code.append((StringBuilder)index.jjtAccept(this,data));
 		code.append((StringBuilder)value.jjtAccept(this,data));
-		code.append("iastore");
+		code.append("   iastore\n");
 		return code;
 	}
 
@@ -398,17 +415,20 @@ public class JVMVisitor extends VisitorAdapter{
 		StringBuilder code = new StringBuilder();
 		code.append((StringBuilder)node.jjtGetChild(0).jjtAccept(this,data));//arrayref
 		code.append((StringBuilder)node.jjtGetChild(1).jjtAccept(this,data));//index
-		code.append("iaload");
+		code.append("   iaload\n");
 		return code;		
 	}
 
 	public Object visit(ASTThis node, Object data){
-		return new StringBuilder("aload_0 ; put 'this' on stack\n"); //TODO 'this' is stored in var0, right?
+		return new StringBuilder("   aload_0 ; put 'this' on stack\n"); //TODO 'this' is stored in var0, right?
 	}
 
 	public Object visit(ASTNegExpr node, Object data){
-		StringBuilder code = new StringBuilder("iconst_m1 ; put -1 on stack\n");
-		code.append("imul\n");
+		SimpleNode boolExpr = (SimpleNode) node.jjtGetChild(0);
+		StringBuilder code = new StringBuilder();
+		code.append(boolExpr.jjtAccept(this, data));
+		code.append("   iconst_m1 ; put -1 on stack\n");
+		code.append("   imul\n");
 		return code;
 	}
 
@@ -521,7 +541,8 @@ public class JVMVisitor extends VisitorAdapter{
 		code.append((StringBuilder) leftExp.jjtAccept(this,data)); 
 		code.append((StringBuilder) rightExp.jjtAccept(this,data));
 
-		code.append("   " + comparison + " trueCmp_" + branchNum + "\n");
+		String lineStr = node.value != null ? "line " + ((Token)node.value).beginLine : "unknown line";
+		code.append("   " + comparison + " trueCmp_" + branchNum + " ; " + lineStr  + "\n");
 		code.append("   iconst_0\n");
 		code.append("   goto doneCmp_" + branchNum + "\n");
 		code.append("trueCmp_" + branchNum + ":\n");
@@ -532,6 +553,9 @@ public class JVMVisitor extends VisitorAdapter{
 
 	public Object visit(ASTIfElse node, Object data){
 		SimpleNode exp = (SimpleNode) node.jjtGetChild(0).jjtGetChild(0);
+
+		inheritLineNumber(node, exp);
+
 		SimpleNode ifStmt = (SimpleNode) node.jjtGetChild(1).jjtGetChild(0);
 		SimpleNode elseStmt = (SimpleNode) node.jjtGetChild(2).jjtGetChild(0);
 		StringBuilder expCode = (StringBuilder) exp.jjtAccept(this, data);
@@ -556,6 +580,7 @@ public class JVMVisitor extends VisitorAdapter{
 
 	public Object visit(ASTIf node, Object data){
 		SimpleNode exp = (SimpleNode) node.jjtGetChild(0).jjtGetChild(0);
+		inheritLineNumber(node, exp);
 		SimpleNode ifStmt = (SimpleNode) node.jjtGetChild(1).jjtGetChild(0);
 		StringBuilder expCode = (StringBuilder) exp.jjtAccept(this, data);
 		int branchNum = globalNumBranches;
@@ -572,6 +597,7 @@ public class JVMVisitor extends VisitorAdapter{
 
 	public Object visit(ASTWhile node, Object data){
 		SimpleNode exp = (SimpleNode) node.jjtGetChild(0).jjtGetChild(0);
+		inheritLineNumber(node, exp);
 		SimpleNode whileStmt = (SimpleNode) node.jjtGetChild(1).jjtGetChild(0);
 		int branchNum = globalNumBranches;
 		globalNumBranches ++;
@@ -610,6 +636,8 @@ public class JVMVisitor extends VisitorAdapter{
 	}
 
 	public Object visit(ASTExpr node, Object data){
+		SimpleNode child = (SimpleNode) node.jjtGetChild(0);
+		inheritLineNumber(node, child);
 		return node.jjtGetChild(0).jjtAccept(this, data);
 	}
 
@@ -642,13 +670,14 @@ public class JVMVisitor extends VisitorAdapter{
 			StringBuilder code = new StringBuilder();
 			code.append("   aload_0 ; this\n");
 			code.append("   getfield " + context.className + "/" + varName + " ");
-			if(varType.equals("int") || varType.equals("boolean")) {
-				code.append("I");
-			}else if(varType.equals("int[]")){
-				code.append("[I");
-			}else{
-				code.append("L" + varType);
-			}
+			// if(varType.equals("int") || varType.equals("boolean")) {
+			// 	code.append("I");
+			// }else if(varType.equals("int[]")){
+			// 	code.append("[I");
+			// }else{
+			// 	code.append("L" + varType);
+			// }
+			code.append(typeToJasminType(varType));
 			code.append("\n");
 			return code;
 		}else{
@@ -681,13 +710,14 @@ public class JVMVisitor extends VisitorAdapter{
 			StringBuilder code = new StringBuilder("   aload_0 ; this\n");
 			code.append("   swap ; value, objectref -> objectref, value\n"); //"this" and value are in wrong order on stack
 			code.append("   putfield " + context.className + "/" + varName + " ");
-			if(varType.equals("int") || varType.equals("boolean")) {
-				code.append("I");
-			}else if(varType.equals("int[]")){
-				code.append("[I");
-			}else{
-				code.append("L" + varType);
-			}
+			// if(varType.equals("int") || varType.equals("boolean")) {
+			// 	code.append("I");
+			// }else if(varType.equals("int[]")){
+			// 	code.append("[I");
+			// }else{
+			// 	code.append("L" + varType);
+			// }
+			code.append(typeToJasminType(varType));
 			code.append("\n");
 			return code ;
 		}else{
