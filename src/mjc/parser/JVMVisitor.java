@@ -622,8 +622,10 @@ public class JVMVisitor extends VisitorAdapter{
 		SimpleNode boolExpr = (SimpleNode) node.jjtGetChild(0);
 		StringBuilder code = new StringBuilder();
 		code.append(boolExpr.jjtAccept(this, data));
-		code.append("   iconst_m1 ; put -1 on stack\n");
-		code.append("   imul\n");
+		code.append("   iconst_m1 ; subtract 1 from current value\n");
+		code.append("   iadd\n");
+		code.append("   iconst_m1 ; then multiply by -1\n");
+		code.append("   imul ; 0 turns to 1, 1 turns to 0.\n");
 		return code;
 	}
 
@@ -813,11 +815,27 @@ public class JVMVisitor extends VisitorAdapter{
 	public Object visit(ASTPrint node, Object data){
 		StringBuilder code = new StringBuilder();
 		SimpleNode exp = (SimpleNode) node.jjtGetChild(0).jjtGetChild(0);
+
+		int branchNum = globalNumBranches;
+		globalNumBranches ++;
+
+		code.append("   getstatic java/lang/System/out Ljava/io/PrintStream;\n");
 		StringBuilder expCode = (StringBuilder) exp.jjtAccept(this, data);
 		code.append(expCode);
-		code.append("   getstatic java/lang/System/out Ljava/io/PrintStream;\n");
-		code.append("   swap ; value, objectref -> objectref, value\n"); //"System.out" and value are in wrong order on stack
-	   	code.append("   invokevirtual java/io/PrintStream/println(I)V\n");
+		Context context = (Context) data;
+		String exprType = (String) exp.jjtAccept(typeCheckVisitor, new TypeCheckVisitor.ExprInput(context, null));
+		if(exprType.equals("boolean")){
+			code.append("   ifeq false_" + branchNum + " ; Following lines convert 0 and 1 to true and false\n");
+			code.append("   ldc \"true\"\n");
+			code.append("   goto done_" + branchNum + "\n");
+			code.append("false_" + branchNum + ":\n");
+			code.append("   ldc \"false\"\n");
+			code.append("done_" + branchNum + ": ; boolean convertion complete.\n");
+			code.append("   invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V\n");
+		}else{
+			code.append("   invokevirtual java/io/PrintStream/println(I)V\n");	
+		}
+	   	
 	   	return code;
 	}
 
