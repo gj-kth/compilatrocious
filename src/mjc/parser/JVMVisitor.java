@@ -16,7 +16,6 @@ public class JVMVisitor extends VisitorAdapter{
 	//Keeps track of how many branches there are so that every branch gets
 	//unique labels, like [else_0 and done_0], [else_1 and done_1]
 	private int globalNumBranches = 0; 
-	
 
 	public JVMVisitor(SymbolTable symbolTable){
 		this.symbolTable = symbolTable;	
@@ -36,8 +35,7 @@ public class JVMVisitor extends VisitorAdapter{
 			}
 		}else{
 			return loadVar((JVMContext)data, getVal(node));// Push value in var to stack
-		}
-		
+		}	
 	}
 
 	// returns List<ClassFile> where each string is contents of a .j-file
@@ -68,8 +66,6 @@ public class JVMVisitor extends VisitorAdapter{
 		code.append(mainMethodCode);
 		return new ClassFile(className, code.toString());
 	}
-
-
 
 	public Object visit(ASTMainMethod node, Object data){
 		StringBuilder code = new StringBuilder();
@@ -123,7 +119,6 @@ public class JVMVisitor extends VisitorAdapter{
 			context.addLocal(argName.toString());
 		}
 
-		
 		code.append("\n.method public " + methodName + "(" + argsCode.toString() + ")" + typeString);
 		int stackSize = 100;
 		int numLocals = 20;
@@ -264,7 +259,14 @@ public class JVMVisitor extends VisitorAdapter{
 		context.varName = varName;
 		String varType = getVarType(context, node);
 		varType = typeToJasminType(varType);
-		return ".field private " + varName + " " + varType + " = 0\n";
+		return ".field private " + cleanVarName(varName) + " " + varType + " = 0\n";
+	}
+
+	private String cleanVarName(String varName){
+		if(Arrays.asList("field","param").contains(varName)){
+			return varName + "_CLEANED";
+		}
+		return varName;
 	}
 
 	private Set<Symbol> getArgNames(String className, String methodName){
@@ -649,16 +651,16 @@ public class JVMVisitor extends VisitorAdapter{
 		if(isField(context, varName)){
 			StringBuilder code = new StringBuilder();
 			code.append("   aload_0 ; this\n");
-			code.append("   getfield " + context.className + "/" + varName + " ");
+			code.append("   getfield " + context.className + "/" + cleanVarName(varName) + " ");
 			code.append(typeToJasminType(varType));
 			code.append("\n");
 			return code;
 		}else{
 			int varNumber = context.locals.get(varName);
 			if(varType.equals("int") || varType.equals("boolean")) {
-				return new StringBuilder("   iload" + (varNumber < 4 ? "_" : " ") + varNumber + " ; " + varName + "\n");
+				return new StringBuilder("   iload" + (varNumber < 4 ? "_" : " ") + varNumber + " ; " + cleanVarName(varName) + "\n");
 			}else{
-				return new StringBuilder("   aload" + (varNumber < 4 ? "_" : " ") + varNumber + " ; " + varName + "\n");
+				return new StringBuilder("   aload" + (varNumber < 4 ? "_" : " ") + varNumber + " ; " + cleanVarName(varName) + "\n");
 			}
 		}
 	}
@@ -682,16 +684,16 @@ public class JVMVisitor extends VisitorAdapter{
 		if(isField(context, varName)){
 			StringBuilder code = new StringBuilder("   aload_0 ; this\n");
 			code.append("   swap ; value, objectref -> objectref, value\n"); //"this" and value are in wrong order on stack
-			code.append("   putfield " + context.className + "/" + varName + " ");
+			code.append("   putfield " + context.className + "/" + cleanVarName(varName) + " ");
 			code.append(typeToJasminType(varType));
 			code.append("\n");
 			return code ;
 		}else{
 			int varNumber = context.locals.get(varName);
 			if(varType.equals("int") || varType.equals("boolean")) {
-				return new StringBuilder("   istore" + (varNumber < 4 ? "_" : " ") + varNumber + " ; " + varName + "\n");
+				return new StringBuilder("   istore" + (varNumber < 4 ? "_" : " ") + varNumber + " ; " + cleanVarName(varName) + "\n");
 			}else{
-				return new StringBuilder("   astore" + (varNumber < 4 ? "_" : " ") + varNumber + " ; " + varName + "\n");
+				return new StringBuilder("   astore" + (varNumber < 4 ? "_" : " ") + varNumber + " ; " + cleanVarName(varName) + "\n");
 			}
 		}
 	}
