@@ -779,6 +779,19 @@ public class JVMVisitor extends VisitorAdapter{
 		SimpleNode leftExp = (SimpleNode) node.jjtGetChild(0);
 		SimpleNode rightExp = (SimpleNode) node.jjtGetChild(1);
 
+		Context context = (Context)data;
+		String exprType = (String) leftExp.jjtAccept(typeCheckVisitor, new TypeCheckVisitor.ExprInput(context, null));
+
+		if(!(exprType.equals("int") || exprType.equals("boolean"))){
+			if(comparison.equals("if_icmpeq")){
+				comparison = "if_acmpeq";
+			}else if(comparison.equals("if_icmpne")){
+				comparison = "if_acmpne";
+			}else{
+				throw new IllegalStateException(comparison);
+			}
+		}
+
 		code.append((StringBuilder) leftExp.jjtAccept(this,data)); 
 		code.append((StringBuilder) rightExp.jjtAccept(this,data));
 
