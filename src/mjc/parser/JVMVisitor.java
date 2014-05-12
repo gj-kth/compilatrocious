@@ -660,21 +660,65 @@ public class JVMVisitor extends VisitorAdapter{
 		return code;
 	}
 
+	// public Object visit(ASTAnd node, Object data){
+	// 	return visitAndOr(node, data, "iand");
+	// }
+
+	// public Object visit(ASTOr node, Object data){
+	// 	return visitAndOr(node, data, "ior");
+	// }
+
+	// //TODO Don't use and/or instructions? Don't evaluate F() in "if(false && F()){ ... } " ? 
+	// private StringBuilder visitAndOr(SimpleNode node, Object data, String instruction){ 
+	// 	StringBuilder code = new StringBuilder();
+	// 	code.append(node.jjtGetChild(0).jjtAccept(this, data));
+	// 	code.append(node.jjtGetChild(1).jjtAccept(this, data));
+	// 	code.append("   " + instruction + "\n");
+	// 	return code;
+	// }
+
 	public Object visit(ASTAnd node, Object data){
-		return visitAndOr(node, data, "iand");
+		int branchNum = globalNumBranches;
+		globalNumBranches ++;
+		StringBuilder code = new StringBuilder();
+		code.append(node.jjtGetChild(0).jjtAccept(this, data));
+		code.append("   ifeq false_" + branchNum + "\n");
+		code.append(node.jjtGetChild(1).jjtAccept(this, data));
+		code.append("   ifeq false_" + branchNum + "\n");
+		code.append("   ldc 1\n");
+		code.append("   goto done_" + branchNum + "\n");
+		code.append("false_" + branchNum + ":\n");
+		code.append("   ldc 0\n");
+		code.append("done_" + branchNum + ":\n");
+		return code;
 	}
 
 	public Object visit(ASTOr node, Object data){
-		return visitAndOr(node, data, "ior");
+		int branchNum = globalNumBranches;
+		globalNumBranches ++;
+		StringBuilder code = new StringBuilder();
+		code.append(node.jjtGetChild(0).jjtAccept(this, data));
+		code.append("   ifne true_" + branchNum + "\n");
+		code.append(node.jjtGetChild(1).jjtAccept(this, data));
+		code.append("   ifne true_" + branchNum + "\n");
+		code.append("   ldc 0\n");
+		code.append("   goto done_" + branchNum + "\n");
+		code.append("true_" + branchNum + ":\n");
+		code.append("   ldc 1\n");
+		code.append("done_" + branchNum + ":\n");
+		return code;
 	}
 
-	private StringBuilder visitAndOr(SimpleNode node, Object data, String instruction){
+	//TODO Don't use and/or instructions? Don't evaluate F() in "if(false && F()){ ... } " ? 
+	private StringBuilder visitAndOr(SimpleNode node, Object data, String instruction){ 
 		StringBuilder code = new StringBuilder();
 		code.append(node.jjtGetChild(0).jjtAccept(this, data));
 		code.append(node.jjtGetChild(1).jjtAccept(this, data));
 		code.append("   " + instruction + "\n");
 		return code;
 	}
+
+
 
 	public Object visit(ASTParenExp node, Object data){
 		return node.jjtGetChild(0).jjtGetChild(0).jjtAccept(this, data); //parenExp -> Exp -> SpecificExp
