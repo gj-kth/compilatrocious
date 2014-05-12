@@ -211,7 +211,8 @@ public class JVMVisitor extends VisitorAdapter{
 		"sipush",
 		"swap",
 		"tableswitch",
-		"wide"
+		"wide",
+		"field"
 	);
 	
 	private SymbolTable symbolTable;
