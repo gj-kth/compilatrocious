@@ -222,7 +222,11 @@ public class TypeCheckVisitor extends VisitorAdapter{
 	
 	public Object visit(ASTPrint node, Object data){
 		Context context = assertDataContext(data);
-		return node.jjtGetChild(0).jjtAccept(this, new ExprInput(context, null));
+		String type = (String)  node.jjtGetChild(0).jjtAccept(this, new ExprInput(context, null));
+		if(!type.equals("int") && !type.equals("boolean")) {
+			throw new WrongType(context, "int' or 'boolean", type, node);
+		}
+		return type;
 	}
 	
 	
