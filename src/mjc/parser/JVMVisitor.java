@@ -251,7 +251,7 @@ public class JVMVisitor extends VisitorAdapter{
 			argsCode.append(typeToJasminType(argType));
 		}
 		int argnum = getMethodParamTypes(call_context).size();
-		String returnTypeString = typeToJasminType(getMethodType(context));
+		String returnTypeString = typeToJasminType(getMethodType(call_context));
 		code.append("   invokevirtual " + cleanName(className + "/" + methodName + "(" + argsCode + ")" + returnTypeString) + "\n");
 		context.subStack(argnum+1);
 		return code;
