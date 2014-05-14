@@ -245,7 +245,8 @@ public class JVMVisitor extends VisitorAdapter{
 		int argnum = getMethodParamTypes(call_context).size();
 		String returnTypeString = typeToJasminType(getMethodType(call_context));
 		code.append("   invokevirtual " + cleanName(className + "/" + methodName + "(" + argsCode + ")" + returnTypeString) + "\n");
-		context.subStack(argnum+1); // method adress and args are removed from stack.
+		context.subStack(argnum+(returnTypeString.equals("V")?0:1));
+		// method adress and args are removed from stack, return value pushed on stack if not void
 		return code;
 	}
 
@@ -786,17 +787,16 @@ public class JVMVisitor extends VisitorAdapter{
 		String varType = TypeCheckVisitor.getVarType(
 			new Context(context.className, context.methodName, varName), null, symbolTable);
 		
+		context.addStack(1); // All posibilities add 1 to stack
 		if(isField(context, varName)){
 			StringBuilder code = new StringBuilder();
 			code.append("   aload_0 ; this\n");
-			context.addStack(1);
 			code.append("   getfield " + cleanName(context.className + "/" + varName) + " ");
 			code.append(typeToJasminType(varType));
 			code.append("\n");
 			return code;
 		}else{
 			int varNumber = context.locals.get(varName);
-			context.addStack(1);
 			if(varType.equals("int") || varType.equals("boolean")) {
 				return new StringBuilder("   iload" + (varNumber < 4 ? "_" : " ") + varNumber + " ; " + cleanName(varName) + "\n");
 			}else{
