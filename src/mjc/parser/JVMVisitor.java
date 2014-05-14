@@ -725,6 +725,7 @@ public class JVMVisitor extends VisitorAdapter{
 		globalNumBranches ++;
 
 		code.append("   getstatic java/lang/System/out Ljava/io/PrintStream;\n");
+		context.addStack(1); // Push reference to System.out on stack
 		StringBuilder expCode = (StringBuilder) exp.jjtAccept(this, context);
 		code.append(expCode);
 		String exprType = (String) exp.jjtAccept(typeCheckVisitor, new TypeCheckVisitor.ExprInput(context, null));

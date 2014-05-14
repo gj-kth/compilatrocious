@@ -4,18 +4,30 @@ class TestJVM {
 		int a;
 		int b;
 		Baaa obj;
-		Beee ubj;
+		//Beee ubj;
 
 		obj = new Baaa();
+		/*
 		ubj = new Beee();
 		a = obj.func(5,12, true);
 		a = obj.func(17,18, false);
 
 		b = ubj.func(5,12, true);
 		b = ubj.fync(5,12, true);
+		*/
 
+		a = 0;
 		System.out.println(a);
-		System.out.println(b);
+		System.out.println(a);
+		System.out.println(a);
+		System.out.println(a);
+		System.out.println(a);
+		System.out.println(a);
+		System.out.println(a);
+		System.out.println(a);
+		//System.out.println(b);
+		a = obj.func(5,12,true);
+		
 	}
 }
 
@@ -47,7 +59,7 @@ class Beee extends Baaa {
 		int result;
 
 		if(b) {
-			if(x < y) result = 3;
+			if(x < y && !!b || x*y > 0) result = 3;
 			else result = 2;
 		}else{
 			result = 1;
