@@ -81,7 +81,6 @@ public class JVMVisitor extends VisitorAdapter{
 
 		StringBuilder bodyCode = (StringBuilder) body.jjtAccept(this, context);
 		context.addStack(1); // Account for the return void statement
-		System.out.println("max stack in main method is " + context.maxstack);
 		int numLocals = 20;
 		code.append("\n   .limit stack " + context.maxstack + "\n");
 		code.append("   .limit locals " + numLocals + "\n\n");
@@ -216,17 +215,11 @@ public class JVMVisitor extends VisitorAdapter{
 
 		code.append("   ; create an " + className + " object on top of stack\n");
 		code.append("   new " + cleanName(className) + "\n");
-		System.out.println("in new curstack = " + context.curstack);
-		System.out.println("in new maxstack = " + context.maxstack);
 		context.addStack(1);
-		System.out.println("in new curstack = " + context.curstack);
-		System.out.println("in new maxstack = " + context.maxstack);
 		code.append("   dup\n");
 		context.addStack(1);
-		System.out.println("in new curstack = " + context.curstack);
-		System.out.println("in new maxstack = " + context.maxstack);
 		code.append("   invokespecial " + cleanName(className + "/<init>()V") + " ; call constructor\n");
-		context.subStack(2);
+		context.subStack(1);
 		return code;
 	}
 
@@ -355,7 +348,6 @@ public class JVMVisitor extends VisitorAdapter{
 			context.addLocal(name.toString());
 		}
 		StringBuilder code = (StringBuilder) stmts.jjtAccept(this, context);
-		System.out.println("max stack is " + context.maxstack);
 		return code;
 	}
 
@@ -367,7 +359,6 @@ public class JVMVisitor extends VisitorAdapter{
 			inheritLineNumber(stmt, stmt.jjtGetChild(0));
 			code.append((StringBuilder) stmt.jjtGetChild(0).jjtAccept(this,data));
 			JVMContext context = (JVMContext) data;
-			System.out.println("max stack is " + context.maxstack);
 		}
 		return code;
 	}
@@ -870,7 +861,6 @@ public class JVMVisitor extends VisitorAdapter{
 		void addStack(int num) {
 			curstack = curstack + num;
 			if(curstack > maxstack) {
-				System.out.println("increasing stack to " + curstack);
 				maxstack = Integer.valueOf(curstack);
 			}
 		}

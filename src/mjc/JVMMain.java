@@ -53,7 +53,6 @@ public class JVMMain {
                 tree.jjtAccept(visitor2, null);
 
                 if(genAsm) {
-                    System.out.println("visiting");
                     JVMVisitor visitor3 = new JVMVisitor(symbolTable); 
                     classFiles = (List<ClassFile>) tree.jjtAccept(visitor3, null);
                 }
