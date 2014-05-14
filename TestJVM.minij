@@ -2,22 +2,56 @@ class TestJVM {
 	public static void main(String[] args) {
 		
 		int a;
+		int b;
 		Baaa obj;
+		Beee ubj;
 
 		obj = new Baaa();
+		ubj = new Beee();
 		a = obj.func(5,12, true);
 		a = obj.func(17,18, false);
+
+		b = ubj.func(5,12, true);
+		b = ubj.fync(5,12, true);
+
 		System.out.println(a);
+		System.out.println(b);
 	}
 }
 
 class Baaa {
 	public int func(int x, int y, boolean b){
-		if(b){
+		int a;
+		a = 1;
+		if(b && x < y && b || b && b || b && x < y){
+			if(x < 10 || b) {
+				if(y < 20) {
+					System.out.println(x);	
+				}else{
+					System.out.println(x);	
+				}
+			}
 			System.out.println(x);	
 		}else{
-			System.out.println(y);	
+			while(a > 0 && b) {
+				System.out.println(y);	
+				a = 0;
+			}
 		}
 		return 100;
+	}
+}
+
+class Beee extends Baaa {
+	public int fync(int x, int y, boolean b) {
+		int result;
+
+		if(b) {
+			if(x < y) result = 3;
+			else result = 2;
+		}else{
+			result = 1;
+		}
+		return result;
 	}
 }

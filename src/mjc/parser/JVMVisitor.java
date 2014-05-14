@@ -80,7 +80,6 @@ public class JVMVisitor extends VisitorAdapter{
 		context.addLocal(argName);
 
 		StringBuilder bodyCode = (StringBuilder) body.jjtAccept(this, context);
-		context.addStack(1); // Account for the return void statement
 		int numLocals = 20;
 		code.append("\n   .limit stack " + context.maxstack + "\n");
 		code.append("   .limit locals " + numLocals + "\n\n");
@@ -192,7 +191,7 @@ public class JVMVisitor extends VisitorAdapter{
 		code.append(varsCode);
 		code.append("\n; default constructor\n");
 		code.append(".method public <init>()V\n");
-		code.append(".limit stack 1\n");
+		code.append(".limit stack 1\n"); // Only need stacskize 1 for invoking <init>()V
 		code.append(".limit locals 1\n");
 		code.append("   aload_0\n");
 		if(!isSubClass){			
@@ -216,7 +215,7 @@ public class JVMVisitor extends VisitorAdapter{
 		code.append("   ; create an " + className + " object on top of stack\n");
 		code.append("   new " + cleanName(className) + "\n");
 		context.addStack(1);
-		code.append("   dup\n");
+		code.append("   dup ; duplicate in order to call constructor AND keep the reference\n");
 		context.addStack(1);
 		code.append("   invokespecial " + cleanName(className + "/<init>()V") + " ; call constructor\n");
 		context.subStack(1);
@@ -246,7 +245,7 @@ public class JVMVisitor extends VisitorAdapter{
 		int argnum = getMethodParamTypes(call_context).size();
 		String returnTypeString = typeToJasminType(getMethodType(call_context));
 		code.append("   invokevirtual " + cleanName(className + "/" + methodName + "(" + argsCode + ")" + returnTypeString) + "\n");
-		context.subStack(argnum+1);
+		context.subStack(argnum+1); // method adress and args are removed from stack.
 		return code;
 	}
 
