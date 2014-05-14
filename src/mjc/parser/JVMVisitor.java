@@ -229,8 +229,8 @@ public class JVMVisitor extends VisitorAdapter{
 		SimpleNode methodNameId = (SimpleNode) node.jjtGetChild(1);
 		SimpleNode expList = (SimpleNode) node.jjtGetChild(2);
 
-		StringBuilder expsCode = (StringBuilder) expList.jjtAccept(this, data);
-		StringBuilder loadObjCode = (StringBuilder) obj.jjtAccept(this, data);
+		StringBuilder loadObjCode = (StringBuilder) obj.jjtAccept(this, context);
+		StringBuilder expsCode = (StringBuilder) expList.jjtAccept(this, context);
 
 		code.append(loadObjCode);
 		code.append(expsCode);
@@ -374,6 +374,7 @@ public class JVMVisitor extends VisitorAdapter{
 	}
 
 	public Object visit(ASTSingleAssignment node, Object data){
+		//System.out.println("in assign");
 		JVMContext context = (JVMContext) data;
 		SimpleNode identifier = (SimpleNode) node.jjtGetChild(0);
 
@@ -574,8 +575,10 @@ public class JVMVisitor extends VisitorAdapter{
 		SimpleNode leftExp = (SimpleNode) node.jjtGetChild(0);
 		SimpleNode rightExp = (SimpleNode) node.jjtGetChild(1);
 		StringBuilder code = new StringBuilder();
-		code.append((StringBuilder) leftExp.jjtAccept(this, data));
-		code.append((StringBuilder) rightExp.jjtAccept(this, data));
+		//System.out.println("evaling left");
+		code.append((StringBuilder) leftExp.jjtAccept(this, context));
+		//System.out.println("evaling right");
+		code.append((StringBuilder) rightExp.jjtAccept(this, context));
 		code.append("   " + opInstruction + "\n");
 		context.subStack(1); // All intbinops remove 1 from stack
 		return code;
@@ -718,6 +721,7 @@ public class JVMVisitor extends VisitorAdapter{
 	}
 
 	public Object visit(ASTPrint node, Object data){
+		//System.out.println("in print");
 		JVMContext context = (JVMContext) data;
 		StringBuilder code = new StringBuilder();
 		SimpleNode exp = (SimpleNode) node.jjtGetChild(0).jjtGetChild(0);
@@ -742,11 +746,11 @@ public class JVMVisitor extends VisitorAdapter{
 			context.addStack(1); // Both branches add 1 to stack
 			code.append("done_" + branchNum + ": ; boolean convertion complete.\n");
 			code.append("   invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V\n");
-			context.subStack(2);
 		}else{
 			code.append("   invokevirtual java/io/PrintStream/println(I)V\n");	
-			context.subStack(2);
 		}
+
+		context.subStack(2);
 	   	
 	   	return code;
 	}
@@ -788,6 +792,7 @@ public class JVMVisitor extends VisitorAdapter{
 			new Context(context.className, context.methodName, varName), null, symbolTable);
 		
 		context.addStack(1); // All posibilities add 1 to stack
+		//System.out.println("here");
 		if(isField(context, varName)){
 			StringBuilder code = new StringBuilder();
 			code.append("   aload_0 ; this\n");
@@ -860,6 +865,7 @@ public class JVMVisitor extends VisitorAdapter{
 
 		void addStack(int num) {
 			curstack = curstack + num;
+			//System.out.println("stack is " + curstack + " in context " + className + "/" + methodName + "/" + varName);
 			if(curstack > maxstack) {
 				maxstack = Integer.valueOf(curstack);
 			}
@@ -867,6 +873,7 @@ public class JVMVisitor extends VisitorAdapter{
 
 		void subStack(int num) {
 			curstack -= num;
+			//System.out.println("stack is " + curstack + " in context " + className + "/" + methodName + "/" + varName);
 		}
 
 	}
