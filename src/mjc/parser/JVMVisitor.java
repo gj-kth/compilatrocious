@@ -245,7 +245,7 @@ public class JVMVisitor extends VisitorAdapter{
 		int argnum = getMethodParamTypes(call_context).size();
 		String returnTypeString = typeToJasminType(getMethodType(call_context));
 		code.append("   invokevirtual " + cleanName(className + "/" + methodName + "(" + argsCode + ")" + returnTypeString) + "\n");
-		context.subStack(argnum+(returnTypeString.equals("V")?0:1));
+		context.subStack(argnum+(returnTypeString.equals("V")?1:0));
 		// method adress and args are removed from stack, return value pushed on stack if not void
 		return code;
 	}
