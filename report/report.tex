@@ -80,75 +80,145 @@
 
 \section{Introduction}
 
-Compilers have been around almost since the birth of programming. Although the likelihood of having to write a compiler from scratch today is quite small, it can still be useful to understand how one works. The process of translating source code to machine code instructions or java bytecode is quite complex and the different steps involve many varying techniques that can also be applied in other areas. For instance the task of parsing text according to a grammar is very central in the field of Natural language processing, whereas the task of selecting the final assembly instructions is also needed when developing integrated systems. In the case of making a compiler that compiles to java bytecode, one can learn a lot about how the JVM works, something that can be needed for writing efficient java code.
+Compilers have been around almost since the birth of programming.
+Although the likelihood of having to write a compiler from scratch today is quite small, it can still be useful to understand how one works.
+The process of translating source code to machine code instructions or java bytecode is quite complex and the different steps involve many varying techniques that can also be applied in other areas.
+For instance the task of parsing text according to a grammar is very central in the field of Natural language processing, whereas the task of selecting the final assembly instructions is also needed when developing integrated systems.
+In the case of making a compiler that compiles to java bytecode, one can learn a lot about how the JVM works, something that can be needed for writing efficient java code.
 
 \section{Choice of Tools}
-For defining the grammar and creating the abstract syntax tree we chose to use the tool JavaCC. This was mostly because it seemed to be a common choice with much online documentation and a dedicated community. We have been mostly happy with this choice. We gained the needed knowledge through a combination of following online tutorials and studying example grammars included in the software. The most common problems that we faced when writing the grammar were handling LOOKAHEAD correctly, avoiding recursive productions and, later on in the process, handling operator precedence and the order of nodes in the resulting syntax tree. To generate the syntax tree we used JJTree which is included in JavaCC.
+
+For defining the grammar and creating the abstract syntax tree we chose to use the tool JavaCC.
+This was mostly because it seemed to be a common choice with a satisfying amount of online documentation.
+We have been mostly happy with this choice.
+We gained the needed knowledge through a combination of following online tutorials and studying example grammars included in the software.
+The most common problems that we faced when writing the grammar were handling LOOKAHEAD correctly, avoiding recursive productions and, later on in the process, handling operator precedence and the order of nodes in the resulting syntax tree.
+To generate the syntax tree we used JJTree which is included in JavaCC.
 
 \section{Code Overview}
+
 \subsection{Important classes}
-The generation of the parser and abstract syntax tree (AST) generation code is done with JJTree and JavaCC using the defined minijava-grammar located in MiniJava.jjt. To use the generated parser and AST generator we use the ParseTree wrapper class, which takes an input stream and returns an AST. The remaining work after creating the AST up until generating the java bytecode, is mainly handled by the following three tree-visitor classes.
+
+The generation of the parser and abstract syntax tree (AST) generation code is done with JJTree and JavaCC using the defined minijava-grammar located in MiniJava.jjt.
+To use the generated parser and AST generator we use the ParseTree wrapper class, which takes an input stream and returns an AST.
+The remaining work after creating the AST up until generating the java bytecode, is mainly handled by the following three tree-visitor classes.
 \begin{itemize}
   \item{SymbolTableVisitor.java}
   \item{TypeCheckVisitor.java}
   \item{JVMVisitor.java}
 \end{itemize}
-All of them traverse the AST top-to-bottom doing some work for each node visited. An important utility class is VisitorUtil.java, which conain a set of static methods which are used internally by the visitors.
-\subsection{Helpers}
-\subsubsection*{Context}
-In order to solve the problem of keeping track of the context of a current node in the AST, we use an object called Context. This object is sent along as a node visits its children and augmented along the way as the context changes. It uses three fields to keep track of the context, className, methodName and varName. This Context object is further extended to a JVMContext in the JVMVisitor class, in order to keep track of stack size and local variables.
-\subsubsection*{ClassData and MethodData}
-In the symbol table we use two objects called ClassData and MethodData. These objects contain important information about the class or method such as return type (for a method) and super class (for a class). They also store internal symbol tables for fields and methods for classes and parameters and local variables for methods.
-\subsection{SymbolTableVisitor}
-The task of this class is to visit the nodes that correspond to declarations in the source code and construct a symbol table that can be referenced in later stages of the compilation. These declarations include classes, instance fields, methods, method parameters and local variables. The resulting symbol table is implemented roughly as a nested hashtable, where the outermost keys are the class names, and method names of specific classes map to another layer. The symbol table contains information about all declarations such as types, names and, in the case of method parameters, order. While creating this symbol table the class also makes sure that there are no cyclic inheritance relations and no duplicate declarations. Other issues such as making sure that no declarations refer to missing types are handled in later stages when the symboltable is complete.\\
+All of them traverse the AST top-to-bottom doing some work for each node visited.
+An important utility class is VisitorUtil.java, which conain a set of static methods which are used internally by the visitors.
 
-Exceptions explained:
+\subsection{Helpers}
+
+\subsubsection*{Context}
+
+In order to solve the problem of keeping track of the context of a current node in the AST, we use an object called Context.
+This object is sent along as a node visits its children and augmented along the way as the context changes.
+It uses three fields to keep track of the context, |className|, |methodName| and |varName|.
+This Context object is further extended to a JVMContext in the JVMVisitor class, in order to keep track of stack size and local variables.
+
+\subsubsection*{ClassData and MethodData}
+
+In the symbol table we use two objects called ClassData and MethodData.
+These objects contain important information about the class or method such as return type (for a method) and super class (for a class).
+They also store internal symbol tables for fields and methods for classes and parameters and local variables for methods.
+
+\subsection{SymbolTableVisitor}
+
+The task of this class is to visit the nodes that correspond to declarations in the source code and construct a symbol table that can be referenced in later stages of the compilation.
+These declarations include classes, instance fields, methods, method parameters and local variables.
+The resulting symbol table is implemented roughly as a nested hashtable, where the outermost keys are the class names, and method names of specific classes map to another layer.
+The symbol table contains information about all declarations such as types, names and, in the case of method parameters, order.
+While creating this symbol table the class also makes sure that there are no cyclic inheritance relations and no duplicate declarations.
+Other issues such as making sure that no declarations refer to missing types are handled in later stages when the symboltable is complete.\\
+
+Important exceptions explained:
 \begin{itemize}
   \item{CyclicInheritance}
   \begin{itemize}
-    \item{Example: \emph{A $\rightarrow$ B $\rightarrow$ C $\rightarrow$ A}, where \emph{$\rightarrow$} denotes inheritance.}
+    \item{example: \emph{A $\rightarrow$ B $\rightarrow$ C $\rightarrow$ A}, where \emph{$\rightarrow$} denotes inheritance.}
   \end{itemize}
   \item{DuplicateDeclaration}
   \begin{itemize}
-    \item{Example: |int getSum(int a, int b){ int a … }|}
+    \item{example: |int getSum(int a, int b){ int a … }|}
   \end{itemize}
 \end{itemize}
-\subsection{TypeCheckVisitor}
-The task of this class is to look for all kind of errors in the code relating to typechecking. In general, this is done by examining all expressions (and sub-expressions) in the code and making sure that their actual type after evaluation equals the type that is expected by the context they appear in. By default each visit method for expressions returns the type of the evaluated expression, so the parent can check the evaluated type if needed, but often the type-checking is done by the child by checking its type against the expected type. An extremely simple example for demonstrating how the typechecker works is the assignment “a = true” where a is an int-variable. The code is processed inwards (downwards in the AST) so in this case there is one node that represents the action of assignment while its child nodes represent the variable and the right-hand side expression. From the symbol table it can be seen that a is of type int, and therefore the the right-hand side expression is expected to be the same. When visiting this expression we use an object called ExprInput, which stores a Context object and the expected type which the expression should evaluate to. When “true” is evaluated and seen to be of type boolean, which does not match the expected type of int, an informative exception is thrown and the compilation stops.\\
 
-Exceptions which can be thrown during typechecking:
+\subsection{TypeCheckVisitor}
+
+The task of this class is to look for all kind of errors in the code relating to typechecking.
+In general, this is done by examining all expressions (and sub-expressions) in the code and making sure that their actual type after evaluation equals the type that is expected by the context they appear in.
+By default each visit method for expressions returns the type of the evaluated expression, so the parent can check the evaluated type if needed, but often the type-checking is done by the child by checking its type against the expected type.
+An extremely simple example for demonstrating how the type-checker works is the assignment |a = true| where a is an int-variable.
+The code is processed inwards (downwards in the AST) so in this case there is one node that represents the action of assignment while its child nodes represent the variable and the right-hand side expression.
+From the symbol table it can be seen that a is of type |int|, and therefore the the right-hand side expression is expected to be the same.
+When visiting this expression we use an object called ExprInput, which stores a Context object and the expected type which the expression should evaluate to.
+When |true| is evaluated and seen to be of type |boolean|, which does not match the expected type of |int|, an informative exception is thrown and the compilation stops.\\
+
+Important exceptions explained:
 \begin{itemize}
   \item{\emph{ReferencedMissingType}}
   \begin{itemize}
-    \item{Example: |private Calculator calc;| where the class |Calculator| is never defined.}
+    \item{example: |private Calculator calc;| where the class |Calculator| is never defined.}
   \end{itemize}
   \item{\emph{ReferencedMissingVariable}}
   \begin{itemize}
-    \item{Example: |a = 5;| where |a| has never been declared.}
+    \item{example: |a = 5;| where |a| has never been declared.}
   \end{itemize}
   \item{\emph{ReferencedMissingMethod}}
   \begin{itemize}
-    \item{Example: |a = this.getHamburger();| where |getHamburger()| is never defined in this class.}
+    \item{example: |a = this.getHamburger();| where |getHamburger()| is never defined in this class.}
   \end{itemize}
   \item{\emph{WrongType}}
   \begin{itemize}
-    \item{Example: |a = true && getHamburger();| where |getHamburger()| doesn’t return a boolean.}
+    \item{example: |a = true && getHamburger();| where |getHamburger()| doesn’t return a boolean.}
   \end{itemize}
   \item{\emph{WrongNumberArgs}}
   \begin{itemize}
-    \item{Example: |h = makeSandwich(cheese);| where |makeSandwich()| expects 2 parameters. }
+    \item{example: |h = makeSandwich(cheese);| where |makeSandwich()| expects 2 parameters. }
   \end{itemize}
 \end{itemize}
 
 \subsection{JVMVisitor}
-This class produces the final bytecode, or rather jasmin-code that is then translated to actual class files. If this stage has been reached the source code is known to be error-free so all focus lies on generating jasmin rather than looking for errors. No optimization is implemented at the time of writing, mostly due to time constraints. For each AST-node a specific set of jasmin instructions is used. For instance a negative expression such as !true generates the instruction for putting the value “true” on the stack by visiting the child-node and then a set of instructions to negate the current value on the stack. This approach results in quite simple and managable code.\\
 
-In order to have unique labels for branching throughout the code we used a global counter for number of branches encountered and appended the current count to the end of the labels for the current branching.\\
+This class produces the final bytecode, or rather jasmin-code that is then translated to actual class files.
+If this stage has been reached the source code is known to be error-free so all focus lies on generating jasmin rather than looking for errors.
+No optimization is implemented at the time of writing, mostly due to time constraints.
+For each AST-node a specific set of jasmin instructions is used.
+For instance a negative expression such as !true generates the instruction for putting the value |true| on the stack by visiting the child-node and then a set of instructions to negate the current value on the stack.
+This approach results in quite simple and manageable code.
 
-To calculate the appropriate stack size for a method we used the JVMContext. It provides two methods for updating the current stack size, addStack(int n) and subStack(int n), which are called successively as stack pushing and stack popping JVM instructions are appended to the code. Internally it keeps track of the largest encountered stack size and updates it accordingly.\\
+\subsubsection*{Branching}
+
+In order to have unique labels for branching throughout the code we used a global counter for number of branches encountered and appended the current count to the end of the labels for the current branching.
+
+\subsubsection*{Stack Size}
+
+To calculate the appropriate stack size for a method we used the JVMContext.
+It provides two methods for updating the current stack size, |addStack(int n)| and |subStack(int n)|, which are called successively as stack pushing and stack popping JVM instructions are appended to the code.
+Internally it keeps track of the largest encountered stack size and updates it accordingly.\\
+
+\section{Testing}
+
+\section{Conclusion}
+
+Overall we are quite happy with the outcome of the project although we had to give up the idea of making a CPU-backend and instead go for the JVM-version.
+This was in part because we felt that it would take more time than we had left, but also because we didn’t feel that the course book gave us enough help regarding some of the steps involved which further increased the time it would take to implement.
 
 \section{Appendix A - Bugs and mistakes}
+
+\subsection{Parsing Booleans}
+
+A rather trivial bug which we encountered which nonetheless puzzled us in the beginning was that we had defined the identifier token before the literal tokens in the grammar definition.
+This led to boolean literals being matched as identifiers, so we got identifiers with values of “true” and “false”.
+We were unaware that JavaCC tries to match tokens from top to bottom, giving precedence to tokens defined higher up in the grammar file.
+We probably assumed it did some sort of “best fit” where it tried to match the most explicit definition it found.
+This was trivially solved by defining identifiers after literals in the grammar definition.
+
 \subsection{Multidimensional Arrays}
+
 Handling, or rather not handling, multidimensional arrays was a bit tricky, due to how the java syntax uses square brackets. The example below demonstrates some of the issues.\\
 
 Assume that a and i are variables of types |int[]| and int.\\
@@ -156,7 +226,9 @@ Assume that a and i are variables of types |int[]| and int.\\
 |a = new int[0];|\\
 |i = a[2];|\\
 
-The above code is syntactically correct although it would crash due to an out-of-bounds error if executed. The code below however is not correct. Intuitively it looks like a shorthand of the example above, but the problem is that in the full version of java this would rather be interpreted as the creation of a two-dimensional array.\\
+The above code is syntactically correct although it would crash due to an out-of-bounds error if executed.
+The code below however is not correct.
+Intuitively it looks like a shorthand of the example above, but the problem is that in the full version of java this would rather be interpreted as the creation of a two-dimensional array.\\
 
 |i = new int[0][2];|\\
 
@@ -164,12 +236,17 @@ And finally, using parentheses to separate the brackets with different purposes 
 
 |i = (new int[0])[2];|\\
 
-To differentiate between these examples, TypeCheckVisitor must be able to differentiate between a, |new int[0]| and |(new int[0])|, which seems unintuitive since they can all be said to be of type |int[]|.
-\subsubsection*{Solution}
-We ended up introducing a new artifical type called |new int[]| that indicates that the array is initialized in this very statement and might not be accessible the same way as an old array. However in the case of the third example the parentheses enclosing the expression of type |new int[]| makes it possible to treat it just like any |int[]|. Therefore, when visiting the node corresponding to a parenthesis expression, an inner expression of type |new int[]| is converted to |int[]|. When visiting a node corresponding to array access, only expressions of type |int[]| are allowed.
+To differentiate between these examples, TypeCheckVisitor must be able to differentiate between a, |new int[0]| and |(new int[0])|, which seems unintuitive since they can all be said to be of type |int[]|.\\
+
+Our solution was to introduce a new artifical type called |new int[]| that indicates that the array is initialized in this very statement and might not be accessible the same way as an old array.
+However in the case of the third example the parentheses enclosing the expression of type |new int[]| makes it possible to treat it just like any |int[]|.
+Therefore, when visiting the node corresponding to a parenthesis expression, an inner expression of type |new int[]| is converted to |int[]|.
+When visiting a node corresponding to array access, only expressions of type |int[]| are allowed.
 
 \subsection{Calculating Stack Size}
-One interesting bug we had when attempting to calculate the stack size for the JVM was that the stack was incorrectly calculated for some tests. We looked at one of the tests and found the menacing expression to be:\\
+
+One interesting bug we had when attempting to calculate the stack size for the JVM was that the stack was incorrectly calculated for some tests.
+We looked at one of the tests and found the menacing expression to be:\\
 
 |ret = num*this.calc(num-1);|\\
 
@@ -178,7 +255,11 @@ However, when changing the expression to the following, the stack was correctly 
 |val = num-1;|\\
 |ret = num*this.calc(val);|\\
 
-This lead us to believe that the problem was in the visitor for a Call node in the AST. And sure enough, there we evaluated first the node containing the parameters, and then the node referencing the object which the method belonged to. When changing the order of evaluation of these nodes the bug was solved. This was due to the fact that the evaluation of the parameter node was using 2 stack slots internally to evaluate the expression, however it was only leaving 1 value on the stack after evaluation (in this case since there was only one parameter). The size of the current stack and the largest encountered stack were as follows for the two orders of evaluation:\\
+This lead us to believe that the problem was in the visitor for a Call node in the AST.
+And sure enough, there we evaluated first the node containing the parameters, and then the node referencing the object which the method belonged to.
+When changing the order of evaluation of these nodes the bug was solved.
+This was due to the fact that the evaluation of the parameter node was using 2 stack slots internally to evaluate the expression, however it was only leaving 1 value on the stack after evaluation (in this case since there was only one parameter).
+The size of the current stack and the largest encountered stack were as follows for the two orders of evaluation:\\
 
 Out of order:
 \begin{verbatim}
@@ -193,7 +274,7 @@ curstack after loading object: 2 maxstack: 3
 curstack after loading params: 3 maxstack: 4
 \end{verbatim}
 
-Here we see that when generating the code for loading the parameters onto the stack before loading the object, the stack “ceiling” is high enough for the evaluation of |num-1| (which requires 2 slots) to not increase the maxstack value. However, when the loading of the object is generated beforehand the stack count is one more, enough to break the ceiling and increase the maxstack value.\\
-
+Here we see that when generating the code for loading the parameters onto the stack before loading the object, the stack “ceiling” is high enough for the evaluation of |num-1| (which requires 2 slots) to not increase the maxstack value.
+However, when the loading of the object is generated beforehand the stack count is one more, enough to break the ceiling and increase the maxstack value.\\
 
 \end{document}
