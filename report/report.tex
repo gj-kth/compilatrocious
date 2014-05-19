@@ -93,13 +93,13 @@ This was mostly because it seemed to be a common choice with a satisfying amount
 We have been mostly happy with this choice.
 We gained the needed knowledge through a combination of following online tutorials and studying example grammars included in the software.
 The most common problems that we faced when writing the grammar were handling LOOKAHEAD correctly, avoiding recursive productions and, later on in the process, handling operator precedence and the order of nodes in the resulting syntax tree.
-To generate the syntax tree we used JJTree which is included in JavaCC.
+To generate the abstract syntax tree we used JJTree which is included in JavaCC.
 
 \section{Code Overview}
 
 \subsection{Important classes}
 
-The generation of the parser and abstract syntax tree (AST) generation code is done with JJTree and JavaCC using the defined minijava-grammar located in MiniJava.jjt.
+The code for the parser and for building the abstract syntax tree (AST) are generated using JJTree and JavaCC with the defined minijava-grammar located in MiniJava.jjt.
 To use the generated parser and AST generator we use the ParseTree wrapper class, which takes an input stream and returns an AST.
 The remaining work after creating the AST up until generating the java bytecode, is mainly handled by the following three tree-visitor classes.
 \begin{itemize}
@@ -153,7 +153,7 @@ In general, this is done by examining all expressions (and sub-expressions) in t
 By default each visit method for expressions returns the type of the evaluated expression, so the parent can check the evaluated type if needed, but often the type-checking is done by the child by checking its type against the expected type.
 An extremely simple example for demonstrating how the type-checker works is the assignment |a = true| where a is an int-variable.
 The code is processed inwards (downwards in the AST) so in this case there is one node that represents the action of assignment while its child nodes represent the variable and the right-hand side expression.
-From the symbol table it can be seen that a is of type |int|, and therefore the the right-hand side expression is expected to be the same.
+From the symbol table it can be seen that |a| is of type |int|, and therefore the the right-hand side expression is expected to be the same.
 When visiting this expression we use an object called ExprInput, which stores a Context object and the expected type which the expression should evaluate to.
 When |true| is evaluated and seen to be of type |boolean|, which does not match the expected type of |int|, an informative exception is thrown and the compilation stops.\\
 
@@ -161,7 +161,7 @@ Important exceptions explained:
 \begin{itemize}
   \item{\emph{ReferencedMissingType}}
   \begin{itemize}
-    \item{example: |private Calculator calc;| where the class |Calculator| is never defined.}
+    \item{example: declaring |Calculator calc;| when the class |Calculator| has not been defined.}
   \end{itemize}
   \item{\emph{ReferencedMissingVariable}}
   \begin{itemize}
@@ -173,21 +173,21 @@ Important exceptions explained:
   \end{itemize}
   \item{\emph{WrongType}}
   \begin{itemize}
-    \item{example: |a = true && getHamburger();| where |getHamburger()| doesn’t return a boolean.}
+    \item{example: |a = true && this.getHamburger();| where |getHamburger()| doesn’t return a boolean.}
   \end{itemize}
   \item{\emph{WrongNumberArgs}}
   \begin{itemize}
-    \item{example: |h = makeSandwich(cheese);| where |makeSandwich()| expects 2 parameters. }
+    \item{example: |h = this.makeSandwich(cheese);| where |makeSandwich()| expects 2 parameters. }
   \end{itemize}
 \end{itemize}
 
 \subsection{JVMVisitor}
 
-This class produces the final bytecode, or rather jasmin-code that is then translated to actual class files.
+This class produces the final bytecode for the JVM, or rather jasmin-code that is then translated to actual class files.
 If this stage has been reached the source code is known to be error-free so all focus lies on generating jasmin rather than looking for errors.
 No optimization is implemented at the time of writing, mostly due to time constraints.
 For each AST-node a specific set of jasmin instructions is used.
-For instance a negative expression such as !true generates the instruction for putting the value |true| on the stack by visiting the child-node and then a set of instructions to negate the current value on the stack.
+For instance a negative expression such as |!true| generates the instruction for putting the value |true| on the stack by visiting the child-node and then a set of instructions to negate the current value on the stack.
 This approach results in quite simple and manageable code.
 
 \subsubsection*{Branching}
@@ -196,7 +196,7 @@ In order to have unique labels for branching throughout the code we used a globa
 
 \subsubsection*{Stack Size}
 
-To calculate the appropriate stack size for a method we used the JVMContext.
+To calculate the appropriate stack size for a method we used the JVMContext object.
 It provides two methods for updating the current stack size, |addStack(int n)| and |subStack(int n)|, which are called successively as stack pushing and stack popping JVM instructions are appended to the code.
 Internally it keeps track of the largest encountered stack size and updates it accordingly.\\
 
@@ -207,7 +207,7 @@ The class Test.java was created to handle this task.
 We started writing test-cases early in the development process and made it a habit to run them when making changes to the code and especially before pushing to our version control system.
 We had two types of local tests, those that should compile without error and those that shouldn’t.
 Something we noticed quickly was that there is a high risk of introducing errors in the test programs.
-In the case of compile-tests this is not a big deal since you know about the, hopefully small number of, tests that fail.
+In the case of compile-tests this is not a big deal since you know about the, hopefully small, number of tests that fail.
 When there is a bug in a non-compile test however, the situation is much worse.
 Take the following test that is supposed to check that a return statement is not allowed in the main method:
 \begin{verbatim}
@@ -222,11 +222,11 @@ class FalseMainReturnTest{
 The problem is that the compiler doesn’t reject the test because of the return statement, but rather because of the missing semi-colon on the variable-declaration line.
 Therefore the compiler may very well allow return statements in the main-method although it passed the test.
 In other words, it is not enough that a negative test is rejected.
-It has to be rejected for the right reasons.
+It has to be rejected for the right reasons.\\
 
 We solved this problem by creating a number of specific Exceptions mentioned in Section 3 - Code Overview.
 All the non-compile tests were placed inside directories whose names denoted which exception the tests were expected to throw.
-When catching an exception from a non-compile test, a comparison between the exception type and the expected type is made. 
+When catching an exception from a non-compile test, a comparison between the exception type and the expected type is made. \\
 
 To make testing simple and quick, we added instructions to our ant-file for both building the project and running all the tests.
 When tests have been run, a summary of the results is shown in the command line along with specifics about failed tests such as stack traces.
