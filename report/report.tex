@@ -70,7 +70,7 @@
 \textsc{DD2488 - Compiler Construction } \\ [25pt] %
 }
 
-\author{Gustaf Lindstedt \\ glindste@kth.se \\ 910301-2135 \and Jonathan Murray \\ jmu@kth.se \\ xxxxxx-xxxx}
+\author{Gustaf Lindstedt \\ glindste@kth.se \\ 910301-2135 \and Jonathan Murray \\ jmu@kth.se \\ 900808-1532}
 
 \date{\vspace{8pt}\normalsize\today} % Today's date or a custom date
 
@@ -201,6 +201,37 @@ It provides two methods for updating the current stack size, |addStack(int n)| a
 Internally it keeps track of the largest encountered stack size and updates it accordingly.\\
 
 \section{Testing}
+
+Testing is a fundamental step in the development process, and a compiler is fairly straightforward to test, since the concept of input and output is very well-defined.
+The class Test.java was created to handle this task.
+We started writing test-cases early in the development process and made it a habit to run them when making changes to the code and especially before pushing to our version control system.
+We had two types of local tests, those that should compile without error and those that shouldn’t.
+Something we noticed quickly was that there is a high risk of introducing errors in the test programs.
+In the case of compile-tests this is not a big deal since you know about the, hopefully small number of, tests that fail.
+When there is a bug in a non-compile test however, the situation is much worse.
+Take the following test that is supposed to check that a return statement is not allowed in the main method:
+\begin{verbatim}
+class FalseMainReturnTest{
+    public static void main(String[] args){
+        int a
+        a = 3;
+        return a;
+    }
+}
+\end{verbatim}
+The problem is that the compiler doesn’t reject the test because of the return statement, but rather because of the missing semi-colon on the variable-declaration line.
+Therefore the compiler may very well allow return statements in the main-method although it passed the test.
+In other words, it is not enough that a negative test is rejected.
+It has to be rejected for the right reasons.
+
+We solved this problem by creating a number of specific Exceptions mentioned in Section 3 - Code Overview.
+All the non-compile tests were placed inside directories whose names denoted which exception the tests were expected to throw.
+When catching an exception from a non-compile test, a comparison between the exception type and the expected type is made. 
+
+To make testing simple and quick, we added instructions to our ant-file for both building the project and running all the tests.
+When tests have been run, a summary of the results is shown in the command line along with specifics about failed tests such as stack traces.
+The output of Test.java is highly configurable through boolean flags to fit the needs of the current situation.
+To further improve the workflow the output is color-coded with red text when some tests fail and green text when everything is working.
 
 \section{Conclusion}
 
