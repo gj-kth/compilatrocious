@@ -36,7 +36,7 @@
 \usepackage[left=3.5cm, right=3.5cm]{geometry} % margins for title page. changed below.
 
 \usepackage{sectsty} % Allows customizing section commands
-\allsectionsfont{\normalfont} % Make all sections centered, the default font and small caps
+\allsectionsfont{\normalfont \bfseries} % Make all sections centered, the default font and bold
 
 \usepackage{fancyhdr} % Custom headers and footers
 \pagestyle{fancyplain} % Makes all pages in the document conform to the custom headers and footers
@@ -86,7 +86,7 @@ Compilers have been around almost since the birth of programming. Although the l
 For defining the grammar and creating the abstract syntax tree we chose to use the tool JavaCC. This was mostly because it seemed to be a common choice with much online documentation and a dedicated community. We have been mostly happy with this choice. We gained the needed knowledge through a combination of following online tutorials and studying example grammars included in the software. The most common problems that we faced when writing the grammar were handling LOOKAHEAD correctly, avoiding recursive productions and, later on in the process, handling operator precedence and the order of nodes in the resulting syntax tree. To generate the syntax tree we used JJTree which is included in JavaCC.
 
 \section{Code Overview}
-\subsection*{Important classes}
+\subsection{Important classes}
 The generation of the parser and abstract syntax tree (AST) generation code is done with JJTree and JavaCC using the defined minijava-grammar located in MiniJava.jjt. To use the generated parser and AST generator we use the ParseTree wrapper class, which takes an input stream and returns an AST. The remaining work after creating the AST up until generating the java bytecode, is mainly handled by the following three tree-visitor classes.
 \begin{itemize}
   \item{SymbolTableVisitor.java}
@@ -94,12 +94,12 @@ The generation of the parser and abstract syntax tree (AST) generation code is d
   \item{JVMVisitor.java}
 \end{itemize}
 All of them traverse the AST top-to-bottom doing some work for each node visited. An important utility class is VisitorUtil.java, which conain a set of static methods which are used internally by the visitors.
-\subsection*{Helpers}
+\subsection{Helpers}
 \subsubsection*{Context}
 In order to solve the problem of keeping track of the context of a current node in the AST, we use an object called Context. This object is sent along as a node visits its children and augmented along the way as the context changes. It uses three fields to keep track of the context, className, methodName and varName. This Context object is further extended to a JVMContext in the JVMVisitor class, in order to keep track of stack size and local variables.
 \subsubsection*{ClassData and MethodData}
 In the symbol table we use two objects called ClassData and MethodData. These objects contain important information about the class or method such as return type (for a method) and super class (for a class). They also store internal symbol tables for fields and methods for classes and parameters and local variables for methods.
-\subsection*{SymbolTableVisitor}
+\subsection{SymbolTableVisitor}
 The task of this class is to visit the nodes that correspond to declarations in the source code and construct a symbol table that can be referenced in later stages of the compilation. These declarations include classes, instance fields, methods, method parameters and local variables. The resulting symbol table is implemented roughly as a nested hashtable, where the outermost keys are the class names, and method names of specific classes map to another layer. The symbol table contains information about all declarations such as types, names and, in the case of method parameters, order. While creating this symbol table the class also makes sure that there are no cyclic inheritance relations and no duplicate declarations. Other issues such as making sure that no declarations refer to missing types are handled in later stages when the symboltable is complete.
 
 Exceptions explained:
@@ -113,7 +113,7 @@ Exceptions explained:
     \item{Example: int getSum(int a, int b)\{ int a … \}}
   \end{itemize}
 \end{itemize}
-\subsection*{TypeCheckVisitor}
+\subsection{TypeCheckVisitor}
 The task of this class is to look for all kind of errors in the code relating to typechecking. In general, this is done by examining all expressions (and sub-expressions) in the code and making sure that their actual type after evaluation equals the type that is expected by the context they appear in. By default each visit method for expressions returns the type of the evaluated expression, so the parent can check the evaluated type if needed, but often the type-checking is done by the child by checking its type against the expected type. An extremely simple example for demonstrating how the typechecker works is the assignment “a = true” where a is an int-variable. The code is processed inwards (downwards in the AST) so in this case there is one node that represents the action of assignment while its child nodes represent the variable and the right-hand side expression. From the symbol table it can be seen that a is of type int, and therefore the the right-hand side expression is expected to be the same. When visiting this expression we use an object called ExprInput, which stores a Context object and the expected type which the expression should evaluate to. When “true” is evaluated and seen to be of type boolean, which does not match the expected type of int, an informative exception is thrown and the compilation stops.
 
 Exceptions which can be thrown during typechecking:
@@ -140,7 +140,7 @@ Exceptions which can be thrown during typechecking:
   \end{itemize}
 \end{itemize}
 
-\subsection*{JVMVisitor}
+\subsection{JVMVisitor}
 This class produces the final bytecode, or rather jasmin-code that is then translated to actual class files. If this stage has been reached the source code is known to be error-free so all focus lies on generating jasmin rather than looking for errors. No optimization is implemented at the time of writing, mostly due to time constraints. For each AST-node a specific set of jasmin instructions is used. For instance a negative expression such as !true generates the instruction for putting the value “true” on the stack by visiting the child-node and then a set of instructions to negate the current value on the stack. This approach results in quite simple and managable code.
 
 In order to have unique labels for branching throughout the code we used a global counter for number of branches encountered and appended the current count to the end of the labels for the current branching.
@@ -148,7 +148,7 @@ In order to have unique labels for branching throughout the code we used a globa
 To calculate the appropriate stack size for a method we used the JVMContext. It provides two methods for updating the current stack size, addStack(int n) and subStack(int n), which are called successively as stack pushing and stack popping JVM instructions are appended to the code. Internally it keeps track of the largest encountered stack size and updates it accordingly.
 
 \section{Appendix A - Bugs and mistakes}
-\subsection*{Multidimensional Arrays}
+\subsection{Multidimensional Arrays}
 Handling, or rather not handling, multidimensional arrays was a bit tricky, due to how the java syntax uses square brackets. The example below demonstrates some of the issues.
 
 Assume that a and i are variables of types |int[]| and int.
@@ -168,7 +168,7 @@ To differentiate between these examples, TypeCheckVisitor must be able to differ
 \subsubsection*{Solution}
 We ended up introducing a new artifical type called |new int[]| that indicates that the array is initialized in this very statement and might not be accessible the same way as an old array. However in the case of the third example the parentheses enclosing the expression of type |new int[]| makes it possible to treat it just like any |int[]|. Therefore, when visiting the node corresponding to a parenthesis expression, an inner expression of type |new int[]| is converted to |int[]|. When visiting a node corresponding to array access, only expressions of type |int[]| are allowed.
 
-\subsection*{Calculating Stack Size}
+\subsection{Calculating Stack Size}
 One interesting bug we had when attempting to calculate the stack size for the JVM was that the stack was incorrectly calculated for some tests. We looked at one of the tests and found the menacing expression to be:
 
 |ret = num*this.calc(num-1);|
